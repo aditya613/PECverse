@@ -31,3 +31,7 @@ vendor/
 
 # Ignore log files
 *.log
+
+# AI & Agent Configs
+.agents/
+skills-lock.json
