@@ -18,7 +18,7 @@
       "versionCode": 1,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
-        "backgroundColor": "#208AEF"
+        "backgroundColor": "#0c0822"
       },
       "googleServicesFile": "./google-services.json",
       "predictiveBackGestureEnabled": false
@@ -32,7 +32,7 @@
       [
         "expo-splash-screen",
         {
-          "backgroundColor": "#208AEF",
+          "backgroundColor": "#0c0822",
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }

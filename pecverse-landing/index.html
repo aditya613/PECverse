@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PECverse | Your Campus, Unified</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --glass-bg: rgba(9, 13, 22, 0.45);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --accent: #60A5FA;
+            --accent-glow: rgba(96, 165, 250, 0.4);
+            --text-primary: #FFFFFF;
+            --text-secondary: #94A3B8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-color: #050505;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            background-image: linear-gradient(to bottom, rgba(5,5,5,0.7), rgba(5,5,5,0.9)), url('./assets/bg.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-repeat: no-repeat;
+        }
+
+        /* Navigation */
+        nav {
+            padding: 20px 48px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            background: rgba(5, 5, 5, 0.4);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        .logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text-primary);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 120px 24px 60px;
+            position: relative;
+        }
+
+        .hero-img-container {
+            margin-bottom: 40px;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .hero-img-container img {
+            width: 160px;
+            height: 160px;
+            border-radius: 36px;
+            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 80px var(--accent-glow);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        h1 {
+            font-size: 84px;
+            font-weight: 900;
+            letter-spacing: -3px;
+            line-height: 1;
+            margin-bottom: 24px;
+            background: linear-gradient(135deg, #ffffff 0%, #94A3B8 100%);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            max-width: 900px;
+        }
+
+        .subtitle {
+            font-size: 24px;
+            color: var(--text-secondary);
+            max-width: 600px;
+            line-height: 1.5;
+            margin-bottom: 50px;
+            font-weight: 400;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border-radius: 100px;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-primary {
+            background: rgba(255, 255, 255, 0.95);
+            color: #000;
+            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
+        }
+
+        .btn-primary:hover {
+            background: #ffffff;
+            transform: scale(1.05);
+        }
+
+        .btn-secondary {
+            background: var(--glass-bg);
+            color: var(--text-primary);
+            border: 1px solid var(--glass-border);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: scale(1.05);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 24px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 80px;
+        }
+
+        .section-header h2 {
+            font-size: 48px;
+            font-weight: 800;
+            letter-spacing: -1.5px;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 30px;
+        }
+
+        .glass-card {
+            background: linear-gradient(180deg, rgba(30, 35, 50, 0.4) 0%, rgba(15, 18, 25, 0.6) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 32px;
+            padding: 40px;
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .glass-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+
+        .glass-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+        }
+
+        .card-icon {
+            font-size: 32px;
+            margin-bottom: 24px;
+            background: rgba(255, 255, 255, 0.05);
+            width: 64px; height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .glass-card h3 {
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .glass-card p {
+            color: var(--text-secondary);
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding: 60px 24px;
+            text-align: center;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(20px);
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .footer-logo img {
+            width: 24px;
+            height: 24px;
+            border-radius: 6px;
+        }
+
+        .footer-links {
+            margin-top: 24px;
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 15px;
+            transition: color 0.2s;
+        }
+
+        .footer-links a:hover {
+            color: var(--text-primary);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 56px; }
+            .subtitle { font-size: 20px; }
+            .cta-group { flex-direction: column; width: 100%; max-width: 320px; }
+            .btn { width: 100%; justify-content: center; }
+            nav { padding: 20px; }
+            .nav-links { display: none; }
+            .hero-img-container img { width: 120px; height: 120px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            <img src="./assets/logo.png" alt="PECverse Logo">
+            PECverse
+        </div>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#download">Download</a>
+            <a href="./child-safety-standards.html">Safety</a>
+        </div>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-img-container">
+            <img src="./assets/logo.png" alt="PECverse App Icon">
+        </div>
+        <h1>Your Campus.<br>Unified.</h1>
+        <p class="subtitle">Experience the ultimate digital ecosystem for Punjab Engineering College. Manage attendance, track schedules, and access resources in a breathtaking interface.</p>
+        
+        <div class="cta-group">
+            <a href="#download" class="btn btn-primary">Download App</a>
+            <a href="#features" class="btn btn-secondary">Explore Features</a>
+        </div>
+    </div>
+
+    <section id="features" class="features">
+        <div class="section-header">
+            <h2>Everything you need.</h2>
+        </div>
+
+        <div class="grid">
+            <div class="glass-card">
+                <div class="card-icon">📅</div>
+                <h3>Dynamic Timetables</h3>
+                <p>Never miss a class. Real-time scheduling that automatically adjusts for single-day exceptions, cancellations, and extra lectures with zero effort.</p>
+            </div>
+            
+            <div class="glass-card">
+                <div class="card-icon">📊</div>
+                <h3>Smart Attendance</h3>
+                <p>Track your bunks securely. Zero-drift database counters ensure your 75% aggregate is always calculated with absolute precision.</p>
+            </div>
+
+            <div class="glass-card">
+                <div class="card-icon">📚</div>
+                <h3>Resource Vault</h3>
+                <p>Access notes, past papers, and critical resources shared by your CRs. Fast, organized, and always available offline right in your pocket.</p>
+            </div>
+
+            <div class="glass-card">
+                <div class="card-icon">🍽️</div>
+                <h3>Live Mess Menu</h3>
+                <p>Check what's cooking in the hostel mess directly from your dashboard. Daily updates and special weekend menus at a glance.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-logo">
+            <img src="./assets/logo.png" alt="Logo">
+            PECverse
+        </div>
+        <p style="color: var(--text-secondary);">&copy; 2026 PECverse. Crafted for Punjab Engineering College.</p>
+        <div class="footer-links">
+            <a href="./child-safety-standards.html">Child Safety Standards</a>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Service</a>
+        </div>
+    </footer>
+
+</body>
+</html>

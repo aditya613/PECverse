@@ -22,7 +22,6 @@ export function AnimatedPressable({ children, style, scaleTo = 0.96, ...props }:
       {...props}
       style={[style, animatedStyle]}
       onPressIn={(e) => {
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         scale.value = withSpring(scaleTo, { damping: 12, stiffness: 200 });
         props.onPressIn?.(e);
       }}

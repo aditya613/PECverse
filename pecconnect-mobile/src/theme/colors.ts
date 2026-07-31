@@ -11,6 +11,10 @@ export const colors = {
   cardBackgroundElevated: '#1A263D', // Highlighted Card Surface
   cardBorder: '#202D45', // Subtle Slate Divider Border
   
+  // Premium Glass Surfaces
+  glassBackground: 'rgba(19, 28, 46, 0.45)', // Translucent Card
+  glassBorder: 'rgba(255, 255, 255, 0.08)', // Ultra-thin frosted rim
+  
   // Primary Text & Labels
   label: '#F8FAFC', // Pure Bright White Text
   secondaryLabel: '#94A3B8', // Slate Subtitle Text

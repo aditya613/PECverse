@@ -9,10 +9,12 @@ interface GlassCardProps extends ViewProps {
   elevated?: boolean;
 }
 
-export function GlassCard({ children, style, intensity = 30, elevated = false, ...props }: GlassCardProps) {
+export function GlassCard({ children, style, intensity = 40, elevated = false, ...props }: GlassCardProps) {
   return (
     <View style={styles.shadowWrapper}>
-      <View 
+      <BlurView 
+        intensity={intensity}
+        tint="dark"
         style={[
           styles.card, 
           elevated && styles.elevatedCard,
@@ -21,7 +23,7 @@ export function GlassCard({ children, style, intensity = 30, elevated = false, .
         {...props}
       >
         {children}
-      </View>
+      </BlurView>
     </View>
   );
 }
@@ -31,25 +33,25 @@ const styles = StyleSheet.create({
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 6 },
-        shadowOpacity: 0.25,
-        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.35,
+        shadowRadius: 20,
       },
       android: {
-        elevation: 4,
+        elevation: 6,
       },
     }),
   },
   card: {
-    backgroundColor: colors.cardBackground,
+    backgroundColor: colors.glassBackground, // Translucent glass surface
     borderRadius: 20,
     padding: 18,
     borderWidth: 1,
-    borderColor: colors.cardBorder,
+    borderColor: colors.glassBorder, // Ultra-thin frosted border
     overflow: 'hidden',
   },
   elevatedCard: {
-    backgroundColor: colors.cardBackgroundElevated,
+    backgroundColor: 'rgba(26, 38, 61, 0.65)',
     borderColor: colors.glowBorder,
   },
 });

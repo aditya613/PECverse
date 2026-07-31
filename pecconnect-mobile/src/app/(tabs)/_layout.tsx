@@ -2,6 +2,7 @@ import { Tabs } from 'expo-router';
 import { StyleSheet, View, Platform } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors } from '@/theme/colors';
+import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 
 export default function TabLayout() {
@@ -10,8 +11,9 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colors.cardBackground, // Dark elevated card surface
-          borderTopColor: colors.cardBorder,
+          backgroundColor: 'transparent', // Make true transparent for BlurView to work
+          borderTopWidth: 1,
+          borderTopColor: colors.glassBorder, // Subtle glass rim
           height: Platform.OS === 'ios' ? 88 : 64,
           paddingBottom: Platform.OS === 'ios' ? 28 : 8,
           paddingTop: 8,
@@ -19,12 +21,15 @@ export default function TabLayout() {
           bottom: 0,
           left: 0,
           right: 0,
-          elevation: 8,
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: -4 },
-          shadowOpacity: 0.3,
-          shadowRadius: 10,
+          elevation: 0, // Remove solid shadow to prevent clipping the blur
         },
+        tabBarBackground: () => (
+          <BlurView 
+            tint="dark" 
+            intensity={80} 
+            style={StyleSheet.absoluteFill} 
+          />
+        ),
         tabBarActiveTintColor: colors.accent, // Electric Blue active tint
         tabBarInactiveTintColor: colors.tertiaryLabel, // Slate muted inactive tint
         tabBarShowLabel: true,
@@ -34,11 +39,7 @@ export default function TabLayout() {
           marginTop: 2,
         },
       }}
-      screenListeners={{
-        tabPress: () => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        },
-      }}
+      // Haptics removed on tab press to prevent buzzing on every navigation tap
     >
       <Tabs.Screen
         name="dashboard/index"

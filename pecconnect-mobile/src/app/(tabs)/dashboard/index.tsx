@@ -13,6 +13,8 @@ import { ClassCard } from '@/components/timetable/ClassCard';
 import { DashboardMessWidget } from '@/components/dashboard/DashboardMessWidget';
 import { AttendanceWidget } from '@/components/dashboard/AttendanceWidget';
 
+import { LinearGradient } from 'expo-linear-gradient';
+
 interface Announcement {
   id: number;
   title: string;
@@ -55,6 +57,12 @@ export default function DashboardScreen() {
 
   return (
     <View style={styles.container}>
+      <LinearGradient
+        colors={['#090D16', '#1A233A', '#0B132B']}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
+        style={StyleSheet.absoluteFill}
+      />
       <ScrollView
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.contentContainer}
