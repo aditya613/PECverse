@@ -1,4 +1,4 @@
-{
+export default {
   "expo": {
     "name": "PECverse",
     "slug": "pecverse-mobile",
@@ -20,7 +20,7 @@
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundColor": "#0c0822"
       },
-      "googleServicesFile": "./google-services.json",
+      "googleServicesFile": process.env.GOOGLE_SERVICES_JSON || "./google-services.json",
       "predictiveBackGestureEnabled": false
     },
     "web": {
@@ -69,4 +69,4 @@
       "url": "https://u.expo.dev/999365ed-edd9-4525-9357-1edf51149ed7"
     }
   }
-}
+};
