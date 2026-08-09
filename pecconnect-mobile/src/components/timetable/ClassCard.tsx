@@ -1,5 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Animated, { 
+  useSharedValue, 
+  useAnimatedStyle, 
+  withRepeat, 
+  withSequence, 
+  withTiming 
+} from 'react-native-reanimated';
 import { colors } from '@/theme/colors';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
@@ -27,6 +34,26 @@ export function ClassCard({ data, onPress }: Props) {
   const isRescheduled = data.status === 'rescheduled';
   const isExtra = data.status === 'extra';
 
+  // Pulsing animation for active class
+  const pulseOpacity = useSharedValue(0.1);
+
+  useEffect(() => {
+    if (data.isActive) {
+      pulseOpacity.value = withRepeat(
+        withSequence(
+          withTiming(0.6, { duration: 1000 }),
+          withTiming(0.1, { duration: 1000 })
+        ),
+        -1, // infinite
+        true // reverse
+      );
+    }
+  }, [data.isActive]);
+
+  const pulsingStyle = useAnimatedStyle(() => ({
+    opacity: pulseOpacity.value,
+  }));
+
   // Extract clean HH:MM string
   const formatTime = (timeStr: string) => {
     if (!timeStr) return '';
@@ -39,9 +66,14 @@ export function ClassCard({ data, onPress }: Props) {
         style={[
           styles.card,
           isCancelled && styles.cancelledCard,
-          data.isActive && styles.activeCard
+          data.isActive && styles.activeCardBase
         ]}
       >
+        {/* Animated Glowing Overlay for Active Class */}
+        {data.isActive && (
+          <Animated.View style={[styles.activeGlowOverlay, pulsingStyle]} pointerEvents="none" />
+        )}
+
         {/* Left vertical status indicator stripe */}
         <View 
           style={[
@@ -79,7 +111,7 @@ export function ClassCard({ data, onPress }: Props) {
             )}
             {data.isActive && !isCancelled && (
               <View style={styles.activeBadge}>
-                <Text style={styles.activeBadgeText}>NOW</Text>
+                <Text style={styles.activeBadgeText}>HAPPENING NOW</Text>
               </View>
             )}
           </View>
@@ -120,9 +152,17 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(239, 68, 68, 0.04)',
     borderColor: 'rgba(239, 68, 68, 0.2)',
   },
-  activeCard: {
+  activeCardBase: {
     borderColor: colors.accent,
     backgroundColor: 'rgba(59, 130, 246, 0.08)',
+    overflow: 'hidden', // so the overlay doesn't bleed out
+  },
+  activeGlowOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: 'rgba(59, 130, 246, 0.15)',
+    borderWidth: 2,
+    borderColor: 'rgba(59, 130, 246, 0.8)',
+    borderRadius: 20,
   },
   verticalStripe: {
     width: 4,

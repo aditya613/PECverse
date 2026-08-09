@@ -10,6 +10,9 @@ import * as SplashScreen from 'expo-splash-screen';
 import { usePushNotifications } from '@/hooks/usePushNotifications';
 import { NotificationPermissionModal } from '@/components/ui/NotificationPermissionModal';
 
+// Export global ErrorBoundary to catch and display React render errors gracefully
+export { ErrorBoundary } from 'expo-router';
+
 // Prevent auto-hiding the splash screen until our auth check finishes.
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */

@@ -62,6 +62,13 @@ export default function LoginScreen() {
       console.error('Login Failed', error.response?.data || error.message);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       alert(error.response?.data?.message || 'Login failed. Please use your @pec.edu.in email.');
+      
+      // CRITICAL FIX: Sign out of Google SDK so the user isn't stuck in a silent login loop with the wrong email
+      try {
+        await GoogleSignin.signOut();
+      } catch (e) {
+        console.error('Failed to sign out of Google SDK', e);
+      }
     }
   };
 

@@ -12,6 +12,8 @@ import { useTimetable } from '@/hooks/useTimetable';
 import { ClassCard } from '@/components/timetable/ClassCard';
 import { DashboardMessWidget } from '@/components/dashboard/DashboardMessWidget';
 import { AttendanceWidget } from '@/components/dashboard/AttendanceWidget';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
+import { DashboardNextClassWidget } from '@/components/dashboard/DashboardNextClassWidget';
 
 import { LinearGradient } from 'expo-linear-gradient';
 
@@ -95,6 +97,11 @@ export default function DashboardScreen() {
           </AnimatedPressable>
         </View>
 
+        {/* LIVE COUNTDOWN WIDGET */}
+        {!isTimetableLoading && todayClasses.length > 0 && (
+          <DashboardNextClassWidget todayClasses={todayClasses} />
+        )}
+
         {/* TODAY'S CLASSES CARD CONTAINER */}
         <GlassCard style={styles.scheduleCardWrapper}>
           <View style={styles.scheduleCardHeader}>
@@ -112,7 +119,10 @@ export default function DashboardScreen() {
           </View>
 
           {isTimetableLoading ? (
-            <ActivityIndicator size="small" color={colors.accent} style={{ marginVertical: 20 }} />
+            <View style={styles.classesVerticalList}>
+              <SkeletonCard type="class" />
+              <SkeletonCard type="class" />
+            </View>
           ) : todayClasses.length === 0 ? (
             <View style={styles.emptyBox}>
               <Text style={styles.emptyText}>No classes scheduled for today! 🎉</Text>
@@ -140,7 +150,10 @@ export default function DashboardScreen() {
         {/* Real Announcements Feed */}
         <View style={styles.feedContainer}>
           {isLoading && !isRefetching ? (
-            <ActivityIndicator size="small" color={colors.accent} style={{ marginVertical: 20 }} />
+            <>
+              <SkeletonCard type="announcement" />
+              <SkeletonCard type="announcement" />
+            </>
           ) : !announcements || announcements.length === 0 ? (
             <GlassCard style={styles.emptyBox}>
               <Text style={styles.emptyText}>No announcements posted yet.</Text>

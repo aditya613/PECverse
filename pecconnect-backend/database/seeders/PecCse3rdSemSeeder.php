@@ -28,48 +28,51 @@ class PecCse3rdSemSeeder extends Seeder
             ['cr_user_id' => null]
         );
 
+        // Clear existing slots for these groups to prevent duplicates
+        Timetable::whereIn('class_id', [$g1->id, $g2->id])->delete();
+
         // ==========================================
         // 3. SEED G1 TIMETABLE (Roll 1 to 64)
+        // Groups: CSE1(1-21), CSE2(22-43), CSE3(44-64)
         // ==========================================
         $g1Schedule = [
             // MONDAY
-            ['day' => 1, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'HSM-II (Lecture - All G1)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407'],
-            ['day' => 1, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3002 DSML (Lecture - All G1)', 'teacher' => 'Poonam Saini', 'room' => 'L21'],
-            ['day' => 1, 'period' => 7, 'start' => '14:00:00', 'end' => '16:00:00', 'subject' => 'CSN3002 DSML Lab (Roll 1-61: CSE1,2,3)', 'teacher' => 'Poonam Saini', 'room' => 'Labs 301, 303, 306'],
-            ['day' => 1, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3003 DSCS Tut (Roll 62-64: CSE4)', 'teacher' => 'Amandeep Kaur', 'room' => 'Room 304, 305'],
-            ['day' => 1, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization Course (Optional)', 'teacher' => 'MSC Dept', 'room' => 'L21'],
-            ['day' => 1, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00', 'subject' => 'CSN3004 OOP Lab (Roll 1-61: CSE1,2,3)', 'teacher' => 'TF4', 'room' => 'Labs 304, 301, 306'],
-            ['day' => 1, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00', 'subject' => 'CSN3001 Data Str Lab (Roll 62-64: CSE4)', 'teacher' => 'Mayank Gupta', 'room' => 'Lab 303'],
-
+            ['day' => 1, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'HSM-II G1-G4', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407'],
+            ['day' => 1, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3002 DSML (G1)', 'teacher' => 'Poonam Saini', 'room' => 'L21'],
+            ['day' => 1, 'period' => 7, 'start' => '14:00:00', 'end' => '16:00:00', 'subject' => 'CSN3001 Data Str Lab (CSE1, CSE2: Roll 1-43)', 'teacher' => 'Mayank Gupta', 'room' => '301, 303'],
+            ['day' => 1, 'period' => 7, 'start' => '14:00:00', 'end' => '16:00:00', 'subject' => 'CSN3004 OOP Lab (CSE3: Roll 44-64)', 'teacher' => 'Dr. Satnam Kaur', 'room' => '306'],
+            ['day' => 1, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization course', 'teacher' => 'MSC Dept', 'room' => 'L29'],
+            
             // TUESDAY
-            ['day' => 2, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'CSN3003 DSCS (Lecture - All G1)', 'teacher' => 'Amandeep Kaur', 'room' => 'L21'],
-            ['day' => 2, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3002 DSML / CSN3001 DS (Lecture)', 'teacher' => 'Poonam Saini / Mayank Gupta', 'room' => 'L22 / L21'],
-            ['day' => 2, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II (Lecture - All G1)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9'],
-            ['day' => 2, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3003 DSCS Tut (Roll 1-41: CSE1, CSE2)', 'teacher' => 'Amandeep Kaur', 'room' => 'Room 301, 303'],
-            ['day' => 2, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization Course (Optional)', 'teacher' => 'MSC Dept', 'room' => 'L21'],
+            ['day' => 2, 'period' => 1, 'start' => '08:00:00', 'end' => '10:00:00', 'subject' => 'CSN3004 OOP Lab (CSE1, CSE2: Roll 1-43)', 'teacher' => 'Dr. Satnam Kaur', 'room' => '304, 301'],
+            ['day' => 2, 'period' => 1, 'start' => '08:00:00', 'end' => '10:00:00', 'subject' => 'CSN3001 Data Str Lab (CSE3: Roll 44-64)', 'teacher' => 'Mayank Gupta', 'room' => '306'],
+            ['day' => 2, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'CSN3003 DSCS (G1)', 'teacher' => 'Amandeep Kaur', 'room' => 'L21'],
+            ['day' => 2, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3004 OOP (G1)', 'teacher' => 'Dr. Satnam Kaur', 'room' => 'L21'],
+            ['day' => 2, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3001 DS (G1)', 'teacher' => 'Mayank Gupta', 'room' => 'L21'],
+            ['day' => 2, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II G1-G4', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9'],
+            ['day' => 2, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3003 Tut (CSE1, CSE2: Roll 1-43)', 'teacher' => 'Amandeep Kaur', 'room' => '301, 303'],
+            ['day' => 2, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization course', 'teacher' => 'MSC Dept', 'room' => 'L21'],
 
             // WEDNESDAY
-            ['day' => 3, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3002 DSML (Lecture - All G1)', 'teacher' => 'Poonam Saini', 'room' => 'L21'],
-            ['day' => 3, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3004 OOP (Lecture - All G1)', 'teacher' => 'TF4', 'room' => 'L21'],
-            ['day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II Tutorial (All G1)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9, T-11, T-12'],
-            ['day' => 3, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3001 Data Str (Lecture - All G1)', 'teacher' => 'Mayank Gupta', 'room' => 'L21'],
-            ['day' => 3, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization Course (Optional)', 'teacher' => 'MSC Dept', 'room' => 'L21'],
-            ['day' => 3, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00', 'subject' => 'CSN3001 Data Str Lab (Roll 1-61: CSE1,2,3)', 'teacher' => 'Mayank Gupta', 'room' => 'Labs 301, 303, 306'],
-            ['day' => 3, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00', 'subject' => 'CSN3004 OOP Lab (Roll 62-64: CSE4)', 'teacher' => 'TF4, TF5', 'room' => 'DS Lab / 304'],
+            ['day' => 3, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3002 DSML (G1)', 'teacher' => 'Poonam Saini', 'room' => 'L21'],
+            ['day' => 3, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3004 OOP (G1)', 'teacher' => 'Dr. Satnam Kaur', 'room' => 'L21'],
+            ['day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II (T)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T-11, T-12'],
+            ['day' => 3, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3001 DS (G1)', 'teacher' => 'Mayank Gupta', 'room' => 'L21'],
+            ['day' => 3, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization course', 'teacher' => 'MSC Dept', 'room' => 'L21'],
+            ['day' => 3, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00', 'subject' => 'CSN3002 DSML Lab (CSE1, CSE2, CSE3: Roll 1-64)', 'teacher' => 'Poonam Saini', 'room' => '301, 303, 306'],
 
             // THURSDAY
-            ['day' => 4, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'CSN3003 DSCS (Lecture - All G1)', 'teacher' => 'Amandeep Kaur', 'room' => 'L21'],
-            ['day' => 4, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3004 OOP (Lecture - All G1)', 'teacher' => 'TF4', 'room' => 'L21'],
-            ['day' => 4, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3002 DSML (Lecture - All G1)', 'teacher' => 'Poonam Saini', 'room' => 'L21'],
-            ['day' => 4, 'period' => 7, 'start' => '14:00:00', 'end' => '16:00:00', 'subject' => 'CSN3002 DSML Lab (Roll 42-64: CSE3, CSE4)', 'teacher' => 'Poonam Saini', 'room' => 'Lab 303'],
-            ['day' => 4, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'HSM-II Tutorial (All G1)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T11, T-12'],
+            ['day' => 4, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'CSN3002 DSML (G1)', 'teacher' => 'Poonam Saini', 'room' => 'L21'],
+            ['day' => 4, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'CSN3003 DSCS (G1)', 'teacher' => 'Amandeep Kaur', 'room' => 'L21'],
+            ['day' => 4, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3004 OOP (G1)', 'teacher' => 'Dr. Satnam Kaur', 'room' => 'L21'],
+            ['day' => 4, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3001 DS (G1)', 'teacher' => 'Mayank Gupta', 'room' => 'L21'],
+            ['day' => 4, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'HSM-II (T)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T-11, T-12'],
 
             // FRIDAY
-            ['day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'CSN3003 DSCS Tut (Roll 42-61: CSE3)', 'teacher' => 'Amandeep Kaur', 'room' => 'Tutorial Room'],
-            ['day' => 5, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3004 OOP (Lecture - All G1)', 'teacher' => 'TF4', 'room' => 'L21'],
-            ['day' => 5, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3001 Data Str (Lecture - All G1)', 'teacher' => 'Mayank Gupta', 'room' => 'L21'],
-            ['day' => 5, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II Tutorial (All G1)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9, T-11, T-12'],
-            ['day' => 5, 'period' => 8, 'start' => '15:00:00', 'end' => '17:00:00', 'subject' => 'Minor Spec. Course Tute / Practical', 'teacher' => 'MSC Dept', 'room' => 'DS Lab'],
+            ['day' => 5, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'CSN3003 Tut (CSE3: Roll 44-64)', 'teacher' => 'Amandeep Kaur', 'room' => 'L21'],
+            ['day' => 5, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3003 DSCS (G1)', 'teacher' => 'Amandeep Kaur', 'room' => 'L22'],
+            ['day' => 5, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II (T)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T-11, T-12'],
+            ['day' => 5, 'period' => 8, 'start' => '15:00:00', 'end' => '17:00:00', 'subject' => 'Minor Spec course Tute/Practical', 'teacher' => 'MSC Dept', 'room' => 'DS Lab'],
         ];
 
         foreach ($g1Schedule as $slot) {
@@ -78,45 +81,47 @@ class PecCse3rdSemSeeder extends Seeder
 
         // ==========================================
         // 4. SEED G2 TIMETABLE (Roll 65 to 128)
+        // Groups: CSE4(65-85), CSE5(86-106), CSE6(107-128)
         // ==========================================
         $g2Schedule = [
             // MONDAY
-            ['day' => 1, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'HSM-II (Lecture - All G2)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407'],
-            ['day' => 1, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3001 Data Str (Lecture - All G2)', 'teacher' => 'Mayank Gupta', 'room' => 'L22'],
-            ['day' => 1, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'CSN3004 OOP (Lecture - All G2)', 'teacher' => 'TF5', 'room' => 'L22'],
-            ['day' => 1, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3003 DSCS Tut (Roll 65-105: CSE4, CSE5)', 'teacher' => 'Amandeep Kaur', 'room' => 'Room 304, 305'],
-            ['day' => 1, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization Course (Optional)', 'teacher' => 'MSC Dept', 'room' => 'L21'],
-            ['day' => 1, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00', 'subject' => 'CSN3001 Data Str Lab (Roll 65-128: CSE4, CSE5, CSE6)', 'teacher' => 'Mayank Gupta', 'room' => 'Lab 303 + DS Lab'],
+            ['day' => 1, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'HSM-II G1-G4', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407'],
+            ['day' => 1, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3001 Data Str (G2)', 'teacher' => 'Mayank Gupta', 'room' => 'L22'],
+            ['day' => 1, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'CSN3004 OOP (G2)', 'teacher' => 'Dr. Amita', 'room' => 'L22'],
+            ['day' => 1, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3003 Tut (CSE4, CSE5: Roll 65-106)', 'teacher' => 'Amandeep Kaur', 'room' => '304'],
+            ['day' => 1, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization course', 'teacher' => 'MSC Dept', 'room' => 'L29'],
+            ['day' => 1, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00', 'subject' => 'CSN3001 Data Str Lab (CSE5, CSE6: Roll 86-128)', 'teacher' => 'Mayank Gupta', 'room' => '306, 402'],
 
             // TUESDAY
-            ['day' => 2, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'CSN3004 OOP (Lecture - All G2)', 'teacher' => 'TF5', 'room' => 'L22'],
-            ['day' => 2, 'period' => 3, 'start' => '10:00:00', 'end' => '12:00:00', 'subject' => 'CSN3002 DSML Lab (Roll 84-128: CSE5, CSE6)', 'teacher' => 'Poonam Saini', 'room' => 'Labs 303, 304'],
-            ['day' => 2, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3003 DSCS (Lecture - All G2)', 'teacher' => 'Amandeep Kaur', 'room' => 'L21'],
-            ['day' => 2, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II (Lecture - All G2)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9'],
-            ['day' => 2, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization Course (Optional)', 'teacher' => 'MSC Dept', 'room' => 'L21'],
+            ['day' => 2, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'CSN3004 OOP (G2)', 'teacher' => 'Dr. Amita', 'room' => 'L22'],
+            ['day' => 2, 'period' => 3, 'start' => '10:00:00', 'end' => '12:00:00', 'subject' => 'CSN3002 DSML Lab (CSE5, CSE6: Roll 86-128)', 'teacher' => 'Poonam Saini', 'room' => '303, 304'],
+            ['day' => 2, 'period' => 3, 'start' => '10:00:00', 'end' => '12:00:00', 'subject' => 'CSN3001 Data Str Lab (CSE4: Roll 65-85)', 'teacher' => 'Mayank Gupta', 'room' => 'CL5'],
+            ['day' => 2, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3002 DSML (G2)', 'teacher' => 'Poonam Saini', 'room' => 'L22'],
+            ['day' => 2, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II G1-G4', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9'],
+            ['day' => 2, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization course', 'teacher' => 'MSC Dept', 'room' => 'L21'],
 
             // WEDNESDAY
-            ['day' => 3, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3003 DSCS (Lecture - All G2)', 'teacher' => 'Amandeep Kaur', 'room' => 'L22'],
-            ['day' => 3, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3001 Data Str (Lecture - All G2)', 'teacher' => 'Mayank Gupta', 'room' => 'L22'],
-            ['day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II Tutorial (All G2)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9, T-11, T-12'],
-            ['day' => 3, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3002 DSML (Lecture - All G2)', 'teacher' => 'Poonam Saini', 'room' => 'L22'],
-            ['day' => 3, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization Course (Optional)', 'teacher' => 'MSC Dept', 'room' => 'L21'],
-            ['day' => 3, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00', 'subject' => 'CSN3004 OOP Lab (Roll 65-128: CSE4, CSE5, CSE6)', 'teacher' => 'TF4, TF5', 'room' => 'DS Lab & Room 304'],
+            ['day' => 3, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3003 DSCS (G2)', 'teacher' => 'Amandeep Kaur', 'room' => 'L22'],
+            ['day' => 3, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3001 DS (G2)', 'teacher' => 'Mayank Gupta', 'room' => 'L22'],
+            ['day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II (T)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T-11, T-12'],
+            ['day' => 3, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3002 DSML (G2)', 'teacher' => 'Poonam Saini', 'room' => 'L22'],
+            ['day' => 3, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization course', 'teacher' => 'MSC Dept', 'room' => 'L21'],
+            ['day' => 3, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00', 'subject' => 'CSN3004 OOP Lab (CSE4, CSE5, CSE6: Roll 65-128)', 'teacher' => 'Dr. Amita', 'room' => '304, CL13, CL14'],
 
             // THURSDAY
-            ['day' => 4, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'CSN3004 OOP (Lecture - All G2)', 'teacher' => 'TF5', 'room' => 'L22'],
-            ['day' => 4, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'CSN3002 DSML (Lecture - All G2)', 'teacher' => 'Poonam Saini', 'room' => 'L22'],
-            ['day' => 4, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3003 DSCS (Lecture - All G2)', 'teacher' => 'Amandeep Kaur', 'room' => 'L22'],
-            ['day' => 4, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3001 Data Str (Lecture - All G2)', 'teacher' => 'Mayank Gupta', 'room' => 'L31'],
-            ['day' => 4, 'period' => 7, 'start' => '14:00:00', 'end' => '16:00:00', 'subject' => 'CSN3002 DSML Lab (Roll 65-83: CSE4 in G2)', 'teacher' => 'Poonam Saini', 'room' => 'Lab 303'],
-            ['day' => 4, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3003 DSCS Tut (Roll 106-116: CSE6 Batch A)', 'teacher' => 'Amandeep Kaur', 'room' => 'Tutorial Room'],
-            ['day' => 4, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'HSM-II Tutorial (All G2)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T11, T-12'],
+            ['day' => 4, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'CSN3003 DSCS (G2)', 'teacher' => 'Amandeep Kaur', 'room' => 'L22'],
+            ['day' => 4, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'CSN3002 DSML (G2)', 'teacher' => 'Poonam Saini', 'room' => 'L22'],
+            ['day' => 4, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3004 OOP (G2)', 'teacher' => 'Dr. Amita', 'room' => 'L22'],
+            ['day' => 4, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3003 Tut (CSE5: Roll 86-106)', 'teacher' => 'Amandeep Kaur', 'room' => 'CL5'],
+            ['day' => 4, 'period' => 7, 'start' => '14:00:00', 'end' => '16:00:00', 'subject' => 'CSN3002 DSML Lab (CSE4: Roll 65-85)', 'teacher' => 'Poonam Saini', 'room' => '303'],
+            ['day' => 4, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'CSN3003 Tut (CSE6: Roll 107-128)', 'teacher' => 'Amandeep Kaur', 'room' => 'L21'],
+            ['day' => 4, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'HSM-II (T)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T-11, T-12'],
 
             // FRIDAY
-            ['day' => 5, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'CSN3003 DSCS Tut (Roll 117-128: CSE6 Batch B)', 'teacher' => 'Amandeep Kaur', 'room' => 'Tutorial Room'],
-            ['day' => 5, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3003 DSCS (Lecture - All G2)', 'teacher' => 'Amandeep Kaur', 'room' => 'L22'],
-            ['day' => 5, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II Tutorial (All G2)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9, T-11, T-12'],
-            ['day' => 5, 'period' => 8, 'start' => '15:00:00', 'end' => '17:00:00', 'subject' => 'Minor Spec. Course Tute / Practical', 'teacher' => 'MSC Dept', 'room' => 'DS Lab'],
+            ['day' => 5, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'CSN3003 DSCS (G2)', 'teacher' => 'Amandeep Kaur', 'room' => 'L21'],
+            ['day' => 5, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'CSN3001 DS (G2)', 'teacher' => 'Mayank Gupta', 'room' => 'L21'],
+            ['day' => 5, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM-II (T)', 'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T-11, T-12'],
+            ['day' => 5, 'period' => 8, 'start' => '15:00:00', 'end' => '17:00:00', 'subject' => 'Minor Spec course Tute/Practical', 'teacher' => 'MSC Dept', 'room' => 'DS Lab'],
         ];
 
         foreach ($g2Schedule as $slot) {

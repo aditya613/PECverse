@@ -10,6 +10,7 @@ import { useRouter } from 'expo-router';
 import { api } from '@/utils/api';
 import { useTimetable } from '@/hooks/useTimetable';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
+import { SkeletonCard } from '@/components/ui/SkeletonCard';
 
 export default function TimetableScreen() {
   const user = useAuthStore(state => state.user);
@@ -154,7 +155,12 @@ export default function TimetableScreen() {
           <Text style={styles.dayTitleText}>{formattedDayTitle}</Text>
 
           {isLoading && !isRefetching ? (
-            <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 40 }} />
+            <View style={styles.classesList}>
+              <SkeletonCard type="class" />
+              <SkeletonCard type="class" />
+              <SkeletonCard type="class" />
+              <SkeletonCard type="class" />
+            </View>
           ) : classes.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No classes scheduled for this day! 🎉</Text>
