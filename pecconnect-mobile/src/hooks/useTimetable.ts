@@ -35,8 +35,9 @@ export function useTimetable(targetDate: string) {
   const mergedClasses = useMemo(() => {
     if (!data || !Array.isArray(data)) return [];
     
-    // Convert YYYY-MM-DD to a Date object to extract the day of the week
-    const targetDateObj = new Date(targetDate);
+    // Safely parse YYYY-MM-DD in local time to avoid UTC shift bugs
+    const [year, month, day] = targetDate.split('-');
+    const targetDateObj = new Date(Number(year), Number(month) - 1, Number(day));
     let targetDayOfWeek = targetDateObj.getDay();
     if (targetDayOfWeek === 0) targetDayOfWeek = 7; // Convert Sunday(0) to 7 to match our DB (1-Mon, 7-Sun)
     
