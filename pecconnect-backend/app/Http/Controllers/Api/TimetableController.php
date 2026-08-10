@@ -61,7 +61,7 @@ class TimetableController extends Controller
             : date('M j, Y', strtotime($timetable->date));
             
         Announcement::create([
-            'title' => '🗓️ New Class Scheduled',
+            'title' => 'New Class Scheduled',
             'body' => "A new {$timetable->type} class for **{$timetable->subject}** has been scheduled.\n\n**When:** {$dateStr} at " . date('h:i A', strtotime($timetable->start_time)) . "\n**Room:** " . ($timetable->room ?? 'TBA') . "\n**Teacher:** " . ($timetable->teacher ?? 'TBA'),
             'class_id' => $timetable->class_id,
             'posted_by' => $user->id,
@@ -87,7 +87,7 @@ class TimetableController extends Controller
 
         // Auto-generate Announcement
         Announcement::create([
-            'title' => '🗑️ Class Removed',
+            'title' => 'Class Removed',
             'body' => "The {$type} class for **{$subject}** has been permanently removed from the timetable.",
             'class_id' => $classId,
             'posted_by' => $user->id,
@@ -151,7 +151,7 @@ class TimetableController extends Controller
             $dateStr = date('M j, Y', strtotime($override->date));
             $reasonStr = $override->reason ? "\n**Reason:** {$override->reason}" : "";
             Announcement::create([
-                'title' => '❌ Class Cancelled',
+                'title' => 'Class Cancelled',
                 'body' => "The class for **{$override->subject}** scheduled on **{$dateStr}** has been cancelled.{$reasonStr}",
                 'class_id' => $override->class_id,
                 'posted_by' => $user->id,

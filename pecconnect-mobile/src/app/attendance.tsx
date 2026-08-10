@@ -71,7 +71,7 @@ export default function AttendanceScreen() {
               totalClasses === 0 
                 ? "Add subjects below to track your attendance." 
                 : overallAggregate >= 75 
-                  ? `On track! 🎉 You can safely miss ${safeBunks} class${safeBunks !== 1 ? 'es' : ''} overall.`
+                  ? `On track! You can safely miss ${safeBunks} class${safeBunks !== 1 ? 'es' : ''} overall.`
                   : `Action needed ⚠️ You must attend the next ${classesToAttend} class${classesToAttend !== 1 ? 'es' : ''} to reach 75%.`
             }
           />
@@ -170,8 +170,8 @@ export default function AttendanceScreen() {
                   {subTotal > 0 && (
                     <Text style={[styles.insightText, { color: pct >= 75 ? colors.success : colors.destructive }]}>
                       {pct >= 75 
-                        ? `✅ On track. You can safely miss ${Math.max(0, Math.floor((sub.attended_classes - 0.75 * subTotal) / 0.75))} more class${Math.max(0, Math.floor((sub.attended_classes - 0.75 * subTotal) / 0.75)) !== 1 ? 'es' : ''}.`
-                        : `⚠️ At risk. You must attend the next ${Math.max(0, 3 * subTotal - 4 * sub.attended_classes)} class${Math.max(0, 3 * subTotal - 4 * sub.attended_classes) !== 1 ? 'es' : ''} to reach 75%.`
+                        ? `On track. You can safely miss ${Math.max(0, Math.floor((sub.attended_classes - 0.75 * subTotal) / 0.75))} more class${Math.max(0, Math.floor((sub.attended_classes - 0.75 * subTotal) / 0.75)) !== 1 ? 'es' : ''}.`
+                        : `At risk. You must attend the next ${Math.max(0, 3 * subTotal - 4 * sub.attended_classes)} class${Math.max(0, 3 * subTotal - 4 * sub.attended_classes) !== 1 ? 'es' : ''} to reach 75%.`
                       }
                     </Text>
                   )}
@@ -236,7 +236,7 @@ export default function AttendanceScreen() {
                   <View key={log.id} style={styles.logRow}>
                     <View style={styles.logInfo}>
                       <Text style={[styles.logType, { color: log.type === 'attended' ? colors.success : colors.destructive }]}>
-                        {log.type === 'attended' ? '✅ Attended' : '❌ Missed'}
+                        {log.type === 'attended' ? 'Attended' : 'Missed'}
                       </Text>
                       <Text style={styles.logDate}>
                         {new Date(log.created_at).toLocaleDateString(undefined, { 

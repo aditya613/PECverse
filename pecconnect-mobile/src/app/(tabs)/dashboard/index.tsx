@@ -60,7 +60,7 @@ export default function DashboardScreen() {
   return (
     <View style={styles.container}>
       <LinearGradient
-        colors={['#090D16', '#1A233A', '#0B132B']}
+        colors={['#09090B', '#18181B', '#09090B']}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
         style={StyleSheet.absoluteFill}
@@ -82,7 +82,7 @@ export default function DashboardScreen() {
           <View style={styles.greetingGroup}>
             <Text style={styles.greetingText}>{getGreeting()}</Text>
             <Text style={styles.nameText}>
-              {user?.name ? user.name.split(' ')[0] : 'Student'} 👋
+              {user?.name ? user.name.split(' ')[0] : 'Student'}
             </Text>
             <Text style={styles.studentMetaText}>
               {user?.roll_no || 'Student'} • {user?.courseClass?.branch?.code || 'PEC'} • {user?.role === 'cr' ? 'CR' : 'Student'}
@@ -125,7 +125,7 @@ export default function DashboardScreen() {
             </View>
           ) : todayClasses.length === 0 ? (
             <View style={styles.emptyBox}>
-              <Text style={styles.emptyText}>No classes scheduled for today! 🎉</Text>
+              <Text style={styles.emptyText}>No classes scheduled for today.</Text>
             </View>
           ) : (
             <View style={styles.classesVerticalList}>

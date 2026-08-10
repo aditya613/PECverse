@@ -34,15 +34,15 @@ export function ClassCard({ data, onPress }: Props) {
   const isRescheduled = data.status === 'rescheduled';
   const isExtra = data.status === 'extra';
 
-  // Pulsing animation for active class
-  const pulseOpacity = useSharedValue(0.1);
+  // Pulsing animation for active indicator dot
+  const pulseOpacity = useSharedValue(0.4);
 
   useEffect(() => {
     if (data.isActive) {
       pulseOpacity.value = withRepeat(
         withSequence(
-          withTiming(0.6, { duration: 1000 }),
-          withTiming(0.1, { duration: 1000 })
+          withTiming(1, { duration: 800 }),
+          withTiming(0.4, { duration: 800 })
         ),
         -1, // infinite
         true // reverse
@@ -50,8 +50,9 @@ export function ClassCard({ data, onPress }: Props) {
     }
   }, [data.isActive]);
 
-  const pulsingStyle = useAnimatedStyle(() => ({
+  const pulsingDotStyle = useAnimatedStyle(() => ({
     opacity: pulseOpacity.value,
+    transform: [{ scale: pulseOpacity.value * 1.2 }],
   }));
 
   // Extract clean HH:MM string
@@ -69,10 +70,6 @@ export function ClassCard({ data, onPress }: Props) {
           data.isActive && styles.activeCardBase
         ]}
       >
-        {/* Animated Glowing Overlay for Active Class */}
-        {data.isActive && (
-          <Animated.View style={[styles.activeGlowOverlay, pulsingStyle]} pointerEvents="none" />
-        )}
 
         {/* Left vertical status indicator stripe */}
         <View 
@@ -111,7 +108,8 @@ export function ClassCard({ data, onPress }: Props) {
             )}
             {data.isActive && !isCancelled && (
               <View style={styles.activeBadge}>
-                <Text style={styles.activeBadgeText}>HAPPENING NOW</Text>
+                <Animated.View style={[styles.activeDot, pulsingDotStyle]} />
+                <Text style={styles.activeBadgeText}>LIVE</Text>
               </View>
             )}
           </View>
@@ -144,8 +142,8 @@ const styles = StyleSheet.create({
     padding: 16,
     gap: 14,
     backgroundColor: colors.cardBackground,
-    borderRadius: 20,
-    borderWidth: 1,
+    borderRadius: 16,
+    borderWidth: StyleSheet.hairlineWidth,
     borderColor: colors.cardBorder,
   },
   cancelledCard: {
@@ -154,15 +152,7 @@ const styles = StyleSheet.create({
   },
   activeCardBase: {
     borderColor: colors.accent,
-    backgroundColor: 'rgba(59, 130, 246, 0.08)',
-    overflow: 'hidden', // so the overlay doesn't bleed out
-  },
-  activeGlowOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(59, 130, 246, 0.15)',
-    borderWidth: 2,
-    borderColor: 'rgba(59, 130, 246, 0.8)',
-    borderRadius: 20,
+    backgroundColor: 'rgba(59, 130, 246, 0.04)',
   },
   verticalStripe: {
     width: 4,
@@ -235,15 +225,25 @@ const styles = StyleSheet.create({
     fontWeight: '800',
   },
   activeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
     backgroundColor: colors.successBg,
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
+  activeDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: colors.success,
+  },
   activeBadgeText: {
     color: colors.success,
     fontSize: 10,
     fontWeight: '800',
+    letterSpacing: 0.5,
   },
   reasonText: {
     fontSize: 12,

@@ -6,9 +6,11 @@ import { SymbolView } from 'expo-symbols';
 import * as Haptics from 'expo-haptics';
 import { api } from '@/utils/api';
 import { checkAndPromptPushPermissions } from '@/hooks/usePushNotifications';
+import { useRouter } from 'expo-router';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
+  const router = useRouter();
 
   const handleLogout = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -70,6 +72,17 @@ export default function ProfileScreen() {
               <Text style={styles.dataLabel}>Class Group</Text>
               <Text style={styles.dataValue}>{user.courseClass?.group_name || 'N/A'}</Text>
             </View>
+            <View style={styles.separator} />
+            <Pressable 
+              style={({ pressed }) => [styles.actionRow, pressed && { opacity: 0.7 }]}
+              onPress={() => {
+                Haptics.selectionAsync();
+                router.push('/edit-class');
+              }}
+            >
+              <Text style={[styles.dataLabel, { color: colors.accent }]}>Edit Class & Branch</Text>
+              <Text style={styles.chevron}>›</Text>
+            </Pressable>
           </View>
         </View>
 
@@ -131,7 +144,7 @@ export default function ProfileScreen() {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 const isActive = await checkAndPromptPushPermissions(true);
                 if (isActive) {
-                  alert("✅ Push notifications and class reminders are active!");
+                  alert("Push notifications and class reminders are active!");
                 }
               }}
             >

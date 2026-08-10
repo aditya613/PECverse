@@ -163,7 +163,7 @@ export default function TimetableScreen() {
             </View>
           ) : classes.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>No classes scheduled for this day! 🎉</Text>
+              <Text style={styles.emptyText}>No classes scheduled for this day.</Text>
             </View>
           ) : (
             <View style={styles.classesList}>

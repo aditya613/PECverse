@@ -48,7 +48,7 @@ export function AttendanceWidget() {
                 </>
               ) : aggregatePercentage >= 75 ? (
                 <>
-                  <Text style={styles.statusBadgeText}>On track! 🎉</Text>
+                  <Text style={styles.statusBadgeText}>On track</Text>
                   <Text style={styles.statusDescription}>
                     You can safely miss {safeBunks} class{safeBunks !== 1 ? 'es' : ''}.
                   </Text>

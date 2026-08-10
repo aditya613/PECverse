@@ -10,6 +10,14 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->call([
+            AdminSeeder::class,
+            PecCse3rdSemSeeder::class,
+            PecCseAi3rdSemSeeder::class,
+            PecMech3rdSemSeeder::class,
+            MessSeeder::class,
+        ]);
+
         // 1. Create Branches
         $cse = Branch::create(['name' => 'Computer Science and Engineering', 'code' => 'CSE']);
         $ee = Branch::create(['name' => 'Electrical Engineering', 'code' => 'EE']);
