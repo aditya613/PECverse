@@ -106,6 +106,11 @@ export function ClassCard({ data, onPress }: Props) {
                 <Text style={styles.cancelledBadgeText}>CANCELLED</Text>
               </View>
             )}
+            {isRescheduled && !isCancelled && (
+              <View style={styles.rescheduledBadge}>
+                <Text style={styles.rescheduledBadgeText}>RESCHEDULED</Text>
+              </View>
+            )}
             {data.isActive && !isCancelled && (
               <View style={styles.activeBadge}>
                 <Animated.View style={[styles.activeDot, pulsingDotStyle]} />
@@ -221,6 +226,17 @@ const styles = StyleSheet.create({
   },
   cancelledBadgeText: {
     color: colors.destructive,
+    fontSize: 10,
+    fontWeight: '800',
+  },
+  rescheduledBadge: {
+    backgroundColor: 'rgba(245, 158, 11, 0.15)', // Amber transparent
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  rescheduledBadgeText: {
+    color: '#F59E0B', // Amber color for rescheduled
     fontSize: 10,
     fontWeight: '800',
   },

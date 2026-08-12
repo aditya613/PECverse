@@ -11,8 +11,8 @@ import { useState } from 'react';
 
 // Configure Google Sign-in Native SDK
 GoogleSignin.configure({
-  webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID, 
-  iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+  webClientId: '543780041775-6oh63o3lgn674sklfap5ltpaorosa7bg.apps.googleusercontent.com', 
+  iosClientId: '543780041775-5ofelpimp1c25edcer4et4g23ndsou84.apps.googleusercontent.com',
 });
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);

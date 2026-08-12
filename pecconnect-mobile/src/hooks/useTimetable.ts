@@ -66,6 +66,17 @@ export function useTimetable(targetDate: string) {
             status: 'cancelled',
             reason: override.reason
           });
+        } else if (override.type === 'rescheduled') {
+          merged.push({
+            id: `reg-${cls.id}`,
+            start_time: override.start_time || cls.start_time,
+            end_time: override.end_time || cls.end_time,
+            subject: cls.subject,
+            teacher: cls.teacher,
+            room: override.room || cls.room,
+            status: 'rescheduled',
+            reason: override.reason
+          });
         }
       } else {
         // Normal class
@@ -96,6 +107,17 @@ export function useTimetable(targetDate: string) {
             teacher: cls.teacher,
             room: cls.room,
             status: 'cancelled',
+            reason: override.reason
+          });
+        } else if (override.type === 'rescheduled') {
+          merged.push({
+            id: `ext-${cls.id}`,
+            start_time: override.start_time || cls.start_time,
+            end_time: override.end_time || cls.end_time,
+            subject: cls.subject,
+            teacher: cls.teacher,
+            room: override.room || cls.room,
+            status: 'rescheduled',
             reason: override.reason
           });
         }
@@ -143,12 +165,14 @@ export function useTimetable(targetDate: string) {
         if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
           cls.isActive = true;
           foundActive = true;
-          break; // Only one active class at a time
+          // REMOVED break; so multiple overlapping labs all show as LIVE
         }
       }
 
-      // If no class is currently active, highlight the NEXT upcoming class
+      // If no class is currently active, highlight the NEXT upcoming class(es)
       if (!foundActive) {
+        let nextStartTime: number | null = null;
+        
         for (let i = 0; i < merged.length; i++) {
           const cls = merged[i];
           if (cls.status === 'cancelled') continue;
@@ -157,8 +181,14 @@ export function useTimetable(targetDate: string) {
           const startMinutes = (startH || 0) * 60 + (startM || 0);
 
           if (startMinutes > currentMinutes) {
-            cls.isNext = true;
-            break;
+            if (nextStartTime === null) {
+              nextStartTime = startMinutes; // Lock in the next time slot
+            }
+            
+            // Highlight ALL classes that start at this next time slot
+            if (startMinutes === nextStartTime) {
+              cls.isNext = true;
+            }
           }
         }
       }

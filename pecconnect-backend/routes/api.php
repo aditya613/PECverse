@@ -28,6 +28,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Timetables
     Route::get('/timetables', [TimetableController::class, 'index']);
     Route::post('/timetables', [TimetableController::class, 'store']);
+    Route::put('/timetables/{timetable}', [TimetableController::class, 'update']);
     Route::delete('/timetables/{timetable}', [TimetableController::class, 'destroy']);
     Route::post('/timetables/exceptions', [TimetableController::class, 'storeException']);
 

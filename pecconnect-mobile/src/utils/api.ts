@@ -4,7 +4,7 @@ import { Platform } from 'react-native';
 
 // Point this to your Ngrok URL in the .env file!
 // e.g. EXPO_PUBLIC_API_URL=https://1234-abcd.ngrok-free.app/api
-const BASE_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:8000/api';
+const BASE_URL = 'https://pecapp.theaspirants.co.in/api';
 
 export const api = axios.create({
   baseURL: BASE_URL,

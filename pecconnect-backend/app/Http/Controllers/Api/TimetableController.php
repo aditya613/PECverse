@@ -111,20 +111,19 @@ class TimetableController extends Controller
             $validated = $request->validate([
                 'timetable_id' => 'required|exists:timetables,id',
                 'date' => 'required|date',
-                'type' => 'required|in:cancelled', // Only cancellations supported now
+                'type' => 'required|in:cancelled,rescheduled',
                 'reason' => 'nullable|string|max:255',
+                'start_time' => 'required_if:type,rescheduled|date_format:H:i',
+                'end_time' => 'required_if:type,rescheduled|date_format:H:i|after:start_time',
+                'room' => 'nullable|string|max:100',
             ]);
 
             $originalTimetable = Timetable::findOrFail($validated['timetable_id']);
 
-            // Security: Ensure CRs can only override timetables in their own class
             if ($user->role !== 'superadmin' && $originalTimetable->class_id !== $user->class_id) {
                 return response()->json(['message' => 'Unauthorized: Cannot override a timetable from another class'], 403);
             }
 
-            // We allow overriding both 'weekly' and 'single' classes now, so no check is needed here.
-
-            // Check if there is already an exception for this class on this date
             $existingOverride = Timetable::where('original_timetable_id', $originalTimetable->id)
                 ->where('date', $validated['date'])
                 ->first();
@@ -135,29 +134,38 @@ class TimetableController extends Controller
 
             $override = Timetable::create([
                 'class_id' => $user->class_id,
-                'type' => $validated['type'], // Always 'cancelled'
+                'type' => $validated['type'], 
                 'original_timetable_id' => $originalTimetable->id,
                 'date' => $validated['date'],
-                'start_time' => $originalTimetable->getRawOriginal('start_time'),
-                'end_time' => $originalTimetable->getRawOriginal('end_time'),
+                'start_time' => $validated['type'] === 'rescheduled' ? $validated['start_time'] : $originalTimetable->getRawOriginal('start_time'),
+                'end_time' => $validated['type'] === 'rescheduled' ? $validated['end_time'] : $originalTimetable->getRawOriginal('end_time'),
                 'subject' => $originalTimetable->subject,
                 'teacher' => $originalTimetable->teacher,
-                'room' => $originalTimetable->room,
+                'room' => $validated['type'] === 'rescheduled' ? ($validated['room'] ?? $originalTimetable->room) : $originalTimetable->room,
                 'reason' => $validated['reason'] ?? null,
                 'period_no' => $originalTimetable->period_no,
             ]);
 
             // Auto-generate Announcement
             $dateStr = date('M j, Y', strtotime($override->date));
-            $reasonStr = $override->reason ? "\n**Reason:** {$override->reason}" : "";
+            $reasonStr = $override->reason ? "\n**Note:** {$override->reason}" : "";
+            
+            if ($override->type === 'cancelled') {
+                $title = 'Class Cancelled';
+                $body = "The class for **{$override->subject}** scheduled on **{$dateStr}** has been cancelled.{$reasonStr}";
+            } else {
+                $title = 'Class Rescheduled';
+                $body = "The class for **{$override->subject}** on **{$dateStr}** has been rescheduled.\n\n**New Time:** " . date('h:i A', strtotime($override->start_time)) . " - " . date('h:i A', strtotime($override->end_time)) . "\n**New Room:** " . ($override->room ?? 'TBA') . "{$reasonStr}";
+            }
+
             Announcement::create([
-                'title' => 'Class Cancelled',
-                'body' => "The class for **{$override->subject}** scheduled on **{$dateStr}** has been cancelled.{$reasonStr}",
+                'title' => $title,
+                'body' => $body,
                 'class_id' => $override->class_id,
                 'posted_by' => $user->id,
             ]);
 
-            return response()->json(['message' => 'Class cancelled successfully', 'exception' => $override], 201);
+            return response()->json(['message' => "Class {$override->type} successfully", 'exception' => $override], 201);
         } catch (\Illuminate\Validation\ValidationException $e) {
             \Illuminate\Support\Facades\Log::error('Validation Error: ' . json_encode($e->errors()));
             throw $e;
@@ -165,5 +173,28 @@ class TimetableController extends Controller
             \Illuminate\Support\Facades\Log::error('Timetable Error: ' . $e->getMessage() . ' Trace: ' . $e->getTraceAsString());
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Update a permanent timetable entry (Weekly or Single)
+     */
+    public function update(Request $request, Timetable $timetable): JsonResponse
+    {
+        $user = $request->user();
+        if (($user->role !== 'cr' || $user->class_id !== $timetable->class_id) && $user->role !== 'superadmin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $validated = $request->validate([
+            'start_time' => 'required|date_format:H:i',
+            'end_time' => 'required|date_format:H:i|after:start_time',
+            'subject' => 'required|string|max:255',
+            'teacher' => 'nullable|string|max:255',
+            'room' => 'nullable|string|max:100',
+        ]);
+
+        $timetable->update($validated);
+
+        return response()->json(['message' => 'Timetable routine updated successfully', 'timetable' => $timetable], 200);
     }
 }

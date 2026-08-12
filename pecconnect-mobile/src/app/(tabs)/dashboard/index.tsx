@@ -145,6 +145,9 @@ export default function DashboardScreen() {
         {/* LATEST UPDATES / FEED */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Latest Updates</Text>
+          {announcements && announcements.length > 5 && (
+            <Text style={styles.viewAllText}>View All</Text>
+          )}
         </View>
 
         {/* Real Announcements Feed */}
@@ -159,7 +162,7 @@ export default function DashboardScreen() {
               <Text style={styles.emptyText}>No announcements posted yet.</Text>
             </GlassCard>
           ) : (
-            announcements.map((item) => (
+            announcements.slice(0, 5).map((item) => (
               <GlassCard key={item.id} style={styles.feedPostCard}>
                 <View style={styles.feedPostHeader}>
                   <View style={styles.authorGroup}>
@@ -187,13 +190,9 @@ export default function DashboardScreen() {
         </View>
 
         {/* Bottom padding */}
-        <View style={{ height: 90 }} />
+        <View style={{ height: 130 }} />
       </ScrollView>
 
-      {/* FAB for CRs */}
-      {(user?.role === 'cr' || user?.role === 'superadmin') && (
-        <FAB onPress={() => router.push('/post-announcement')} />
-      )}
     </View>
   );
 }
