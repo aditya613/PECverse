@@ -70,41 +70,7 @@ class AnnouncementController extends Controller
 
         $announcement = Announcement::create($validated);
 
-        // --- Push Notification Dispatch ---
-        // Fetch users who should receive this notification
-        $query = \App\Models\User::whereNotNull('expo_push_token');
-        
-        if (isset($validated['class_id'])) {
-            $query->where('class_id', $validated['class_id']);
-        } elseif (isset($validated['branch_id'])) {
-            $query->whereHas('courseClass', function($q) use ($validated) {
-                $q->where('branch_id', $validated['branch_id']);
-            });
-        }
-        // If neither is set, it's global and hits all users.
-        
-        $tokens = $query->pluck('expo_push_token')->toArray();
-
-        if (count($tokens) > 0) {
-            $messages = [];
-            foreach ($tokens as $token) {
-                if (str_starts_with($token, 'ExponentPushToken') || str_starts_with($token, 'ExpoPushToken')) {
-                    $messages[] = [
-                        'to' => $token,
-                        'sound' => 'default',
-                        'title' => '📢 ' . $announcement->title,
-                        'body' => $announcement->body,
-                        'data' => ['url' => '/(tabs)/dashboard'], // Deep link to dashboard
-                    ];
-                }
-            }
-
-            if (count($messages) > 0) {
-                // Dispatch synchronously for V1, move to Queue for V2 if thousands of users
-                \Illuminate\Support\Facades\Http::post('https://exp.host/--/api/v2/push/send', $messages);
-            }
-        }
-        // ----------------------------------
+        // Push Notifications are now handled automatically by the Announcement model's 'created' event.
 
         return response()->json([
             'message' => 'Announcement posted successfully',

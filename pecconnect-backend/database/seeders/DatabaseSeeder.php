@@ -15,6 +15,7 @@ class DatabaseSeeder extends Seeder
             PecCse3rdSemSeeder::class,
             PecCseAi3rdSemSeeder::class,
             PecMech3rdSemSeeder::class,
+            PecCivil3rdSemSeeder::class,
             MessSeeder::class,
         ]);
 
