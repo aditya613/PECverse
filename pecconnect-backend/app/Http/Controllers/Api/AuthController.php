@@ -125,14 +125,8 @@ class AuthController extends Controller
         if ($user->role === 'cr' && $user->class_id !== $request->class_id) {
             $user->role = 'student';
             
-            // Also nullify their CR status in the CourseClass model if they were the official CR for the old class
-            if ($user->class_id) {
-                $oldClass = \App\Models\CourseClass::find($user->class_id);
-                if ($oldClass && $oldClass->cr_user_id === $user->id) {
-                    $oldClass->cr_user_id = null;
-                    $oldClass->save();
-                }
-            }
+            // Nullify their CR status in ALL classes where they might be assigned as CR to be 100% secure
+            \App\Models\CourseClass::where('cr_user_id', $user->id)->update(['cr_user_id' => null]);
         }
         
         $user->class_id = $request->class_id;
@@ -189,7 +183,7 @@ class AuthController extends Controller
                 'name' => 'Software Engineering',
                 'target_percentage' => 75,
                 'attended_classes' => 12,
-                'total_classes' => 15
+                'bunked_classes' => 3
             ]);
             
             \App\Models\AttendanceSubject::create([
@@ -197,19 +191,24 @@ class AuthController extends Controller
                 'name' => 'Computer Networks',
                 'target_percentage' => 75,
                 'attended_classes' => 5, // Dropped below 75% to show dynamic insights
-                'total_classes' => 10
+                'bunked_classes' => 5
             ]);
 
-            \App\Models\AttendanceLog::create([
-                'subject_id' => $subj1->id,
-                'status' => 'attended',
-                'timestamp' => now()->subDays(1)
+            $log1 = \App\Models\AttendanceLog::create([
+                'user_id' => $user->id,
+                'attendance_subject_id' => $subj1->id,
+                'type' => 'attended'
             ]);
-            \App\Models\AttendanceLog::create([
-                'subject_id' => $subj1->id,
-                'status' => 'bunked',
-                'timestamp' => now()->subDays(2)
+            $log1->created_at = now()->subDays(1);
+            $log1->save();
+
+            $log2 = \App\Models\AttendanceLog::create([
+                'user_id' => $user->id,
+                'attendance_subject_id' => $subj1->id,
+                'type' => 'bunked'
             ]);
+            $log2->created_at = now()->subDays(2);
+            $log2->save();
         }
         // -------------------------------------------------
 

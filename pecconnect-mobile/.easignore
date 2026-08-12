@@ -44,3 +44,5 @@ android/
 .git/
 
 # # Secret Configs
+!google-services.json
+!GoogleService-Info.plist

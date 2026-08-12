@@ -82,6 +82,20 @@ function RootLayoutNav() {
             animation: 'slide_from_bottom'
           }} 
         />
+        <Stack.Screen 
+          name="edit-timetable-class" 
+          options={{
+            presentation: 'modal',
+            animation: 'slide_from_bottom'
+          }} 
+        />
+        <Stack.Screen 
+          name="manage-class-options" 
+          options={{
+            presentation: 'transparentModal',
+            animation: 'fade'
+          }} 
+        />
       </Stack>
       <NotificationPermissionModal />
     </>

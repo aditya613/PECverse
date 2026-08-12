@@ -56,8 +56,9 @@ class TimetableController extends Controller
         $timetable = Timetable::create($validated);
 
         // Auto-generate Announcement
+        $daysMap = [1 => 'Monday', 2 => 'Tuesday', 3 => 'Wednesday', 4 => 'Thursday', 5 => 'Friday', 6 => 'Saturday', 7 => 'Sunday'];
         $dateStr = $timetable->type === 'weekly' 
-            ? "Every " . config('app.days')[$timetable->day_of_week] ?? 'Week'
+            ? "Every " . ($daysMap[$timetable->day_of_week] ?? 'Week')
             : date('M j, Y', strtotime($timetable->date));
             
         Announcement::create([

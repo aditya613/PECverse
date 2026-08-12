@@ -2,7 +2,7 @@ export default {
   "expo": {
     "name": "PECverse",
     "slug": "pecverse-mobile",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "pecconnectmobile",
@@ -15,7 +15,7 @@ export default {
     },
     "android": {
       "package": "in.edu.pec.connect",
-      "versionCode": 1,
+      "versionCode": 2,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundColor": "#0c0822"

@@ -79,42 +79,17 @@ export default function TimetableScreen() {
 
     const baseId = parseInt(cls.id.split('-')[1] || cls.id);
 
-    Alert.alert(
-      'Cancel Class',
-      `How do you want to cancel ${cls.subject}?`,
-      [
-        { text: 'Keep Class', style: 'cancel' },
-        {
-          text: `Cancel on ${selectedDate} Only`,
-          onPress: () => {
-            exceptionMutation.mutate({
-              timetable_id: baseId,
-              date: selectedDate,
-              type: 'cancelled',
-              reason: 'Cancelled by CR'
-            });
-          }
-        },
-        {
-          text: 'Cancel Permanently',
-          style: 'destructive',
-          onPress: () => {
-            Alert.alert(
-              'Confirm Permanent Deletion',
-              'This will remove this class from the schedule for the entire semester. Are you sure?',
-              [
-                { text: 'Cancel', style: 'cancel' },
-                {
-                  text: 'Delete Permanently',
-                  style: 'destructive',
-                  onPress: () => deleteTimetableMutation.mutate(baseId)
-                }
-              ]
-            );
-          }
-        }
-      ]
-    );
+    router.push({
+      pathname: '/manage-class-options' as any,
+      params: { 
+        timetableId: baseId, 
+        date: selectedDate, 
+        subject: cls.subject,
+        start_time: cls.start_time, 
+        end_time: cls.end_time, 
+        room: cls.room || ''
+      }
+    });
   };
 
   const selectedDateObj = new Date(selectedDate + 'T12:00:00');
