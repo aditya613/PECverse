@@ -76,7 +76,7 @@ export default function WallScreen() {
     queryKey: ['wallComments', activePost?.id],
     queryFn: async () => {
       const res = await api.get(`/wall/${activePost.id}/comments`);
-      return res.data.data;
+      return res.data.comments;
     },
     enabled: !!activePost,
     refetchInterval: 10000,
@@ -178,11 +178,6 @@ export default function WallScreen() {
               <Ionicons name="chatbubble-outline" color={colors.secondaryLabel} size={20} />
             </View>
             <Text style={styles.actionText}>{item.comments_count}</Text>
-          </Pressable>
-
-          <Pressable style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.7 }, { marginLeft: 'auto' }]}>
-            <Ionicons name="share-outline" color={colors.secondaryLabel} size={22} />
-          </Pressable>
         </View>
       </Animated.View>
     );

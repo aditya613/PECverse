@@ -20,6 +20,18 @@ export interface TimetableRow {
   reason: string | null;
 }
 
+export interface HolidayRow {
+  id: number;
+  class_id: number;
+  date: string;
+  reason: string | null;
+}
+
+export interface TimetableResponse {
+  classes: TimetableRow[];
+  holidays: HolidayRow[];
+}
+
 export function useTimetable(targetDate: string) {
   const user = useAuthStore(state => state.user);
 
@@ -27,13 +39,13 @@ export function useTimetable(targetDate: string) {
     queryKey: ['timetables'],
     queryFn: async () => {
       const res = await api.get('/timetables');
-      return res.data as TimetableRow[];
+      return res.data as TimetableResponse;
     },
     enabled: !!user?.class_id,
   });
 
-  const mergedClasses = useMemo(() => {
-    if (!data || !Array.isArray(data)) return [];
+  const { mergedClasses, activeHoliday } = useMemo(() => {
+    if (!data || !data.classes) return { mergedClasses: [], activeHoliday: null };
     
     // Safely parse YYYY-MM-DD in local time to avoid UTC shift bugs
     const [year, month, day] = targetDate.split('-');
@@ -41,11 +53,18 @@ export function useTimetable(targetDate: string) {
     let targetDayOfWeek = targetDateObj.getDay();
     if (targetDayOfWeek === 0) targetDayOfWeek = 7; // Convert Sunday(0) to 7 to match our DB (1-Mon, 7-Sun)
     
+    // Check if there is a full-day holiday declared for this exact date
+    const holiday = data.holidays?.find(h => h.date === targetDate);
+    if (holiday) {
+        return { mergedClasses: [], activeHoliday: holiday };
+    }
+
+    const classesData = data.classes;
     // 1. Get base weekly classes for this day
-    const weeklyClasses = data.filter(t => t.type === 'weekly' && t.day_of_week === targetDayOfWeek);
+    const weeklyClasses = classesData.filter(t => t.type === 'weekly' && t.day_of_week === targetDayOfWeek);
     
     // 2. Get any specific row for this exact date (single, cancelled, rescheduled)
-    const dateSpecificRows = data.filter(t => t.date && t.date.startsWith(targetDate));
+    const dateSpecificRows = classesData.filter(t => t.date && t.date.startsWith(targetDate));
     
     const merged: MergedClass[] = [];
 
@@ -194,11 +213,12 @@ export function useTimetable(targetDate: string) {
       }
     }
 
-    return merged;
+    return { mergedClasses, activeHoliday };
   }, [data, targetDate]);
 
   return {
     classes: mergedClasses,
+    activeHoliday,
     isLoading,
     isRefetching,
     refetch

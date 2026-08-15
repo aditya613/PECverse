@@ -8,7 +8,7 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
-type ClassType = 'weekly' | 'single';
+type ClassType = 'weekly' | 'single' | 'holiday';
 
 const DAYS = [
   { id: 1, label: 'Mon' },
@@ -61,6 +61,21 @@ export default function ManageTimetableModal() {
     }
   });
 
+  const holidayMutation = useMutation({
+    mutationFn: async (data: any) => {
+      return await api.post('/timetables/holiday', data);
+    },
+    onSuccess: () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      queryClient.invalidateQueries({ queryKey: ['timetables'] });
+      router.back();
+    },
+    onError: (err: any) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert('Error', err.response?.data?.message || 'Failed to declare holiday');
+    }
+  });
+
   const formatTime = (d: Date) => {
     return d.toTimeString().substring(0, 5); // "HH:MM"
   };
@@ -74,6 +89,14 @@ export default function ManageTimetableModal() {
 
   const handleSubmit = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    if (classType === 'holiday') {
+      holidayMutation.mutate({
+        date: formatDate(targetDate),
+        reason: subject.trim() || null, // re-using subject state for reason
+      });
+      return;
+    }
 
     if (!subject.trim()) {
       Alert.alert('Validation Error', 'Subject is required');
@@ -106,7 +129,7 @@ export default function ManageTimetableModal() {
     }
   };
 
-  const isPending = addMutation.isPending;
+  const isPending = addMutation.isPending || holidayMutation.isPending;
 
   return (
     <BlurView intensity={100} tint="systemChromeMaterialDark" style={styles.container}>
@@ -145,6 +168,17 @@ export default function ManageTimetableModal() {
         >
           <Text style={[styles.segmentText, classType === 'single' && styles.segmentTextActive]}>
             Single Class
+          </Text>
+        </Pressable>
+        <Pressable
+          onPress={() => {
+            Haptics.selectionAsync();
+            setClassType('holiday');
+          }}
+          style={[styles.segment, classType === 'holiday' && styles.segmentActive]}
+        >
+          <Text style={[styles.segmentText, classType === 'holiday' && styles.segmentTextActive]}>
+            Holiday
           </Text>
         </Pressable>
       </View>
@@ -195,100 +229,108 @@ export default function ManageTimetableModal() {
         )}
 
         {/* Time Selection */}
-        <View style={styles.row}>
-          <View style={[styles.inputGroup, { flex: 1 }]}>
-            <Text style={styles.label}>Start Time</Text>
-            <Pressable 
-              style={styles.timePickerButton} 
-              onPress={() => setShowStartTimePicker(true)}
-            >
-              <Text style={styles.timePickerButtonText}>
-                {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </Text>
-            </Pressable>
-            {(showStartTimePicker || Platform.OS === 'ios') && (
-              <DateTimePicker
-                value={startTime}
-                mode="time"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={(event, selectedDate) => {
-                  if (Platform.OS === 'android') setShowStartTimePicker(false);
-                  if (selectedDate) setStartTime(selectedDate);
-                }}
-              />
-            )}
-          </View>
-          
-          <View style={[styles.inputGroup, { flex: 1 }]}>
-            <Text style={styles.label}>End Time</Text>
-            <Pressable 
-              style={styles.timePickerButton} 
-              onPress={() => setShowEndTimePicker(true)}
-            >
-              <Text style={styles.timePickerButtonText}>
-                {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </Text>
-            </Pressable>
-            {(showEndTimePicker || Platform.OS === 'ios') && (
-              <DateTimePicker
-                value={endTime}
-                mode="time"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={(event, selectedDate) => {
-                  if (Platform.OS === 'android') setShowEndTimePicker(false);
-                  if (selectedDate) setEndTime(selectedDate);
-                }}
-              />
-            )}
-          </View>
-        </View>
+        {classType !== 'holiday' && (
+          <>
+            <View style={styles.row}>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.label}>Start Time</Text>
+                <Pressable 
+                  style={styles.timePickerButton} 
+                  onPress={() => setShowStartTimePicker(true)}
+                >
+                  <Text style={styles.timePickerButtonText}>
+                    {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                </Pressable>
+                {(showStartTimePicker || Platform.OS === 'ios') && (
+                  <DateTimePicker
+                    value={startTime}
+                    mode="time"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(event, selectedDate) => {
+                      if (Platform.OS === 'android') setShowStartTimePicker(false);
+                      if (selectedDate) setStartTime(selectedDate);
+                    }}
+                  />
+                )}
+              </View>
+              
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.label}>End Time</Text>
+                <Pressable 
+                  style={styles.timePickerButton} 
+                  onPress={() => setShowEndTimePicker(true)}
+                >
+                  <Text style={styles.timePickerButtonText}>
+                    {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                  </Text>
+                </Pressable>
+                {(showEndTimePicker || Platform.OS === 'ios') && (
+                  <DateTimePicker
+                    value={endTime}
+                    mode="time"
+                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                    onChange={(event, selectedDate) => {
+                      if (Platform.OS === 'android') setShowEndTimePicker(false);
+                      if (selectedDate) setEndTime(selectedDate);
+                    }}
+                  />
+                )}
+              </View>
+            </View>
 
-        <View style={styles.row}>
-          <View style={[styles.inputGroup, { flex: 1 }]}>
-            <Text style={styles.label}>Period No. (Optional)</Text>
-            <TextInput 
-              style={styles.input} 
-              value={periodNo} 
-              onChangeText={setPeriodNo} 
-              keyboardType="number-pad" 
-              placeholder="1"
-              placeholderTextColor={colors.secondaryLabel as string} 
-            />
-          </View>
-        </View>
+            <View style={styles.row}>
+              <View style={[styles.inputGroup, { flex: 1 }]}>
+                <Text style={styles.label}>Period No. (Optional)</Text>
+                <TextInput 
+                  style={styles.input} 
+                  value={periodNo} 
+                  onChangeText={setPeriodNo} 
+                  keyboardType="number-pad" 
+                  placeholder="1"
+                  placeholderTextColor={colors.secondaryLabel as string} 
+                />
+              </View>
+            </View>
+          </>
+        )}
 
         <View style={styles.inputGroup}>
-          <Text style={styles.label}>Subject *</Text>
+          <Text style={styles.label}>{classType === 'holiday' ? 'Reason (Optional)' : 'Subject *'}</Text>
           <TextInput 
             style={styles.input} 
             value={subject} 
             onChangeText={setSubject} 
-            placeholder="e.g. Data Structures" 
+            placeholder={classType === 'holiday' ? "e.g. Heavy Rain" : "e.g. Data Structures"} 
             placeholderTextColor={colors.secondaryLabel as string} 
           />
         </View>
         
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Room (Optional)</Text>
-          <TextInput 
-            style={styles.input} 
-            value={room} 
-            onChangeText={setRoom} 
-            placeholder="e.g. L1" 
-            placeholderTextColor={colors.secondaryLabel as string} 
-          />
-        </View>
+        {classType !== 'holiday' && (
+          <>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Room (Optional)</Text>
+              <TextInput 
+                style={styles.input} 
+                value={room} 
+                onChangeText={setRoom} 
+                placeholder="e.g. L1" 
+                placeholderTextColor={colors.secondaryLabel as string} 
+              />
+            </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Teacher (Optional)</Text>
-          <TextInput 
-            style={styles.input} 
-            value={teacher} 
-            onChangeText={setTeacher} 
-            placeholder="e.g. Dr. Smith" 
-            placeholderTextColor={colors.secondaryLabel as string} 
-          />
-        </View>
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Teacher (Optional)</Text>
+              <TextInput 
+                style={styles.input} 
+                value={teacher} 
+                onChangeText={setTeacher} 
+                placeholder="e.g. Dr. Smith" 
+                placeholderTextColor={colors.secondaryLabel as string} 
+              />
+            </View>
+          </>
+        )}
 
         <View style={{ height: 100 }} />
       </ScrollView>

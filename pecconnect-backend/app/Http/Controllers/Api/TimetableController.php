@@ -5,13 +5,14 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Timetable;
 use App\Models\Announcement;
+use App\Models\Holiday;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 
 class TimetableController extends Controller
 {
     /**
-     * Get all timetable entries for the user's class (Weekly + Exceptions)
+     * Get all timetable entries for the user's class (Weekly + Exceptions) + Holidays
      */
     public function index(Request $request): JsonResponse
     {
@@ -26,7 +27,14 @@ class TimetableController extends Controller
             ->orderBy('start_time')
             ->get();
 
-        return response()->json($classes, 200);
+        // Return all declared holidays for this class
+        $holidays = Holiday::where('class_id', $user->class_id)
+            ->get();
+
+        return response()->json([
+            'classes' => $classes,
+            'holidays' => $holidays
+        ], 200);
     }
 
     /**
@@ -95,6 +103,56 @@ class TimetableController extends Controller
         ]);
 
         return response()->json(['message' => 'Class removed'], 200);
+    }
+
+    /**
+     * Declare a Full Day Holiday
+     */
+    public function declareHoliday(Request $request): JsonResponse
+    {
+        try {
+            $user = $request->user();
+            if ($user->role !== 'cr' && $user->role !== 'superadmin') {
+                return response()->json(['message' => 'Unauthorized'], 403);
+            }
+
+            $validated = $request->validate([
+                'date' => 'required|date',
+                'reason' => 'nullable|string|max:255',
+            ]);
+
+            // Check if holiday already exists
+            $existingHoliday = Holiday::where('class_id', $user->class_id)
+                ->where('date', $validated['date'])
+                ->first();
+
+            if ($existingHoliday) {
+                return response()->json(['message' => 'Holiday already declared for this date.'], 400);
+            }
+
+            $holiday = Holiday::create([
+                'class_id' => $user->class_id,
+                'date' => $validated['date'],
+                'reason' => $validated['reason'] ?? null,
+                'declared_by' => $user->id,
+            ]);
+
+            // Auto-generate Announcement
+            $dateStr = date('l, M j, Y', strtotime($holiday->date));
+            $reasonStr = $holiday->reason ? "\n**Reason:** {$holiday->reason}" : "";
+
+            Announcement::create([
+                'title' => 'Holiday Declared 🌴',
+                'body' => "**{$dateStr}** has been declared a full-day holiday for our class! No classes will be held.{$reasonStr}",
+                'class_id' => $holiday->class_id,
+                'posted_by' => $user->id,
+            ]);
+
+            return response()->json(['message' => 'Holiday declared successfully', 'holiday' => $holiday], 201);
+        } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Holiday Error: ' . $e->getMessage());
+            return response()->json(['message' => $e->getMessage()], 500);
+        }
     }
 
     /**

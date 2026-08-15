@@ -55,7 +55,7 @@ export default function DashboardScreen() {
   };
 
   // Fetch real timetable classes for today from API hook
-  const { classes: todayClasses, isLoading: isTimetableLoading } = useTimetable(todayStr);
+  const { classes: todayClasses, activeHoliday, isLoading: isTimetableLoading } = useTimetable(todayStr);
 
   return (
     <View style={styles.container}>
@@ -98,7 +98,7 @@ export default function DashboardScreen() {
         </View>
 
         {/* LIVE COUNTDOWN WIDGET */}
-        {!isTimetableLoading && todayClasses.length > 0 && (
+        {!isTimetableLoading && !activeHoliday && todayClasses.length > 0 && (
           <DashboardNextClassWidget todayClasses={todayClasses} />
         )}
 
@@ -122,6 +122,12 @@ export default function DashboardScreen() {
             <View style={styles.classesVerticalList}>
               <SkeletonCard type="class" />
               <SkeletonCard type="class" />
+            </View>
+          ) : activeHoliday ? (
+            <View style={styles.holidayContainer}>
+              <Text style={styles.holidayEmoji}>🌴</Text>
+              <Text style={styles.holidayTitle}>Holiday Declared!</Text>
+              <Text style={styles.holidayReason}>{activeHoliday.reason || 'No classes today. Enjoy your day off!'}</Text>
             </View>
           ) : todayClasses.length === 0 ? (
             <View style={styles.emptyBox}>
@@ -289,6 +295,30 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 14,
     color: colors.secondaryLabel,
+  },
+  holidayContainer: {
+    paddingVertical: 30,
+    alignItems: 'center',
+    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.2)',
+  },
+  holidayEmoji: {
+    fontSize: 40,
+    marginBottom: 12,
+  },
+  holidayTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.accent,
+    marginBottom: 6,
+  },
+  holidayReason: {
+    fontSize: 14,
+    color: colors.label,
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
   sectionHeaderRow: {
     flexDirection: 'row',

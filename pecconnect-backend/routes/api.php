@@ -48,6 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/timetables/{timetable}', [TimetableController::class, 'update']);
     Route::delete('/timetables/{timetable}', [TimetableController::class, 'destroy']);
     Route::post('/timetables/exceptions', [TimetableController::class, 'storeException']);
+    Route::post('/timetables/holiday', [TimetableController::class, 'declareHoliday']);
 
     // Announcements
     Route::apiResource('announcements', AnnouncementController::class)->only(['index', 'store', 'destroy']);

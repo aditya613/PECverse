@@ -42,7 +42,7 @@ export default function TimetableScreen() {
   });
 
   const queryClient = useQueryClient();
-  const { classes, isLoading, isRefetching, refetch } = useTimetable(selectedDate);
+  const { classes, activeHoliday, isLoading, isRefetching, refetch } = useTimetable(selectedDate);
   const isCrOrAdmin = user?.role === 'cr' || user?.role === 'superadmin';
 
   const exceptionMutation = useMutation({
@@ -135,6 +135,12 @@ export default function TimetableScreen() {
               <SkeletonCard type="class" />
               <SkeletonCard type="class" />
               <SkeletonCard type="class" />
+            </View>
+          ) : activeHoliday ? (
+            <View style={styles.holidayContainer}>
+              <Text style={styles.holidayEmoji}>🌴</Text>
+              <Text style={styles.holidayTitle}>Holiday Declared!</Text>
+              <Text style={styles.holidayReason}>{activeHoliday.reason || 'No classes today. Enjoy your day off!'}</Text>
             </View>
           ) : classes.length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -231,6 +237,31 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 15,
     color: colors.secondaryLabel,
+  },
+  holidayContainer: {
+    paddingVertical: 40,
+    alignItems: 'center',
+    backgroundColor: 'rgba(59, 130, 246, 0.05)',
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(59, 130, 246, 0.2)',
+    marginTop: 20,
+  },
+  holidayEmoji: {
+    fontSize: 48,
+    marginBottom: 16,
+  },
+  holidayTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.accent,
+    marginBottom: 8,
+  },
+  holidayReason: {
+    fontSize: 15,
+    color: colors.label,
+    textAlign: 'center',
+    paddingHorizontal: 20,
   },
   fabPositionWrapper: {
     position: 'absolute',
