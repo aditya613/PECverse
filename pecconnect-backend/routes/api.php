@@ -20,6 +20,8 @@ Route::middleware('throttle:10,1')->group(function () {
     Route::post('/wall', [\App\Http\Controllers\Api\WallController::class, 'store']);
     Route::post('/wall/{id}/like', [\App\Http\Controllers\Api\WallController::class, 'toggleLike']);
     Route::post('/wall/{id}/comments', [\App\Http\Controllers\Api\WallController::class, 'storeComment']);
+    Route::post('/wall/{id}/report', [\App\Http\Controllers\Api\WallController::class, 'reportPost']);
+    Route::post('/wall/{id}/block', [\App\Http\Controllers\Api\WallController::class, 'blockUser']);
 });
 
 Route::get('/freshers/profile/{device_id}', [\App\Http\Controllers\Api\FresherController::class, 'profile']);

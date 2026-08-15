@@ -8,6 +8,8 @@ use App\Models\WallPost;
 use App\Models\WallComment;
 use App\Models\Fresher;
 use App\Models\WallLike;
+use App\Models\ReportedPost;
+use App\Models\BlockedUser;
 use Illuminate\Http\JsonResponse;
 
 class WallController extends Controller
@@ -20,8 +22,22 @@ class WallController extends Controller
         // Simple Reddit 'hot' sort approximation: 
         // We will just order by created_at desc for now, or by likes for 'top'
         $sort = $request->query('sort', 'new'); // 'new' or 'hot'
+        $deviceId = $request->query('device_id');
         
-        $query = WallPost::with(['fresher:id,branch'])->withCount('comments');
+        $query = WallPost::with(['fresher:id,branch,device_id'])->withCount('comments');
+
+        // Filter out posts from blocked users
+        if ($deviceId) {
+            $blockedDeviceIds = BlockedUser::where('blocker_device_id', $deviceId)
+                ->pluck('blocked_device_id')
+                ->toArray();
+
+            if (!empty($blockedDeviceIds)) {
+                $query->whereHas('fresher', function ($q) use ($blockedDeviceIds) {
+                    $q->whereNotIn('device_id', $blockedDeviceIds);
+                });
+            }
+        }
 
         if ($sort === 'hot') {
             // Very basic hot algorithm: likes - hours_since_posted
@@ -33,9 +49,6 @@ class WallController extends Controller
 
         $posts = $query->paginate(20);
 
-        // Map to ensure pseudo-anonymity and inject if the current device liked it
-        $deviceId = $request->query('device_id');
-        
         // Fetch all likes by this device in one query to avoid N+1
         $likedPostIds = [];
         if ($deviceId) {
@@ -147,10 +160,24 @@ class WallController extends Controller
     public function getComments(Request $request, $id): JsonResponse
     {
         $post = WallPost::findOrFail($id);
+        $deviceId = $request->query('device_id');
         
-        $comments = WallComment::with(['fresher:id,branch'])
-            ->where('wall_post_id', $id)
-            ->orderBy('created_at', 'asc')
+        $query = WallComment::with(['fresher:id,branch,device_id'])
+            ->where('wall_post_id', $id);
+
+        if ($deviceId) {
+            $blockedDeviceIds = BlockedUser::where('blocker_device_id', $deviceId)
+                ->pluck('blocked_device_id')
+                ->toArray();
+
+            if (!empty($blockedDeviceIds)) {
+                $query->whereHas('fresher', function ($q) use ($blockedDeviceIds) {
+                    $q->whereNotIn('device_id', $blockedDeviceIds);
+                });
+            }
+        }
+
+        $comments = $query->orderBy('created_at', 'asc')
             ->get()
             ->map(function ($comment) {
                 $authorName = $comment->is_anonymous 
@@ -212,5 +239,50 @@ class WallController extends Controller
                 'is_anonymous' => $isAnonymous,
             ]
         ], 201);
+    }
+
+    /**
+     * Report a post
+     */
+    public function reportPost(Request $request, $id): JsonResponse
+    {
+        $request->validate([
+            'device_id' => 'required|string',
+            'reason' => 'required|string|max:255',
+        ]);
+
+        $post = WallPost::findOrFail($id);
+
+        ReportedPost::firstOrCreate([
+            'wall_post_id' => $post->id,
+            'reporter_device_id' => $request->device_id,
+        ], [
+            'reason' => $request->reason,
+        ]);
+
+        return response()->json(['message' => 'Post reported successfully'], 201);
+    }
+
+    /**
+     * Block a user
+     */
+    public function blockUser(Request $request, $id): JsonResponse
+    {
+        $request->validate([
+            'device_id' => 'required|string', // The blocker
+        ]);
+
+        $post = WallPost::with('fresher')->findOrFail($id);
+        
+        if ($post->fresher->device_id === $request->device_id) {
+            return response()->json(['message' => 'You cannot block yourself'], 400);
+        }
+
+        BlockedUser::firstOrCreate([
+            'blocker_device_id' => $request->device_id,
+            'blocked_device_id' => $post->fresher->device_id,
+        ]);
+
+        return response()->json(['message' => 'User blocked successfully'], 201);
     }
 }

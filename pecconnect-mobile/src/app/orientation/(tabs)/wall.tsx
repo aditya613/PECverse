@@ -36,6 +36,10 @@ export default function WallScreen() {
   const [isAnonymousPost, setIsAnonymousPost] = useState(true);
   const [isAnonymousComment, setIsAnonymousComment] = useState(true);
 
+  // Moderation state
+  const [optionsPost, setOptionsPost] = useState<any | null>(null);
+  const [reportReasonModalVisible, setReportReasonModalVisible] = useState(false);
+
   const { data, isLoading, isRefetching, refetch } = useQuery({
     queryKey: ['wallPosts'],
     queryFn: async () => {
@@ -91,6 +95,29 @@ export default function WallScreen() {
     }
   });
 
+  const reportMutation = useMutation({
+    mutationFn: async (reason: string) => {
+      await api.post(`/wall/${optionsPost.id}/report`, { device_id: deviceId, reason });
+    },
+    onSuccess: () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setReportReasonModalVisible(false);
+      setOptionsPost(null);
+    }
+  });
+
+  const blockMutation = useMutation({
+    mutationFn: async () => {
+      await api.post(`/wall/${optionsPost.id}/block`, { device_id: deviceId });
+    },
+    onSuccess: () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setOptionsPost(null);
+      // Immediately invalidate to remove the blocked user's posts
+      queryClient.invalidateQueries({ queryKey: ['wallPosts'] });
+    }
+  });
+
   const handlePost = () => {
     if (composeText.trim().length === 0) return;
     postMutation.mutate(composeText.trim());
@@ -110,7 +137,13 @@ export default function WallScreen() {
             <Text style={styles.authorText}>{item.author}</Text>
             <Text style={styles.timeText}>Just now</Text>
           </View>
-          <Pressable style={styles.moreOptions}>
+          <Pressable 
+            style={styles.moreOptions}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              setOptionsPost(item);
+            }}
+          >
             <Ionicons name="ellipsis-horizontal" size={20} color={colors.tertiaryLabel || colors.secondaryLabel} />
           </Pressable>
         </View>
@@ -374,6 +407,70 @@ export default function WallScreen() {
             </View>
           </BlurView>
         </KeyboardAvoidingView>
+      </Modal>
+
+      {/* Moderation Options Modal */}
+      <Modal visible={!!optionsPost && !reportReasonModalVisible} animationType="fade" transparent>
+        <Pressable style={styles.optionsOverlay} onPress={() => setOptionsPost(null)}>
+          <View style={styles.optionsContainer}>
+            <Pressable 
+              style={styles.optionBtn}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                setReportReasonModalVisible(true);
+              }}
+            >
+              <Ionicons name="flag-outline" size={22} color={colors.label} />
+              <Text style={styles.optionText}>Report Post</Text>
+            </Pressable>
+            <View style={styles.optionDivider} />
+            <Pressable 
+              style={styles.optionBtn}
+              onPress={() => {
+                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                blockMutation.mutate();
+              }}
+            >
+              <Ionicons name="ban-outline" size={22} color="#FF3B30" />
+              <Text style={[styles.optionText, { color: '#FF3B30' }]}>Block User</Text>
+            </Pressable>
+          </View>
+        </Pressable>
+      </Modal>
+
+      {/* Report Reason Modal */}
+      <Modal visible={reportReasonModalVisible} animationType="fade" transparent>
+        <Pressable style={styles.optionsOverlay} onPress={() => {
+          setReportReasonModalVisible(false);
+          setOptionsPost(null);
+        }}>
+          <View style={styles.optionsContainer}>
+            <Text style={styles.optionsTitle}>Why are you reporting this?</Text>
+            
+            {['Spam', 'Harassment or Bullying', 'Inappropriate Content'].map((reason, index) => (
+              <React.Fragment key={reason}>
+                <Pressable 
+                  style={styles.optionBtn}
+                  onPress={() => reportMutation.mutate(reason)}
+                >
+                  <Text style={styles.optionText}>{reason}</Text>
+                </Pressable>
+                {index < 2 && <View style={styles.optionDivider} />}
+              </React.Fragment>
+            ))}
+            
+            <View style={styles.optionDivider} />
+            <Pressable 
+              style={[styles.optionBtn, { justifyContent: 'center' }]}
+              onPress={() => {
+                setReportReasonModalVisible(false);
+                setOptionsPost(null);
+              }}
+            >
+              <Text style={[styles.optionText, { fontWeight: '700' }]}>Cancel</Text>
+            </Pressable>
+          </View>
+        </Pressable>
       </Modal>
     </View>
   );
@@ -762,5 +859,44 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginBottom: 2,
+  },
+  optionsOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 24,
+  },
+  optionsContainer: {
+    width: '100%',
+    backgroundColor: '#1C1C21',
+    borderRadius: 20,
+    overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.1)',
+  },
+  optionBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    gap: 12,
+  },
+  optionText: {
+    fontSize: 17,
+    fontWeight: '500',
+    color: colors.label,
+  },
+  optionDivider: {
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.05)',
+  },
+  optionsTitle: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: colors.secondaryLabel,
+    textAlign: 'center',
+    paddingVertical: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(255,255,255,0.05)',
   }
 });
