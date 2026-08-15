@@ -28,7 +28,12 @@ export function DashboardNextClassWidget({ todayClasses }: Props) {
       const now = new Date();
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
       
-      const [startH, startM] = upcoming.start_time.split(':').map(Number);
+      if (!upcoming?.start_time) {
+        setMinutesRemaining(null);
+        return;
+      }
+
+      const [startH, startM] = (upcoming.start_time || '0:0').split(':').map(Number);
       const startMinutes = (startH || 0) * 60 + (startM || 0);
 
       const diff = startMinutes - currentMinutes;

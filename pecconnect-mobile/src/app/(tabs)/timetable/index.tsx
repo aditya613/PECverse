@@ -42,7 +42,7 @@ export default function TimetableScreen() {
   });
 
   const queryClient = useQueryClient();
-  const { classes, activeHoliday, isLoading, isRefetching, refetch } = useTimetable(selectedDate);
+  const { classes = [], activeHoliday, isLoading, isRefetching, refetch } = useTimetable(selectedDate);
   const isCrOrAdmin = user?.role === 'cr' || user?.role === 'superadmin';
 
   const exceptionMutation = useMutation({
@@ -142,13 +142,13 @@ export default function TimetableScreen() {
               <Text style={styles.holidayTitle}>Holiday Declared!</Text>
               <Text style={styles.holidayReason}>{activeHoliday.reason || 'No classes today. Enjoy your day off!'}</Text>
             </View>
-          ) : classes.length === 0 ? (
+          ) : (classes || []).length === 0 ? (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>No classes scheduled for this day.</Text>
             </View>
           ) : (
             <View style={styles.classesList}>
-              {classes.map((cls) => (
+              {(classes || []).map((cls: MergedClass) => (
                 <ClassCard key={cls.id} data={cls} onPress={handleClassPress} />
               ))}
             </View>

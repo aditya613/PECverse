@@ -13,7 +13,8 @@ import { BlurView } from 'expo-blur';
 // Beautiful, vibrant colors for anonymous avatars
 const AVATAR_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5', '#9B5DE5', '#F15BB5', '#00BBF9', '#00F5D4'];
 
-const getAvatarColor = (name: string) => {
+const getAvatarColor = (name: string = '') => {
+  if (!name) return AVATAR_COLORS[0];
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = name.charCodeAt(i) + ((hash << 5) - hash);
@@ -178,6 +179,7 @@ export default function WallScreen() {
               <Ionicons name="chatbubble-outline" color={colors.secondaryLabel} size={20} />
             </View>
             <Text style={styles.actionText}>{item.comments_count}</Text>
+          </Pressable>
         </View>
       </Animated.View>
     );

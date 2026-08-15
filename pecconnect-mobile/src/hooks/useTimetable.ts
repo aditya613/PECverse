@@ -44,7 +44,7 @@ export function useTimetable(targetDate: string) {
     enabled: !!user?.class_id,
   });
 
-  const { mergedClasses, activeHoliday } = useMemo(() => {
+  const { mergedClasses, activeHoliday } = useMemo<{ mergedClasses: MergedClass[]; activeHoliday: HolidayRow | null }>(() => {
     if (!data || !data.classes) return { mergedClasses: [], activeHoliday: null };
     
     // Safely parse YYYY-MM-DD in local time to avoid UTC shift bugs
@@ -173,10 +173,10 @@ export function useTimetable(targetDate: string) {
       let foundActive = false;
       for (let i = 0; i < merged.length; i++) {
         const cls = merged[i];
-        if (cls.status === 'cancelled') continue;
+        if (!cls.start_time || !cls.end_time) continue;
         
-        const [startH, startM] = cls.start_time.split(':').map(Number);
-        const [endH, endM] = cls.end_time.split(':').map(Number);
+        const [startH, startM] = (cls.start_time || '0:0').split(':').map(Number);
+        const [endH, endM] = (cls.end_time || '0:0').split(':').map(Number);
         const startMinutes = (startH || 0) * 60 + (startM || 0);
         const endMinutes = (endH || 0) * 60 + (endM || 0);
         
@@ -194,9 +194,9 @@ export function useTimetable(targetDate: string) {
         
         for (let i = 0; i < merged.length; i++) {
           const cls = merged[i];
-          if (cls.status === 'cancelled') continue;
+          if (cls.status === 'cancelled' || !cls.start_time) continue;
           
-          const [startH, startM] = cls.start_time.split(':').map(Number);
+          const [startH, startM] = (cls.start_time || '0:0').split(':').map(Number);
           const startMinutes = (startH || 0) * 60 + (startM || 0);
 
           if (startMinutes > currentMinutes) {
@@ -213,7 +213,7 @@ export function useTimetable(targetDate: string) {
       }
     }
 
-    return { mergedClasses, activeHoliday };
+    return { mergedClasses: merged, activeHoliday };
   }, [data, targetDate]);
 
   return {

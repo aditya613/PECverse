@@ -9,7 +9,7 @@ import { FAB } from '@/components/ui/FAB';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useRouter } from 'expo-router';
 import { useTimetable } from '@/hooks/useTimetable';
-import { ClassCard } from '@/components/timetable/ClassCard';
+import { ClassCard, MergedClass } from '@/components/timetable/ClassCard';
 import { DashboardMessWidget } from '@/components/dashboard/DashboardMessWidget';
 import { AttendanceWidget } from '@/components/dashboard/AttendanceWidget';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
@@ -55,7 +55,7 @@ export default function DashboardScreen() {
   };
 
   // Fetch real timetable classes for today from API hook
-  const { classes: todayClasses, activeHoliday, isLoading: isTimetableLoading } = useTimetable(todayStr);
+  const { classes: todayClasses = [], activeHoliday, isLoading: isTimetableLoading } = useTimetable(todayStr);
 
   return (
     <View style={styles.container}>
@@ -91,15 +91,15 @@ export default function DashboardScreen() {
           <AnimatedPressable onPress={() => router.push('/profile' as any)} scaleTo={0.92}>
             <View style={styles.avatarPill}>
               <Text style={styles.avatarPillText}>
-                {user?.name ? user.name.split(' ').map(n => n[0]).join('').substring(0, 2) : 'ME'}
+                {user?.name ? user.name.trim().split(/\s+/).map(n => n?.[0] || '').join('').substring(0, 2).toUpperCase() : 'ME'}
               </Text>
             </View>
           </AnimatedPressable>
         </View>
 
         {/* LIVE COUNTDOWN WIDGET */}
-        {!isTimetableLoading && !activeHoliday && todayClasses.length > 0 && (
-          <DashboardNextClassWidget todayClasses={todayClasses} />
+        {!isTimetableLoading && !activeHoliday && (todayClasses || []).length > 0 && (
+          <DashboardNextClassWidget todayClasses={todayClasses || []} />
         )}
 
         {/* TODAY'S CLASSES CARD CONTAINER */}
@@ -108,7 +108,7 @@ export default function DashboardScreen() {
             <View>
               <Text style={styles.scheduleTitle}>Today's Classes</Text>
               <Text style={styles.scheduleSubtitle}>
-                {isTimetableLoading ? 'Loading...' : `${todayClasses.length} Classes scheduled`}
+                {isTimetableLoading ? 'Loading...' : `${(todayClasses || []).length} Classes scheduled`}
               </Text>
             </View>
             <AnimatedPressable onPress={() => router.push('/(tabs)/timetable')} scaleTo={0.94}>
@@ -129,13 +129,13 @@ export default function DashboardScreen() {
               <Text style={styles.holidayTitle}>Holiday Declared!</Text>
               <Text style={styles.holidayReason}>{activeHoliday.reason || 'No classes today. Enjoy your day off!'}</Text>
             </View>
-          ) : todayClasses.length === 0 ? (
+          ) : (todayClasses || []).length === 0 ? (
             <View style={styles.emptyBox}>
               <Text style={styles.emptyText}>No classes scheduled for today.</Text>
             </View>
           ) : (
             <View style={styles.classesVerticalList}>
-              {todayClasses.map((cls) => (
+              {(todayClasses || []).map((cls: MergedClass) => (
                 <ClassCard key={cls.id} data={cls} />
               ))}
             </View>
@@ -151,7 +151,7 @@ export default function DashboardScreen() {
         {/* LATEST UPDATES / FEED */}
         <View style={styles.sectionHeaderRow}>
           <Text style={styles.sectionTitle}>Latest Updates</Text>
-          {announcements && announcements.length > 5 && (
+          {announcements && announcements?.length > 5 && (
             <Text style={styles.viewAllText}>View All</Text>
           )}
         </View>
@@ -163,7 +163,7 @@ export default function DashboardScreen() {
               <SkeletonCard type="announcement" />
               <SkeletonCard type="announcement" />
             </>
-          ) : !announcements || announcements.length === 0 ? (
+          ) : !announcements || announcements?.length === 0 ? (
             <GlassCard style={styles.emptyBox}>
               <Text style={styles.emptyText}>No announcements posted yet.</Text>
             </GlassCard>
