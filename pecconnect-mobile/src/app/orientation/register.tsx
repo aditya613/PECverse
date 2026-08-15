@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, TextInput, ScrollView, Linking } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/colors';
 import { Image } from 'expo-image';
@@ -130,6 +130,13 @@ export default function RegisterFresherScreen() {
                 <Text style={styles.buttonText}>Continue</Text>
                 <SymbolView name="arrow.right" tintColor="#FFFFFF" size={18} />
               </Pressable>
+
+              <Text style={styles.legalText}>
+                By continuing, you agree to our{' '}
+                <Text style={styles.legalLink} onPress={() => Linking.openURL('https://pecverse.netlify.app/terms')}>Terms of Service</Text>
+                {' '}and{' '}
+                <Text style={styles.legalLink} onPress={() => Linking.openURL('https://pecverse.netlify.app/privacy-policy')}>Privacy Policy</Text>.
+              </Text>
             </Animated.View>
           )}
 
@@ -277,6 +284,15 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 17,
     fontWeight: '700',
+  },
+  legalText: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: colors.tertiaryLabel || '#666',
+    marginTop: 12,
+  },
+  legalLink: {
+    color: colors.accent,
   },
   branchScroll: {
     flex: 1,
