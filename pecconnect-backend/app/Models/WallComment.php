@@ -13,6 +13,7 @@ class WallComment extends Model
         'wall_post_id',
         'fresher_id',
         'content',
+        'is_anonymous',
     ];
 
     public function post()

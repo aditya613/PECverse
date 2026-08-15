@@ -46,13 +46,18 @@ class WallController extends Controller
         }
 
         $posts->getCollection()->transform(function ($post) use ($likedPostIds) {
+            $authorName = $post->is_anonymous 
+                ? 'Fresher from ' . ($post->fresher->branch ?? 'PEC')
+                : ($post->fresher->name ?? 'Student') . ' (' . ($post->fresher->branch ?? 'PEC') . ')';
+
             return [
                 'id' => $post->id,
                 'content' => $post->content,
                 'likes_count' => $post->likes_count,
                 'comments_count' => $post->comments_count,
                 'created_at' => $post->created_at,
-                'author' => 'Fresher from ' . ($post->fresher->branch ?? 'PEC'),
+                'author' => $authorName,
+                'is_anonymous' => $post->is_anonymous,
                 'is_liked' => in_array($post->id, $likedPostIds),
             ];
         });
@@ -68,6 +73,7 @@ class WallController extends Controller
         $request->validate([
             'device_id' => 'required|string',
             'content' => 'required|string|max:500',
+            'is_anonymous' => 'nullable|boolean',
         ]);
 
         $fresher = Fresher::where('device_id', $request->device_id)->first();
@@ -75,12 +81,19 @@ class WallController extends Controller
             return response()->json(['message' => 'Fresher not found'], 404);
         }
 
+        $isAnonymous = $request->has('is_anonymous') ? $request->boolean('is_anonymous') : true;
+
         $post = WallPost::create([
             'fresher_id' => $fresher->id,
             'content' => $request->content,
             'likes_count' => 0,
             'comments_count' => 0,
+            'is_anonymous' => $isAnonymous,
         ]);
+
+        $authorName = $isAnonymous 
+            ? 'Fresher from ' . $fresher->branch
+            : $fresher->name . ' (' . $fresher->branch . ')';
 
         return response()->json([
             'message' => 'Posted successfully',
@@ -90,7 +103,8 @@ class WallController extends Controller
                 'likes_count' => $post->likes_count,
                 'comments_count' => $post->comments_count,
                 'created_at' => $post->created_at,
-                'author' => 'Fresher from ' . $fresher->branch,
+                'author' => $authorName,
+                'is_anonymous' => $isAnonymous,
                 'is_liked' => false,
             ]
         ], 201);
@@ -139,11 +153,16 @@ class WallController extends Controller
             ->orderBy('created_at', 'asc')
             ->get()
             ->map(function ($comment) {
+                $authorName = $comment->is_anonymous 
+                    ? 'Fresher from ' . ($comment->fresher->branch ?? 'PEC')
+                    : ($comment->fresher->name ?? 'Student') . ' (' . ($comment->fresher->branch ?? 'PEC') . ')';
+
                 return [
                     'id' => $comment->id,
                     'content' => $comment->content,
                     'created_at' => $comment->created_at,
-                    'author' => 'Fresher from ' . ($comment->fresher->branch ?? 'PEC'),
+                    'author' => $authorName,
+                    'is_anonymous' => $comment->is_anonymous,
                 ];
             });
 
@@ -158,6 +177,7 @@ class WallController extends Controller
         $request->validate([
             'device_id' => 'required|string',
             'content' => 'required|string|max:500',
+            'is_anonymous' => 'nullable|boolean',
         ]);
 
         $post = WallPost::findOrFail($id);
@@ -167,13 +187,20 @@ class WallController extends Controller
             return response()->json(['message' => 'Fresher not found'], 404);
         }
 
+        $isAnonymous = $request->has('is_anonymous') ? $request->boolean('is_anonymous') : true;
+
         $comment = WallComment::create([
             'wall_post_id' => $post->id,
             'fresher_id' => $fresher->id,
             'content' => $request->content,
+            'is_anonymous' => $isAnonymous,
         ]);
 
         $post->increment('comments_count');
+
+        $authorName = $isAnonymous 
+            ? 'Fresher from ' . $fresher->branch
+            : $fresher->name . ' (' . $fresher->branch . ')';
 
         return response()->json([
             'message' => 'Comment added',
@@ -181,7 +208,8 @@ class WallController extends Controller
                 'id' => $comment->id,
                 'content' => $comment->content,
                 'created_at' => $comment->created_at,
-                'author' => 'Fresher from ' . $fresher->branch,
+                'author' => $authorName,
+                'is_anonymous' => $isAnonymous,
             ]
         ], 201);
     }

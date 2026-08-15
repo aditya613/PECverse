@@ -1,7 +1,7 @@
 import { View, Text, StyleSheet, ScrollView, Pressable, Linking } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/colors';
-import { SymbolView } from 'expo-symbols';
+import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function ExploreScreen() {
@@ -24,31 +24,31 @@ export default function ExploreScreen() {
           
           <Pressable style={styles.linkCard} onPress={() => handleLink('https://linktr.ee/Orientation2026PEC')}>
             <View style={[styles.iconBox, { backgroundColor: 'rgba(32, 138, 239, 0.15)' }]}>
-              <SymbolView name="link" tintColor={colors.accent} size={24} />
+              <Ionicons name="link" color={colors.accent} size={24} />
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>Official Linktree</Text>
               <Text style={styles.cardDesc}>Important documents, groups, and notices.</Text>
             </View>
-            <SymbolView name="chevron.right" tintColor={colors.cardBorder} size={20} />
+            <Ionicons name="chevron-forward" color={colors.cardBorder} size={20} />
           </Pressable>
 
           <Pressable style={styles.linkCard} onPress={() => handleLink('https://pec.ac.in/')}>
             <View style={[styles.iconBox, { backgroundColor: 'rgba(139, 92, 246, 0.15)' }]}>
-              <SymbolView name="graduationcap.fill" tintColor="#8B5CF6" size={24} />
+              <Ionicons name="school" color="#8B5CF6" size={24} />
             </View>
             <View style={styles.cardContent}>
               <Text style={styles.cardTitle}>PEC Website</Text>
               <Text style={styles.cardDesc}>Academic calendar and curriculum details.</Text>
             </View>
-            <SymbolView name="chevron.right" tintColor={colors.cardBorder} size={20} />
+            <Ionicons name="chevron-forward" color={colors.cardBorder} size={20} />
           </Pressable>
         </Animated.View>
 
         <Animated.View entering={FadeInDown.delay(200).springify()}>
           <Text style={styles.sectionTitle}>Groups (Coming Soon)</Text>
           <View style={styles.comingSoonCard}>
-            <SymbolView name="person.3.sequence.fill" tintColor={colors.secondaryLabel} size={32} />
+            <Ionicons name="people" color={colors.secondaryLabel} size={32} />
             <Text style={styles.comingSoonText}>Interest-based groups and clubs will open up after orientation week!</Text>
           </View>
         </Animated.View>

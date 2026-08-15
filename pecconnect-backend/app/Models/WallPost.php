@@ -14,6 +14,7 @@ class WallPost extends Model
         'content',
         'likes_count',
         'comments_count',
+        'is_anonymous',
     ];
 
     public function fresher()

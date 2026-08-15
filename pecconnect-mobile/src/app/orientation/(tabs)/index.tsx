@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Linking, Modal } from 'react-native';
 import { colors } from '@/theme/colors';
-import { SymbolView } from 'expo-symbols';
+import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -32,9 +32,9 @@ const BRANCHES = [
 ];
 
 const LEGACY_FACTS = [
-  { id: '1', title: 'Established 1921', desc: 'Over a century of excellence. Founded in Lahore, PEC moved to Chandigarh in 1953.', icon: 'building.columns.fill', color: '#3B82F6' },
-  { id: '2', title: 'Kalpana Chawla', desc: 'The first woman of Indian origin in space graduated from PEC in Aeron Engg (1982).', icon: 'star.fill', color: '#8B5CF6' },
-  { id: '3', title: 'Leaders & Innovators', desc: 'Home to former PM Dr. Manmohan Singh and Vinod Khosla (Co-founder of Sun Microsystems).', icon: 'person.3.fill', color: '#10B981' },
+  { id: '1', title: 'Established 1921', desc: 'Over a century of excellence. Founded in Lahore, PEC moved to Chandigarh in 1953.', icon: 'business', color: '#3B82F6' },
+  { id: '2', title: 'Kalpana Chawla', desc: 'The first woman of Indian origin in space graduated from PEC in Aeron Engg (1982).', icon: 'star', color: '#8B5CF6' },
+  { id: '3', title: 'Leaders & Innovators', desc: 'Home to former PM Dr. Manmohan Singh and Vinod Khosla (Co-founder of Sun Microsystems).', icon: 'people', color: '#10B981' },
 ];
 
 export default function OrientationDashboard() {
@@ -63,7 +63,7 @@ export default function OrientationDashboard() {
           style={styles.backButton} 
           onPress={() => router.back()}
         >
-          <SymbolView name="chevron.left" tintColor={colors.label} size={24} />
+          <Ionicons name="chevron-back" color={colors.label} size={24} />
         </Pressable>
         <Text style={styles.headerTitle}>Fresher Dashboard</Text>
         <View style={{ width: 40 }} />
@@ -78,7 +78,7 @@ export default function OrientationDashboard() {
           
           {stats && (
             <View style={styles.statsBadge}>
-              <SymbolView name="person.3.fill" tintColor="#FFFFFF" size={14} />
+              <Ionicons name="people" color="#FFFFFF" size={14} />
               <Text style={styles.statsText}>{stats.total} freshers joined PECverse</Text>
             </View>
           )}
@@ -98,7 +98,7 @@ export default function OrientationDashboard() {
               onPress={() => Haptics.selectionAsync()}
             >
               <View style={[styles.legacyIconContainer, { backgroundColor: fact.color + '20' }]}>
-                <SymbolView name={fact.icon as any} tintColor={fact.color} size={24} />
+                <Ionicons name={fact.icon as any} color={fact.color} size={24} />
               </View>
               <Text style={styles.legacyTitle}>{fact.title}</Text>
               <Text style={styles.legacyDesc}>{fact.desc}</Text>
@@ -129,7 +129,7 @@ export default function OrientationDashboard() {
 
         <Animated.View entering={FadeInDown.delay(400).springify()} style={styles.venueCard}>
           <View style={styles.venueRow}>
-            <SymbolView name="person.3.sequence.fill" tintColor={colors.accent} size={20} />
+            <Ionicons name="people" color={colors.accent} size={20} />
             <View>
               <Text style={styles.venueLabel}>Your Group</Text>
               <Text style={styles.venueValue}>{selectedBranch.group}</Text>
@@ -137,7 +137,7 @@ export default function OrientationDashboard() {
           </View>
           <View style={styles.venueDivider} />
           <View style={styles.venueRow}>
-            <SymbolView name="building.columns.fill" tintColor={colors.accent} size={20} />
+            <Ionicons name="business" color={colors.accent} size={20} />
             <View>
               <Text style={styles.venueLabel}>8:30 AM Attendance Venue</Text>
               <Text style={styles.venueValue}>{selectedBranch.attendance}</Text>
@@ -145,7 +145,7 @@ export default function OrientationDashboard() {
           </View>
           <View style={styles.venueDivider} />
           <View style={styles.venueRow}>
-            <SymbolView name="map.fill" tintColor={colors.accent} size={20} />
+            <Ionicons name="map" color={colors.accent} size={20} />
             <View>
               <Text style={styles.venueLabel}>2:00 PM Dept. Visit Venue</Text>
               <Text style={styles.venueValue}>{selectedBranch.dept}</Text>
@@ -166,13 +166,13 @@ export default function OrientationDashboard() {
             transition={500}
           />
           <View style={styles.mapOverlay}>
-            <SymbolView name="magnifyingglass" tintColor="#FFFFFF" size={24} />
+            <Ionicons name="search" color="#FFFFFF" size={24} />
             <Text style={styles.mapOverlayText}>Tap to View Full Map</Text>
           </View>
         </AnimatedPressable>
 
         <AnimatedPressable entering={FadeInDown.delay(750).springify()} style={styles.linkButton} onPress={handleLinktree}>
-          <SymbolView name="link" tintColor="#FFFFFF" size={20} />
+          <Ionicons name="link" color="#FFFFFF" size={20} />
           <Text style={styles.linkButtonText}>View Official Linktree Resources</Text>
         </AnimatedPressable>
       </ScrollView>
@@ -185,7 +185,7 @@ export default function OrientationDashboard() {
                 style={styles.closeButton} 
                 onPress={() => setIsMapVisible(false)}
               >
-                <SymbolView name="xmark.circle.fill" tintColor={colors.secondaryLabel} size={28} />
+                <Ionicons name="close-circle" color={colors.secondaryLabel} size={28} />
               </Pressable>
               <Text style={styles.modalTitle}>Campus Map</Text>
               <View style={{ width: 28 }} />
