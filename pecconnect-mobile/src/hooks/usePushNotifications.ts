@@ -6,6 +6,8 @@ import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/utils/api';
 import { useNotificationModalStore } from '@/stores/useNotificationModalStore';
+import { useFresherStore } from '@/stores/useFresherStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 // Configure how notifications appear when the app is in the foreground
 Notifications.setNotificationHandler({
@@ -104,20 +106,31 @@ async function fetchExpoPushToken(): Promise<string | null> {
 
 async function syncTokenToBackend(token: string) {
   try {
-    await api.post('/user/push-token', { token });
+    const { fresher, deviceId } = useFresherStore.getState();
+    const { isAuthenticated } = useAuthStore.getState();
+
+    if (isAuthenticated) {
+      await api.post('/user/push-token', { token });
+    } else if (fresher && deviceId) {
+      await api.post('/freshers/push-token', { token, device_id: deviceId });
+    }
   } catch (err) {
     console.error('Failed to sync push token to backend:', err);
   }
 }
 
-export function usePushNotifications(isAuthenticated: boolean) {
+export function usePushNotifications() {
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [notification, setNotification] = useState<Notifications.Notification | null>(null);
   const notificationListener = useRef<Notifications.Subscription | null>(null);
   const responseListener = useRef<Notifications.Subscription | null>(null);
+  
+  // We can just rely on the stores directly to know if we are authenticated or a fresher
+  const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const isFresher = useFresherStore(state => !!state.fresher);
 
   const checkAndSync = useCallback(async () => {
-    if (!isAuthenticated || !Device.isDevice) return;
+    if ((!isAuthenticated && !isFresher) || !Device.isDevice) return;
 
     const { status } = await Notifications.getPermissionsAsync();
     if (status === 'granted') {
@@ -130,7 +143,7 @@ export function usePushNotifications(isAuthenticated: boolean) {
       // Trigger our smart soft prompt (won't nag if already denied or seen recently)
       await checkAndPromptPushPermissions(false);
     }
-  }, [isAuthenticated]);
+  }, [isAuthenticated, isFresher]);
 
   useEffect(() => {
     checkAndSync();

@@ -13,6 +13,21 @@ use App\Http\Controllers\Api\DataController;
 Route::post('/auth/google', [AuthController::class, 'googleLogin']);
 Route::post('/auth/guest', [AuthController::class, 'guestLogin']);
 
+// Fresher Portal Routes (No Auth Required, uses device_id)
+// Apply a stricter throttle (e.g., 5 requests per minute) to public post/comment routes to prevent spam
+Route::middleware('throttle:10,1')->group(function () {
+    Route::post('/freshers/register', [\App\Http\Controllers\Api\FresherController::class, 'register']);
+    Route::post('/wall', [\App\Http\Controllers\Api\WallController::class, 'store']);
+    Route::post('/wall/{id}/like', [\App\Http\Controllers\Api\WallController::class, 'toggleLike']);
+    Route::post('/wall/{id}/comments', [\App\Http\Controllers\Api\WallController::class, 'storeComment']);
+});
+
+Route::get('/freshers/profile/{device_id}', [\App\Http\Controllers\Api\FresherController::class, 'profile']);
+Route::get('/freshers/stats', [\App\Http\Controllers\Api\FresherController::class, 'stats']);
+Route::post('/freshers/push-token', [\App\Http\Controllers\Api\FresherController::class, 'updatePushToken'])->middleware('throttle:10,1');
+Route::get('/wall', [\App\Http\Controllers\Api\WallController::class, 'index']);
+Route::get('/wall/{id}/comments', [\App\Http\Controllers\Api\WallController::class, 'getComments']);
+
 Route::middleware('auth:sanctum')->group(function () {
     
     // Auth / Profile

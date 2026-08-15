@@ -15,7 +15,7 @@ export default function EditClassScreen() {
   const queryClient = useQueryClient();
 
   // Pre-select the user's current branch and class if available
-  const [selectedBranch, setSelectedBranch] = useState<number | null>(user?.courseClass?.branch_id || null);
+  const [selectedBranch, setSelectedBranch] = useState<number | null>((user?.courseClass as any)?.branch_id || (user?.courseClass as any)?.branch?.id || null);
   const [selectedClass, setSelectedClass] = useState<number | null>(user?.class_id || null);
 
   const { data: branches, isLoading: loadingBranches } = useQuery({
@@ -105,7 +105,7 @@ export default function EditClassScreen() {
                 onPress={() => {
                   Haptics.selectionAsync();
                   setSelectedBranch(branch.id);
-                  if (branch.id !== user?.courseClass?.branch_id) {
+                  if (branch.id !== (user?.courseClass as any)?.branch_id) {
                     setSelectedClass(null); // Reset class selection if branch changed
                   }
                 }}

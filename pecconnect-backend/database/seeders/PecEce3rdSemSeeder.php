@@ -20,181 +20,133 @@ class PecEce3rdSemSeeder extends Seeder
             ['name' => 'Electronics and Communication Engineering']
         );
 
-        // 2. Create ECE Class Group
-        $eceGroup = CourseClass::updateOrCreate(
-            ['branch_id' => $ece->id, 'year' => 2, 'group_name' => 'ECE - G1 (Roll 1-64)'],
+        // 2. Create ECE Class Groups
+        $eceGroup1 = CourseClass::updateOrCreate(
+            ['branch_id' => $ece->id, 'year' => 2, 'group_name' => 'ECE - G1 (Roll 1-60)'],
             ['cr_user_id' => null]
         );
 
+        $eceGroup2 = CourseClass::updateOrCreate(
+            ['branch_id' => $ece->id, 'year' => 2, 'group_name' => 'ECE - G2 (Roll 61 Onwards)'],
+            ['cr_user_id' => null]
+        );
+
+        // 3. Clear existing timetables for these groups to prevent duplicates if re-run
+        Timetable::whereIn('class_id', [$eceGroup1->id, $eceGroup2->id])->delete();
+
         // ==========================================
-        // 3. SEED ECE TIMETABLE
+        // SEED ECE TIMETABLE (G1)
         // ==========================================
-        $eceSchedule = [
-            // ==================== MONDAY ====================
-            [
-                'day' => 1, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3001 DS Lab (DS3: Roll 31-45)',
-                'teacher' => 'Sudesh Rani', 'room' => 'Lab 306'
-            ],
-            [
-                'day' => 1, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'HSM-II (Lecture - All DS)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407'
-            ],
-            [
-                'day' => 1, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'DSN3003 OS (Lecture - All DS)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'L405'
-            ],
-            [
-                'day' => 1, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00',
-                'subject' => 'DSN3002 PDS (Lecture - All DS)',
-                'teacher' => 'Kanu Goel', 'room' => 'L405'
-            ],
-            [
-                'day' => 1, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00',
-                'subject' => 'DSN3001 DS (Lecture - All DS)',
-                'teacher' => 'Sudesh Rani', 'room' => 'L405'
-            ],
-            [
-                'day' => 1, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00',
-                'subject' => 'Minor Specialization Course',
-                'teacher' => 'MSC Dept', 'room' => 'L405'
-            ],
+        $scheduleG1 = [
+            // MONDAY
+            ['day' => 1, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN303 Probability (Lecture)', 'teacher' => 'Dr. Satinder', 'room' => 'L-23'],
+            ['day' => 1, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN302 EDC (Lecture)', 'teacher' => 'Dr. J. Kedia', 'room' => 'L-20'],
+            ['day' => 1, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'EXN304 Circuit Theory (Tutorial - G2)', 'teacher' => 'Lovepreet Singh', 'room' => 'T-9'],
+            ['day' => 1, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'EXN301 DLD (Lecture)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'L-24'],
+            ['day' => 1, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN303 Probability (Tutorial - G3)', 'teacher' => 'Dr. Satinder', 'room' => 'T-9'],
+            ['day' => 1, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN304 Circuit Theory (Tutorial - G1)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-25'],
+            ['day' => 1, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'HSM (Lecture)', 'teacher' => 'Humanities Dept', 'room' => 'L-20 & L-23'],
+            ['day' => 1, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
 
-            // ==================== TUESDAY ====================
-            [
-                'day' => 2, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'DSN3001 DS (Lecture - All DS)',
-                'teacher' => 'Sudesh Rani', 'room' => 'L405'
-            ],
-            [
-                'day' => 2, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'DSN3004 CN (Lecture - All DS)',
-                'teacher' => 'Trilok Chand', 'room' => 'L405'
-            ],
-            [
-                'day' => 2, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00',
-                'subject' => 'DSN3002 PDS (Lecture - All DS)',
-                'teacher' => 'Kanu Goel', 'room' => 'L405'
-            ],
-            [
-                'day' => 2, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00',
-                'subject' => 'HSM-II (Lecture - All DS)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405'
-            ],
-            [
-                'day' => 2, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00',
-                'subject' => 'Minor Specialization Course',
-                'teacher' => 'MSC Dept', 'room' => 'L405'
-            ],
-            [
-                'day' => 2, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00',
-                'subject' => 'DSN3003 OS Lab (DS3, DS4: Roll 31-64)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'Lab 306'
-            ],
+            // TUESDAY
+            ['day' => 2, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'HSM (Lecture)', 'teacher' => 'Humanities Dept', 'room' => 'L-20 & L-23'],
+            ['day' => 2, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'EXN304 Circuit Theory (Lecture)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-24'],
+            ['day' => 2, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN302 EDC (Lab - G3)', 'teacher' => 'Dr. J. Kedia', 'room' => 'Lab 1'],
+            ['day' => 2, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'EXN302 EDC (Lab - G3)', 'teacher' => 'Dr. J. Kedia', 'room' => 'Lab 1'],
+            ['day' => 2, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN301 DLD (Lab - G1)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'Lab 2'],
+            ['day' => 2, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'EXN301 DLD (Lab - G1)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'Lab 2'],
+            ['day' => 2, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN303 Probability (Tutorial - G2)', 'teacher' => 'Dr. Satinder', 'room' => 'T-9'],
+            ['day' => 2, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
 
-            // ==================== WEDNESDAY ====================
-            // Simultaneous Lab Slots (09:00 - 11:00)
-            [
-                'day' => 3, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3002 PDS Lab (DS3, DS4: Roll 31-64)',
-                'teacher' => 'Kanu Goel', 'room' => 'Labs 304, 306'
-            ],
-            [
-                'day' => 3, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3001 DS Lab (DS1, DS2: Roll 1-30)',
-                'teacher' => 'Sudesh Rani', 'room' => 'Labs 301, 303'
-            ],
-            [
-                'day' => 3, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'DSN3001 DS (Lecture - All DS)',
-                'teacher' => 'Sudesh Rani', 'room' => 'L405'
-            ],
-            [
-                'day' => 3, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'DSN3003 OS (Lecture - All DS)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'L405'
-            ],
-            [
-                'day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '16:00:00',
-                'subject' => 'DSN3004 CN Lab (DS1, DS2: Roll 1-30)',
-                'teacher' => 'Trilok Chand', 'room' => 'CL13, CL14'
-            ],
-            [
-                'day' => 3, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00',
-                'subject' => 'Minor Specialization Course',
-                'teacher' => 'MSC Dept', 'room' => 'L405'
-            ],
+            // WEDNESDAY
+            ['day' => 3, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN303 Probability (Tutorial - G1)', 'teacher' => 'Dr. Satinder', 'room' => 'Lab-8'],
+            ['day' => 3, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN302 EDC (Lab - G2)', 'teacher' => 'Dr. Radhika', 'room' => 'Lab 1'],
+            ['day' => 3, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'EXN302 EDC (Lab - G2)', 'teacher' => 'Dr. Radhika', 'room' => 'Lab 1'],
+            ['day' => 3, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN301 DLD (Lab - G3)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'Lab 2'],
+            ['day' => 3, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'EXN301 DLD (Lab - G3)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'Lab 2'],
+            ['day' => 3, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'EXN304 Circuit Theory (Lecture)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-20'],
+            ['day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM (Tutorial)', 'teacher' => 'Humanities Dept', 'room' => 'TBA'],
+            ['day' => 3, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
 
-            // ==================== THURSDAY ====================
-            [
-                'day' => 4, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3001 DS Lab (DS4: Roll 46-64)',
-                'teacher' => 'Sudesh Rani', 'room' => 'Lab 306'
-            ],
-            [
-                'day' => 4, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'DSN3004 CN (Lecture - All DS)',
-                'teacher' => 'Trilok Chand', 'room' => 'L405'
-            ],
-            [
-                'day' => 4, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'DSN3002 PDS (Lecture - All DS)',
-                'teacher' => 'Kanu Goel', 'room' => 'L22'
-            ],
-            [
-                'day' => 4, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00',
-                'subject' => 'HSM-II Tutorial (All DS)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405'
-            ],
-            [
-                'day' => 4, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00',
-                'subject' => 'HSM-II Tutorial (All DS)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9, T11, T12'
-            ],
-            [
-                'day' => 4, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00',
-                'subject' => 'DSN3003 OS Lab (DS1, DS2: Roll 1-30)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'Lab 306'
-            ],
+            // THURSDAY
+            ['day' => 4, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN303 Probability (Lecture)', 'teacher' => 'Dr. Satinder', 'room' => 'L-23'],
+            ['day' => 4, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN302 EDC (Lecture)', 'teacher' => 'Dr. J. Kedia', 'room' => 'L-24'],
+            ['day' => 4, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'EXN301 DLD (Lecture)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'L-24'],
+            ['day' => 4, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN304 Circuit Theory (Tutorial - G3)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-25'],
+            ['day' => 4, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN302 EDC (Lab - G1)', 'teacher' => 'Dr. J. Kedia', 'room' => 'Lab 1'],
+            ['day' => 4, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'EXN302 EDC (Lab - G1)', 'teacher' => 'Dr. J. Kedia', 'room' => 'Lab 1'],
+            ['day' => 4, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN301 DLD (Lab - G2)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'Lab 2'],
+            ['day' => 4, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'EXN301 DLD (Lab - G2)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'Lab 2'],
+            ['day' => 4, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'HSM (Tutorial)', 'teacher' => 'Humanities Dept', 'room' => 'TBA'],
 
-            // ==================== FRIDAY ====================
-            // Simultaneous Lab Slots (09:00 - 11:00)
-            [
-                'day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3002 PDS Lab (DS1, DS2: Roll 1-30)',
-                'teacher' => 'Kanu Goel', 'room' => 'Lab 306'
-            ],
-            [
-                'day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3004 CN Lab (DS3, DS4: Roll 31-64)',
-                'teacher' => 'Trilok Chand', 'room' => 'CL13, CL14'
-            ],
-            [
-                'day' => 5, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'DSN3004 CN (Lecture - All DS)',
-                'teacher' => 'Trilok Chand', 'room' => 'L405'
-            ],
-            [
-                'day' => 5, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'DSN3003 OS (Lecture - All DS)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'L19'
-            ],
-            [
-                'day' => 5, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00',
-                'subject' => 'HSM-II Tutorial (All DS)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T9, T11, T12'
-            ],
-            [
-                'day' => 5, 'period' => 8, 'start' => '15:00:00', 'end' => '17:00:00',
-                'subject' => 'Minor Spec. Course Tute/Practical',
-                'teacher' => 'MSC Dept', 'room' => 'L405'
-            ],
+            // FRIDAY
+            ['day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN303 Probability (Lecture)', 'teacher' => 'Dr. Satinder', 'room' => 'L-23'],
+            ['day' => 5, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN304 Circuit Theory (Lecture)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-24'],
+            ['day' => 5, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'EXN301 DLD (Lecture)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'L-24'],
+            ['day' => 5, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'EXN302 EDC (Lecture)', 'teacher' => 'Dr. J. Kedia', 'room' => 'L-24'],
+            ['day' => 5, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM (Tutorial)', 'teacher' => 'Humanities Dept', 'room' => 'TBA'],
+            ['day' => 5, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
         ];
 
-        foreach ($eceSchedule as $slot) {
-            $this->seedSlot($eceGroup->id, $slot);
+        // ==========================================
+        // SEED ECE TIMETABLE (G2)
+        // ==========================================
+        $scheduleG2 = [
+            // MONDAY
+            ['day' => 1, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN304 Circuit Theory (Lecture)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-25'],
+            ['day' => 1, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN303 Probability (Lecture)', 'teacher' => 'Dr. Satinder', 'room' => 'L-23'],
+            ['day' => 1, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'EXN301 DLD (Lecture)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'L-24'],
+            ['day' => 1, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'EXN304 Circuit Theory (Tutorial - G4)', 'teacher' => 'Lovepreet Singh', 'room' => 'T-9'],
+            ['day' => 1, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'HSM (Lecture)', 'teacher' => 'Humanities Dept', 'room' => 'L-20 & L-23'],
+            ['day' => 1, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
+
+            // TUESDAY
+            ['day' => 2, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN303 Probability (Lecture)', 'teacher' => 'Dr. Satinder', 'room' => 'L-23'],
+            ['day' => 2, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN302 EDC (Lecture)', 'teacher' => 'Dr. J. Kedia', 'room' => 'L-25'],
+            ['day' => 2, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'HSM (Lecture)', 'teacher' => 'Humanities Dept', 'room' => 'L-20 & L-23'],
+            ['day' => 2, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'EXN303 Probability (Tutorial - G6)', 'teacher' => 'Dr. Satinder', 'room' => 'L-24'],
+            ['day' => 2, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
+
+            // WEDNESDAY
+            ['day' => 3, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN304 Circuit Theory (Lecture)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-25'],
+            ['day' => 3, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN303 Probability (Lecture)', 'teacher' => 'Dr. Satinder', 'room' => 'L-23'],
+            ['day' => 3, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'EXN302 EDC (Lecture)', 'teacher' => 'Dr. J. Kedia', 'room' => 'L-24'],
+            ['day' => 3, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'EXN301 DLD (Lecture)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'L-24'],
+            ['day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM (Tutorial)', 'teacher' => 'Humanities Dept', 'room' => 'TBA'],
+            ['day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN302 EDC (Lab - G4)', 'teacher' => 'Dr. J. Kedia', 'room' => 'Lab 1'],
+            ['day' => 3, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'EXN302 EDC (Lab - G4)', 'teacher' => 'Dr. J. Kedia', 'room' => 'Lab 1'],
+            ['day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'EXN301 DLD (Lab - G5)', 'teacher' => 'Dr. Neelam', 'room' => 'Lab 2'],
+            ['day' => 3, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'EXN301 DLD (Lab - G5)', 'teacher' => 'Dr. Neelam', 'room' => 'Lab 2'],
+            ['day' => 3, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
+
+            // THURSDAY
+            ['day' => 4, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN302 EDC (Lab - G5)', 'teacher' => 'Dr. Sukhwinder Singh', 'room' => 'Lab 1'],
+            ['day' => 4, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN302 EDC (Lab - G5)', 'teacher' => 'Dr. Sukhwinder Singh', 'room' => 'Lab 1'],
+            ['day' => 4, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN301 DLD (Lab - G6)', 'teacher' => 'Dr. Jasbir Kaur', 'room' => 'Lab 2'],
+            ['day' => 4, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN301 DLD (Lab - G6)', 'teacher' => 'Dr. Jasbir Kaur', 'room' => 'Lab 2'],
+            ['day' => 4, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'EXN301 DLD (Lecture)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'L-24'],
+            ['day' => 4, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'EXN302 EDC (Lecture)', 'teacher' => 'Dr. J. Kedia', 'room' => 'L-25'],
+            ['day' => 4, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'EXN304 Circuit Theory (Tutorial - G5)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-25'],
+            ['day' => 4, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'HSM (Tutorial)', 'teacher' => 'Humanities Dept', 'room' => 'TBA'],
+
+            // FRIDAY
+            ['day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN302 EDC (Lab - G6)', 'teacher' => 'Dr. J. Kedia', 'room' => 'Lab 1'],
+            ['day' => 5, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN302 EDC (Lab - G6)', 'teacher' => 'Dr. J. Kedia', 'room' => 'Lab 1'],
+            ['day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'EXN301 DLD (Lab - G4)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'Lab 2'],
+            ['day' => 5, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN301 DLD (Lab - G4)', 'teacher' => 'Dr. D. Dhawan', 'room' => 'Lab 2'],
+            ['day' => 5, 'period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'EXN303 Probability (Tutorial - G5)', 'teacher' => 'Dr. Satinder', 'room' => 'T-9'],
+            ['day' => 5, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'EXN304 Circuit Theory (Lecture)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-20'],
+            ['day' => 5, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'EXN303 Probability (Tutorial - G4)', 'teacher' => 'Dr. Satinder', 'room' => 'Lab-6'],
+            ['day' => 5, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'EXN304 Circuit Theory (Tutorial - G6)', 'teacher' => 'Lovepreet Singh', 'room' => 'L-25'],
+            ['day' => 5, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'HSM (Tutorial)', 'teacher' => 'Humanities Dept', 'room' => 'TBA'],
+            ['day' => 5, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
+        ];
+
+        foreach ($scheduleG1 as $slot) {
+            $this->seedSlot($eceGroup1->id, $slot);
+        }
+        foreach ($scheduleG2 as $slot) {
+            $this->seedSlot($eceGroup2->id, $slot);
         }
     }
 

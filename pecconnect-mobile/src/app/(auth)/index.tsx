@@ -8,6 +8,7 @@ import * as Haptics from 'expo-haptics';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { api } from '@/utils/api';
 import { useState } from 'react';
+import { Link } from 'expo-router';
 
 // Configure Google Sign-in Native SDK
 GoogleSignin.configure({
@@ -153,6 +154,13 @@ export default function LoginScreen() {
             )}
           </AnimatedPressable>
 
+          <Link href={"/orientation/register" as any} asChild>
+            <Pressable style={styles.fresherButton}>
+              <SymbolView name="sparkles" style={styles.fresherButtonIcon} tintColor="#B0B0B0" />
+              <Text style={styles.fresherButtonText}>I'm a Fresher 🎉</Text>
+            </Pressable>
+          </Link>
+
           <Text style={styles.disclaimer}>
             Only official @pec.edu.in accounts are supported.
           </Text>
@@ -255,5 +263,26 @@ const styles = StyleSheet.create({
     color: 'rgba(255,255,255,0.5)',
     textAlign: 'center',
     marginTop: 8,
+  },
+  fresherButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.08)',
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 100,
+    gap: 8,
+    marginTop: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  fresherButtonIcon: {
+    width: 16,
+    height: 16,
+  },
+  fresherButtonText: {
+    color: '#B0B0B0',
+    fontSize: 14,
+    fontWeight: '500',
   },
 });

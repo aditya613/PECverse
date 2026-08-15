@@ -14,13 +14,14 @@ export function useProtectedRoute() {
 
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboarding = segments[0] === 'onboarding';
+    const inOrientation = (segments[0] as string) === 'orientation';
     const isRoot = (segments as string[]).length === 0;
 
-    if (!isAuthenticated && !inAuthGroup) {
+    if (!isAuthenticated && !inAuthGroup && !inOrientation) {
       // User is not authenticated, must login
       router.replace('/(auth)');
     } else if (isAuthenticated) {
-      if (!user?.class_id && !inOnboarding) {
+      if (!user?.class_id && !inOnboarding && !inOrientation) {
         // User authenticated but no class, must onboard
         router.replace('/onboarding');
       } else if (user?.class_id && (inAuthGroup || inOnboarding || isRoot)) {

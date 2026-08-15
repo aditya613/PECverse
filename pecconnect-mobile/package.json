@@ -5,6 +5,7 @@
   "dependencies": {
     "@expo/ui": "~57.0.7",
     "@expo/vector-icons": "^15.1.1",
+    "@likashefqet/react-native-image-zoom": "^4.3.0",
     "@react-native-async-storage/async-storage": "2.2.0",
     "@react-native-community/datetimepicker": "^9.1.0",
     "@react-native-google-signin/google-signin": "^16.1.2",

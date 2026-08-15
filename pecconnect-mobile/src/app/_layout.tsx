@@ -3,6 +3,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
+import { useFresherStore } from '@/stores/useFresherStore';
 import * as SecureStore from 'expo-secure-store';
 import { api } from '@/utils/api';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
@@ -26,8 +27,8 @@ function RootLayoutNav() {
   // Call the robust navigation guard
   useProtectedRoute();
   
-  // Register for push notifications and sync when authenticated
-  usePushNotifications(isAuthenticated);
+  // Push Notifications Setup (checks internally if authenticated or fresher)
+  usePushNotifications();
 
   // On App Mount: Check if token exists and fetch user
   useEffect(() => {
@@ -50,6 +51,9 @@ function RootLayoutNav() {
       }
     };
     checkAuth();
+
+    // Initialize Fresher Pseudo-session
+    useFresherStore.getState().initSession();
   }, []);
 
   // Unconditionally return the Stack. 
