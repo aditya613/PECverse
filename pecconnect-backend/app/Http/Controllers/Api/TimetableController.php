@@ -116,23 +116,30 @@ class TimetableController extends Controller
                 return response()->json(['message' => 'Unauthorized'], 403);
             }
 
+            if (!$user->class_id) {
+                return response()->json(['message' => 'Please select a class before declaring a holiday.'], 400);
+            }
+
             $validated = $request->validate([
                 'date' => 'required|date',
                 'reason' => 'nullable|string|max:255',
             ]);
 
-            // Check if holiday already exists
+            // Format date to Y-m-d standard
+            $cleanDate = date('Y-m-d', strtotime($validated['date']));
+
+            // Check if holiday already exists for this date
             $existingHoliday = Holiday::where('class_id', $user->class_id)
-                ->where('date', $validated['date'])
+                ->where('date', $cleanDate)
                 ->first();
 
             if ($existingHoliday) {
-                return response()->json(['message' => 'Holiday already declared for this date.'], 400);
+                return response()->json(['message' => 'A holiday is already declared for this date.'], 400);
             }
 
             $holiday = Holiday::create([
                 'class_id' => $user->class_id,
-                'date' => $validated['date'],
+                'date' => $cleanDate,
                 'reason' => $validated['reason'] ?? null,
                 'declared_by' => $user->id,
             ]);
@@ -153,6 +160,37 @@ class TimetableController extends Controller
             \Illuminate\Support\Facades\Log::error('Holiday Error: ' . $e->getMessage());
             return response()->json(['message' => $e->getMessage()], 500);
         }
+    }
+
+    /**
+     * Remove / Delete a declared Holiday
+     */
+    public function destroyHoliday(Request $request, $id): JsonResponse
+    {
+        $user = $request->user();
+        if ($user->role !== 'cr' && $user->role !== 'superadmin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+
+        $holiday = Holiday::findOrFail($id);
+
+        if ($user->role !== 'superadmin' && $holiday->class_id !== $user->class_id) {
+            return response()->json(['message' => 'Unauthorized: Cannot remove holiday for another class'], 403);
+        }
+
+        $dateStr = date('l, M j, Y', strtotime($holiday->date));
+        $classId = $holiday->class_id;
+        $holiday->delete();
+
+        // Auto-generate Announcement
+        Announcement::create([
+            'title' => 'Holiday Cancelled 📅',
+            'body' => "The holiday on **{$dateStr}** has been cancelled. Regular timetable schedule will resume.",
+            'class_id' => $classId,
+            'posted_by' => $user->id,
+        ]);
+
+        return response()->json(['message' => 'Holiday removed successfully'], 200);
     }
 
     /**

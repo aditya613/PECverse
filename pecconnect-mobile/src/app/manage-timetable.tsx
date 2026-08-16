@@ -137,12 +137,16 @@ export default function ManageTimetableModal() {
         <Pressable onPress={() => router.back()} style={styles.closeButton}>
           <Text style={styles.closeText}>Cancel</Text>
         </Pressable>
-        <Text style={styles.headerTitle}>Add Class</Text>
+        <Text style={styles.headerTitle}>
+          {classType === 'holiday' ? 'Declare Holiday 🌴' : 'Add Class'}
+        </Text>
         <Pressable onPress={handleSubmit} disabled={isPending} style={styles.submitButton}>
           {isPending ? (
             <ActivityIndicator size="small" color={colors.accent as string} />
           ) : (
-            <Text style={styles.submitText}>Save</Text>
+            <Text style={styles.submitText}>
+              {classType === 'holiday' ? 'Declare' : 'Save'}
+            </Text>
           )}
         </Pressable>
       </View>

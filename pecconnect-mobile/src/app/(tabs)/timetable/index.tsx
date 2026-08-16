@@ -73,6 +73,37 @@ export default function TimetableScreen() {
     }
   });
 
+  const deleteHolidayMutation = useMutation({
+    mutationFn: async (holidayId: number) => {
+      return await api.delete(`/timetables/holiday/${holidayId}`);
+    },
+    onSuccess: () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      queryClient.invalidateQueries({ queryKey: ['timetables'] });
+      Alert.alert('Success', 'Holiday removed. Regular schedule is now active.');
+    },
+    onError: (err: any) => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+      Alert.alert('Error', err.response?.data?.message || 'Failed to remove holiday');
+    }
+  });
+
+  const handleRemoveHoliday = () => {
+    if (!activeHoliday) return;
+    Alert.alert(
+      'Cancel Holiday?',
+      'Are you sure you want to remove this holiday and resume regular classes?',
+      [
+        { text: 'No', style: 'cancel' },
+        {
+          text: 'Yes, Resume Classes',
+          style: 'destructive',
+          onPress: () => deleteHolidayMutation.mutate(activeHoliday.id)
+        }
+      ]
+    );
+  };
+
   const handleClassPress = (cls: MergedClass) => {
     if (!isCrOrAdmin) return;
     Haptics.selectionAsync();
@@ -141,6 +172,17 @@ export default function TimetableScreen() {
               <Text style={styles.holidayEmoji}>🌴</Text>
               <Text style={styles.holidayTitle}>Holiday Declared!</Text>
               <Text style={styles.holidayReason}>{activeHoliday.reason || 'No classes today. Enjoy your day off!'}</Text>
+              {isCrOrAdmin && (
+                <AnimatedPressable
+                  onPress={handleRemoveHoliday}
+                  style={styles.cancelHolidayButton}
+                  disabled={deleteHolidayMutation.isPending}
+                >
+                  <Text style={styles.cancelHolidayButtonText}>
+                    {deleteHolidayMutation.isPending ? 'Removing...' : 'Cancel Holiday (Resume Classes)'}
+                  </Text>
+                </AnimatedPressable>
+              )}
             </View>
           ) : (classes || []).length === 0 ? (
             <View style={styles.emptyContainer}>
@@ -262,6 +304,21 @@ const styles = StyleSheet.create({
     color: colors.label,
     textAlign: 'center',
     paddingHorizontal: 20,
+    marginBottom: 16,
+  },
+  cancelHolidayButton: {
+    backgroundColor: 'rgba(239, 68, 68, 0.15)',
+    borderColor: 'rgba(239, 68, 68, 0.3)',
+    borderWidth: 1,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 14,
+    marginTop: 6,
+  },
+  cancelHolidayButtonText: {
+    color: '#EF4444',
+    fontSize: 13,
+    fontWeight: '700',
   },
   fabPositionWrapper: {
     position: 'absolute',

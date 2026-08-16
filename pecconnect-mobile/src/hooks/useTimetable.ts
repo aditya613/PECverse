@@ -44,7 +44,7 @@ export function useTimetable(targetDate: string) {
     enabled: !!user?.class_id,
   });
 
-  const { mergedClasses, activeHoliday } = useMemo<{ mergedClasses: MergedClass[]; activeHoliday: HolidayRow | null }>(() => {
+  const timetableCalculation: { mergedClasses: MergedClass[]; activeHoliday: HolidayRow | null } = useMemo(() => {
     if (!data || !data.classes) return { mergedClasses: [], activeHoliday: null };
     
     // Safely parse YYYY-MM-DD in local time to avoid UTC shift bugs
@@ -54,9 +54,9 @@ export function useTimetable(targetDate: string) {
     if (targetDayOfWeek === 0) targetDayOfWeek = 7; // Convert Sunday(0) to 7 to match our DB (1-Mon, 7-Sun)
     
     // Check if there is a full-day holiday declared for this exact date
-    const holiday = data.holidays?.find(h => h.date === targetDate);
+    const holiday = (data.holidays || []).find(h => h?.date && h.date.startsWith(targetDate)) || null;
     if (holiday) {
-        return { mergedClasses: [], activeHoliday: holiday };
+      return { mergedClasses: [], activeHoliday: holiday };
     }
 
     const classesData = data.classes;
@@ -213,12 +213,12 @@ export function useTimetable(targetDate: string) {
       }
     }
 
-    return { mergedClasses: merged, activeHoliday };
+    return { mergedClasses: merged, activeHoliday: null };
   }, [data, targetDate]);
 
   return {
-    classes: mergedClasses,
-    activeHoliday,
+    classes: timetableCalculation.mergedClasses,
+    activeHoliday: timetableCalculation.activeHoliday,
     isLoading,
     isRefetching,
     refetch

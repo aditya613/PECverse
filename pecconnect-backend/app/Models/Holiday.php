@@ -16,6 +16,10 @@ class Holiday extends Model
         'declared_by',
     ];
 
+    protected $casts = [
+        'date' => 'date:Y-m-d',
+    ];
+
     public function courseClass()
     {
         return $this->belongsTo(CourseClass::class, 'class_id');
