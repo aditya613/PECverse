@@ -7,8 +7,7 @@ import { colors } from '@/theme/colors';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
-import { SymbolView } from 'expo-symbols';
-
+import { Ionicons } from '@expo/vector-icons';
 export default function ManageClassOptionsModal() {
   const router = useRouter();
   const params = useLocalSearchParams();
@@ -67,8 +66,8 @@ export default function ManageClassOptionsModal() {
 
   const renderMainOptions = () => (
     <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={styles.sheetContent}>
-      <View style={styles.sheetHeader}>
-        <Text style={styles.sheetTitle}>Manage {subject}</Text>
+      <View style={{ marginBottom: 4 }}>
+        <Text style={styles.sheetTitle} numberOfLines={2}>Manage {subject}</Text>
         <Text style={styles.sheetSubtitle}>What would you like to do?</Text>
       </View>
       
@@ -78,13 +77,13 @@ export default function ManageClassOptionsModal() {
           onPress={() => { Haptics.selectionAsync(); setView('today'); }}
         >
           <View style={styles.optionIconBox}>
-            <SymbolView name="calendar.badge.clock" tintColor={colors.accent} size={24} />
+            <Ionicons name="calendar-outline" color={colors.accent} size={24} />
           </View>
           <View style={styles.optionTextGroup}>
             <Text style={styles.optionTitle}>Changes for THIS DATE ONLY</Text>
             <Text style={styles.optionDesc}>Cancel or reschedule this specific class</Text>
           </View>
-          <SymbolView name="chevron.right" tintColor={colors.tertiaryLabel} size={20} />
+          <Ionicons name="chevron-forward" color={colors.tertiaryLabel} size={20} />
         </Pressable>
 
         <Pressable 
@@ -92,13 +91,13 @@ export default function ManageClassOptionsModal() {
           onPress={() => { Haptics.selectionAsync(); setView('permanent'); }}
         >
           <View style={[styles.optionIconBox, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-            <SymbolView name="repeat" tintColor={colors.destructive} size={24} />
+            <Ionicons name="repeat-outline" color={colors.destructive} size={24} />
           </View>
           <View style={styles.optionTextGroup}>
             <Text style={styles.optionTitle}>PERMANENT Weekly Changes</Text>
             <Text style={styles.optionDesc}>Affects all future weeks for this class</Text>
           </View>
-          <SymbolView name="chevron.right" tintColor={colors.tertiaryLabel} size={20} />
+          <Ionicons name="chevron-forward" color={colors.tertiaryLabel} size={20} />
         </Pressable>
       </View>
     </Animated.View>
@@ -108,7 +107,7 @@ export default function ManageClassOptionsModal() {
     <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={styles.sheetContent}>
       <View style={styles.sheetHeader}>
         <Pressable onPress={() => setView('main')} style={styles.backBtn}>
-          <SymbolView name="chevron.left" tintColor={colors.accent} size={24} />
+          <Ionicons name="chevron-back" color={colors.accent} size={24} />
         </Pressable>
         <View style={styles.centeredHeaderGroup}>
           <Text style={styles.sheetTitle}>For This Date Only</Text>
@@ -122,7 +121,7 @@ export default function ManageClassOptionsModal() {
           onPress={() => navigateToEdit('reschedule')}
         >
           <View style={styles.optionIconBox}>
-            <SymbolView name="clock.arrow.circlepath" tintColor={colors.accent} size={24} />
+            <Ionicons name="time-outline" color={colors.accent} size={24} />
           </View>
           <View style={styles.optionTextGroup}>
             <Text style={styles.optionTitle}>Reschedule / Change Venue</Text>
@@ -135,7 +134,7 @@ export default function ManageClassOptionsModal() {
           onPress={() => navigateToEdit('cancel')}
         >
           <View style={[styles.optionIconBox, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-            <SymbolView name="xmark.circle.fill" tintColor={colors.destructive} size={24} />
+            <Ionicons name="close-circle" color={colors.destructive} size={24} />
           </View>
           <View style={styles.optionTextGroup}>
             <Text style={[styles.optionTitle, { color: colors.destructive }]}>Cancel Class (Today)</Text>
@@ -150,7 +149,7 @@ export default function ManageClassOptionsModal() {
     <Animated.View entering={SlideInDown} exiting={SlideOutDown} style={styles.sheetContent}>
       <View style={styles.sheetHeader}>
         <Pressable onPress={() => setView('main')} style={styles.backBtn}>
-          <SymbolView name="chevron.left" tintColor={colors.accent} size={24} />
+          <Ionicons name="chevron-back" color={colors.accent} size={24} />
         </Pressable>
         <View style={styles.centeredHeaderGroup}>
           <Text style={styles.sheetTitle}>Permanent Changes</Text>
@@ -164,7 +163,7 @@ export default function ManageClassOptionsModal() {
           onPress={() => navigateToEdit('edit')}
         >
           <View style={styles.optionIconBox}>
-            <SymbolView name="pencil.circle.fill" tintColor={colors.accent} size={24} />
+            <Ionicons name="create" color={colors.accent} size={24} />
           </View>
           <View style={styles.optionTextGroup}>
             <Text style={styles.optionTitle}>Edit Routine (Time/Venue)</Text>
@@ -187,7 +186,7 @@ export default function ManageClassOptionsModal() {
           }}
         >
           <View style={[styles.optionIconBox, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-            <SymbolView name="trash.fill" tintColor={colors.destructive} size={24} />
+            <Ionicons name="trash" color={colors.destructive} size={24} />
           </View>
           <View style={styles.optionTextGroup}>
             <Text style={[styles.optionTitle, { color: colors.destructive }]}>Delete Permanently</Text>

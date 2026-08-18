@@ -38,7 +38,7 @@ export function useTimetable(targetDate: string) {
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['timetables'],
     queryFn: async () => {
-      const res = await api.get('/timetables');
+      const res = await api.get('/timetables?v=2');
       return res.data as TimetableResponse;
     },
     enabled: !!user?.class_id,

@@ -10,8 +10,16 @@ import {
   AppStateStatus,
   Platform,
 } from 'react-native';
-import * as Notifications from 'expo-notifications';
+import Constants from 'expo-constants';
 import * as Haptics from 'expo-haptics';
+
+const isExpoGo = Constants.appOwnership === 'expo';
+let Notifications: any = null;
+if (!isExpoGo) {
+  try {
+    Notifications = require('expo-notifications');
+  } catch (e) {}
+}
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Ionicons } from '@expo/vector-icons';
 import { useNotificationModalStore } from '@/stores/useNotificationModalStore';

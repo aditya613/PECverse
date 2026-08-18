@@ -14,23 +14,41 @@ Route::post('/auth/google', [AuthController::class, 'googleLogin']);
 Route::post('/auth/guest', [AuthController::class, 'guestLogin']);
 
 // Fresher Portal Routes (No Auth Required, uses device_id)
-// Apply a stricter throttle (e.g., 5 requests per minute) to public post/comment routes to prevent spam
-Route::middleware('throttle:10,1')->group(function () {
-    Route::post('/freshers/register', [\App\Http\Controllers\Api\FresherController::class, 'register']);
+Route::middleware(['throttle:10,1', \App\Http\Middleware\FresherAuthMiddleware::class])->group(function () {
     Route::post('/wall', [\App\Http\Controllers\Api\WallController::class, 'store']);
+    Route::delete('/wall/{id}', [\App\Http\Controllers\Api\WallController::class, 'destroy']);
     Route::post('/wall/{id}/like', [\App\Http\Controllers\Api\WallController::class, 'toggleLike']);
     Route::post('/wall/{id}/comments', [\App\Http\Controllers\Api\WallController::class, 'storeComment']);
+    Route::delete('/wall/comments/{id}', [\App\Http\Controllers\Api\WallController::class, 'destroyComment']);
     Route::post('/wall/{id}/report', [\App\Http\Controllers\Api\WallController::class, 'reportPost']);
     Route::post('/wall/{id}/block', [\App\Http\Controllers\Api\WallController::class, 'blockUser']);
+    
+    Route::post('/senior-advice/questions', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'askQuestion']);
+    Route::delete('/senior-advice/questions/{id}', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'deleteQuestion']);
 });
 
+// Fresher registration shouldn't require auth token
+Route::post('/freshers/register', [\App\Http\Controllers\Api\FresherController::class, 'register'])->middleware('throttle:10,1');
 Route::get('/freshers/profile/{device_id}', [\App\Http\Controllers\Api\FresherController::class, 'profile']);
 Route::get('/freshers/stats', [\App\Http\Controllers\Api\FresherController::class, 'stats']);
-Route::post('/freshers/push-token', [\App\Http\Controllers\Api\FresherController::class, 'updatePushToken'])->middleware('throttle:10,1');
+Route::post('/freshers/push-token', [\App\Http\Controllers\Api\FresherController::class, 'updatePushToken'])->middleware('throttle:10,1', \App\Http\Middleware\FresherAuthMiddleware::class);
 Route::get('/wall', [\App\Http\Controllers\Api\WallController::class, 'index']);
 Route::get('/wall/{id}/comments', [\App\Http\Controllers\Api\WallController::class, 'getComments']);
 
+// Clubs / Squads & Communities (Works for both freshers and logged-in students)
+Route::get('/clubs', [\App\Http\Controllers\Api\ClubController::class, 'index']);
+Route::post('/clubs/{id}/toggle-join', [\App\Http\Controllers\Api\ClubController::class, 'toggleJoin'])->middleware('throttle:10,1');
+
+// Senior Advice & Survival Guides
+Route::get('/senior-advice', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'index']);
+Route::post('/senior-advice/{id}/like', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'like'])->middleware('throttle:10,1');
+Route::get('/senior-advice/questions', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'getQuestions']);
+
 Route::middleware('auth:sanctum')->group(function () {
+    // Senior Advice (Answering questions)
+    Route::get('/senior-advice/questions/pending', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'getPendingQuestions']);
+    Route::post('/senior-advice/questions/{id}/answer', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'answerQuestion']);
+    Route::delete('/senior-advice/{id}', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'deleteAdvice']);
     
     // Auth / Profile
     Route::post('/auth/logout', [AuthController::class, 'logout']);

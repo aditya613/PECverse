@@ -24,7 +24,9 @@ class WallController extends Controller
         $sort = $request->query('sort', 'new'); // 'new' or 'hot'
         $deviceId = $request->query('device_id');
         
-        $query = WallPost::with(['fresher:id,branch,device_id'])->withCount('comments');
+        $query = WallPost::with(['fresher:id,branch,device_id'])
+            ->withCount('reports')
+            ->having('reports_count', '<', 3);
 
         // Filter out posts from blocked users
         if ($deviceId) {
@@ -58,7 +60,7 @@ class WallController extends Controller
                 ->toArray();
         }
 
-        $posts->getCollection()->transform(function ($post) use ($likedPostIds) {
+        $posts->getCollection()->transform(function ($post) use ($likedPostIds, $deviceId) {
             $authorName = $post->is_anonymous 
                 ? 'Fresher from ' . ($post->fresher->branch ?? 'PEC')
                 : ($post->fresher->name ?? 'Student') . ' (' . ($post->fresher->branch ?? 'PEC') . ')';
@@ -72,6 +74,7 @@ class WallController extends Controller
                 'author' => $authorName,
                 'is_anonymous' => $post->is_anonymous,
                 'is_liked' => in_array($post->id, $likedPostIds),
+                'is_author' => $deviceId && $post->fresher->device_id === $deviceId,
             ];
         });
 
@@ -84,15 +87,11 @@ class WallController extends Controller
     public function store(Request $request): JsonResponse
     {
         $request->validate([
-            'device_id' => 'required|string',
             'content' => 'required|string|max:500',
             'is_anonymous' => 'nullable|boolean',
         ]);
 
-        $fresher = Fresher::where('device_id', $request->device_id)->first();
-        if (!$fresher) {
-            return response()->json(['message' => 'Fresher not found'], 404);
-        }
+        $fresher = $request->authenticated_fresher;
 
         $isAnonymous = $request->has('is_anonymous') ? $request->boolean('is_anonymous') : true;
 
@@ -128,15 +127,12 @@ class WallController extends Controller
      */
     public function toggleLike(Request $request, $id): JsonResponse
     {
-        $request->validate([
-            'device_id' => 'required|string',
-        ]);
-
         $post = WallPost::findOrFail($id);
+        $deviceId = $request->authenticated_fresher->device_id;
         
         $like = WallLike::where('likable_type', WallPost::class)
             ->where('likable_id', $id)
-            ->where('device_id', $request->device_id)
+            ->where('device_id', $deviceId)
             ->first();
 
         if ($like) {
@@ -147,7 +143,7 @@ class WallController extends Controller
             WallLike::create([
                 'likable_type' => WallPost::class,
                 'likable_id' => $id,
-                'device_id' => $request->device_id,
+                'device_id' => $deviceId,
             ]);
             $post->increment('likes_count');
             return response()->json(['message' => 'Liked', 'is_liked' => true, 'likes_count' => $post->likes_count], 200);
@@ -179,7 +175,7 @@ class WallController extends Controller
 
         $comments = $query->orderBy('created_at', 'asc')
             ->get()
-            ->map(function ($comment) {
+            ->map(function ($comment) use ($deviceId) {
                 $authorName = $comment->is_anonymous 
                     ? 'Fresher from ' . ($comment->fresher->branch ?? 'PEC')
                     : ($comment->fresher->name ?? 'Student') . ' (' . ($comment->fresher->branch ?? 'PEC') . ')';
@@ -190,6 +186,7 @@ class WallController extends Controller
                     'created_at' => $comment->created_at,
                     'author' => $authorName,
                     'is_anonymous' => $comment->is_anonymous,
+                    'is_author' => $deviceId && $comment->fresher->device_id === $deviceId,
                 ];
             });
 
@@ -202,17 +199,12 @@ class WallController extends Controller
     public function storeComment(Request $request, $id): JsonResponse
     {
         $request->validate([
-            'device_id' => 'required|string',
             'content' => 'required|string|max:500',
             'is_anonymous' => 'nullable|boolean',
         ]);
 
         $post = WallPost::findOrFail($id);
-        $fresher = Fresher::where('device_id', $request->device_id)->first();
-        
-        if (!$fresher) {
-            return response()->json(['message' => 'Fresher not found'], 404);
-        }
+        $fresher = $request->authenticated_fresher;
 
         $isAnonymous = $request->has('is_anonymous') ? $request->boolean('is_anonymous') : true;
 
@@ -247,15 +239,15 @@ class WallController extends Controller
     public function reportPost(Request $request, $id): JsonResponse
     {
         $request->validate([
-            'device_id' => 'required|string',
             'reason' => 'required|string|max:255',
         ]);
 
         $post = WallPost::findOrFail($id);
+        $deviceId = $request->authenticated_fresher->device_id;
 
         ReportedPost::firstOrCreate([
             'wall_post_id' => $post->id,
-            'reporter_device_id' => $request->device_id,
+            'reporter_device_id' => $deviceId,
         ], [
             'reason' => $request->reason,
         ]);
@@ -268,21 +260,55 @@ class WallController extends Controller
      */
     public function blockUser(Request $request, $id): JsonResponse
     {
-        $request->validate([
-            'device_id' => 'required|string', // The blocker
-        ]);
-
-        $post = WallPost::with('fresher')->findOrFail($id);
+        $post = WallPost::findOrFail($id);
         
-        if ($post->fresher->device_id === $request->device_id) {
-            return response()->json(['message' => 'You cannot block yourself'], 400);
+        if (!$post->fresher_id) {
+            return response()->json(['message' => 'Cannot block this user.'], 400);
         }
 
-        BlockedUser::firstOrCreate([
-            'blocker_device_id' => $request->device_id,
-            'blocked_device_id' => $post->fresher->device_id,
-        ]);
+        $blockedFresher = Fresher::find($post->fresher_id);
+        $deviceId = $request->authenticated_fresher->device_id;
 
-        return response()->json(['message' => 'User blocked successfully'], 201);
+        if ($blockedFresher && $blockedFresher->device_id) {
+            BlockedUser::firstOrCreate([
+                'blocker_device_id' => $deviceId,
+                'blocked_device_id' => $blockedFresher->device_id,
+            ]);
+        } return response()->json(['message' => 'User blocked successfully'], 201);
+    }
+
+    /**
+     * Delete a wall post
+     */
+    public function destroy(Request $request, $id): JsonResponse
+    {
+        $fresher = $request->authenticated_fresher;
+        $post = WallPost::findOrFail($id);
+
+        if ($post->fresher_id !== $fresher->id) {
+            return response()->json(['message' => 'Unauthorized. You can only delete your own posts.'], 403);
+        }
+
+        $post->delete();
+
+        return response()->json(['message' => 'Post deleted successfully'], 200);
+    }
+
+    /**
+     * Delete a wall comment
+     */
+    public function destroyComment(Request $request, $id): JsonResponse
+    {
+        $fresher = $request->authenticated_fresher;
+        $comment = WallComment::findOrFail($id);
+
+        if ($comment->fresher_id !== $fresher->id) {
+            return response()->json(['message' => 'Unauthorized. You can only delete your own comments.'], 403);
+        }
+
+        $comment->delete();
+        WallPost::where('id', $comment->wall_post_id)->decrement('comments_count');
+
+        return response()->json(['message' => 'Comment deleted successfully'], 200);
     }
 }

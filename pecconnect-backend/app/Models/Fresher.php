@@ -13,6 +13,7 @@ class Fresher extends Model
         'name',
         'branch',
         'device_id',
+        'secret_token',
         'expo_push_token',
     ];
 

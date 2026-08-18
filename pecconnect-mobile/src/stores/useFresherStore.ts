@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as SecureStore from 'expo-secure-store';
 import { api } from '@/utils/api';
 
 export interface Fresher {
@@ -13,6 +14,7 @@ export interface Fresher {
 interface FresherState {
   fresher: Fresher | null;
   deviceId: string | null;
+  fresherToken: string | null;
   isRegistered: boolean;
   isLoading: boolean;
   initSession: () => Promise<void>;
@@ -27,6 +29,7 @@ const generateDeviceId = () => {
 export const useFresherStore = create<FresherState>((set, get) => ({
   fresher: null,
   deviceId: null,
+  fresherToken: null,
   isRegistered: false,
   isLoading: true,
 
@@ -34,17 +37,26 @@ export const useFresherStore = create<FresherState>((set, get) => ({
     try {
       let storedDeviceId = await AsyncStorage.getItem('fresher_device_id');
       
+      let storedToken = await SecureStore.getItemAsync('fresher_token');
+
       if (!storedDeviceId) {
         storedDeviceId = generateDeviceId();
         await AsyncStorage.setItem('fresher_device_id', storedDeviceId);
       }
 
-      set({ deviceId: storedDeviceId });
+      set({ deviceId: storedDeviceId, fresherToken: storedToken });
 
       // Check if already registered on backend
       try {
         const res = await api.get(`/freshers/profile/${storedDeviceId}`);
         if (res.data && res.data.fresher) {
+          const fetchedToken = res.data.fresher.secret_token;
+          
+          if (fetchedToken && fetchedToken !== storedToken) {
+            await SecureStore.setItemAsync('fresher_token', fetchedToken);
+            set({ fresherToken: fetchedToken });
+          }
+
           set({ fresher: res.data.fresher, isRegistered: true });
         }
       } catch (err: any) {
@@ -69,13 +81,17 @@ export const useFresherStore = create<FresherState>((set, get) => ({
       device_id: deviceId
     });
 
-    set({ fresher: res.data.fresher, isRegistered: true });
+    set({ fresher: res.data.fresher, isRegistered: true, fresherToken: res.data.fresher.secret_token });
+    if (res.data.fresher.secret_token) {
+      await SecureStore.setItemAsync('fresher_token', res.data.fresher.secret_token);
+    }
   },
 
   logout: async () => {
     // Generate new device ID and clear registration
     const newDeviceId = generateDeviceId();
     await AsyncStorage.setItem('fresher_device_id', newDeviceId);
-    set({ fresher: null, isRegistered: false, deviceId: newDeviceId });
+    await SecureStore.deleteItemAsync('fresher_token');
+    set({ fresher: null, isRegistered: false, deviceId: newDeviceId, fresherToken: null });
   }
 }));

@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, ActivityIndicator, RefreshControl, Linking } from 'react-native';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/utils/api';
-import { colors } from '@/theme/colors';
+import { useTheme } from '@/theme/colors';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { useAuthStore } from '@/stores/useAuthStore';
 import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 interface Note {
   id: number;
@@ -21,11 +23,12 @@ interface Note {
   };
 }
 
-const CATEGORIES = ['All', 'Announcements', 'Notes', 'Events'];
+const CATEGORIES = ['All', 'Notes', 'Assignments', 'PYQs'];
 
-export default function FeedScreen() {
+export default function NotesScreen() {
   const user = useAuthStore(state => state.user);
   const [selectedCategory, setSelectedCategory] = useState('All');
+  const { colors, isDark } = useTheme();
 
   const { data: notes, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['notes'],
@@ -49,7 +52,7 @@ export default function FeedScreen() {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.systemBackground }]}>
       <ScrollView 
         contentInsetAdjustmentBehavior="automatic"
         contentContainerStyle={styles.contentContainer}
@@ -58,9 +61,12 @@ export default function FeedScreen() {
       >
         {/* Header Bar */}
         <View style={styles.headerRow}>
-          <Text style={styles.headerTitle}>Study Material & Feed</Text>
-          <View style={styles.bellIconCircle}>
-            <Text style={styles.bellEmoji}>📚</Text>
+          <View>
+            <Text style={[styles.headerTitle, { color: colors.label }]}>Study Resources</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.secondaryLabel }]}>Class Notes & Materials</Text>
+          </View>
+          <View style={[styles.bellIconCircle, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+            <Ionicons name="folder-open" size={20} color={colors.accent} />
           </View>
         </View>
 
@@ -78,8 +84,11 @@ export default function FeedScreen() {
                 onPress={() => setSelectedCategory(cat)}
                 scaleTo={0.94}
               >
-                <View style={[styles.filterPill, isSelected && styles.filterPillActive]}>
-                  <Text style={[styles.filterText, isSelected && styles.filterTextActive]}>
+                <View style={[
+                  styles.filterPill, 
+                  { backgroundColor: isSelected ? colors.accent : colors.secondarySystemBackground, borderColor: isSelected ? colors.accent : colors.cardBorder }
+                ]}>
+                  <Text style={[styles.filterText, { color: isSelected ? '#FFFFFF' : colors.secondaryLabel }]}>
                     {cat}
                   </Text>
                 </View>
@@ -93,51 +102,39 @@ export default function FeedScreen() {
           {isLoading && !isRefetching ? (
             <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 40 }} />
           ) : !notes || notes.length === 0 ? (
-            <GlassCard style={styles.emptyCard}>
-              <Text style={styles.emptyTitle}>No Notes Uploaded Yet</Text>
-              <Text style={styles.emptySubtitle}>Notes and material uploaded by your CRs will appear here.</Text>
-            </GlassCard>
+            <View style={[styles.emptyCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+              <Ionicons name="document-text-outline" size={48} color={colors.tertiaryLabel} />
+              <Text style={[styles.emptyTitle, { color: colors.label }]}>No Notes Uploaded Yet</Text>
+              <Text style={[styles.emptySubtitle, { color: colors.secondaryLabel }]}>Notes and study material uploaded by your CR will appear here.</Text>
+            </View>
           ) : (
-            notes.map((note) => (
-              <AnimatedPressable key={note.id} onPress={() => handleDownload(note)} scaleTo={0.98}>
-                <GlassCard style={styles.postCard}>
-                  <View style={styles.postHeaderRow}>
-                    <View style={styles.authorGroup}>
-                      <View style={styles.authorAvatar}>
-                        <Text style={styles.authorAvatarText}>
-                          {note.uploader?.name ? note.uploader.name[0] : 'CR'}
-                        </Text>
-                      </View>
-                      <View>
-                        <Text style={styles.authorName}>{note.uploader?.name || 'CR Upload'}</Text>
-                        <Text style={styles.postTimestamp}>
-                          {new Date(note.created_at).toLocaleDateString(undefined, {
-                            month: 'short', day: 'numeric'
-                          })}
-                        </Text>
-                      </View>
-                    </View>
-                  </View>
-
-                  <View style={styles.postBodyBox}>
-                    <Text style={styles.subjectBadgeText}>{note.subject.toUpperCase()}</Text>
-                    <Text style={styles.postTitleText}>{note.title}</Text>
-                  </View>
-
-                  <View style={styles.postFooterRow}>
-                    <View style={styles.reactionsGroup}>
-                      <Text style={styles.downloadsText}>📥 {note.downloads_count} Downloads</Text>
-                    </View>
-                    <Text style={styles.openBtnText}>Open File ›</Text>
-                  </View>
-                </GlassCard>
-              </AnimatedPressable>
+            notes.map((note, index) => (
+              <Animated.View 
+                key={note.id} 
+                entering={FadeInDown.delay(index * 40).springify()}
+                style={[styles.noteCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}
+              >
+                <View style={[styles.noteIconBox, { backgroundColor: colors.accent + '15' }]}>
+                  <Ionicons name="document-text" size={24} color={colors.accent} />
+                </View>
+                <View style={styles.noteContent}>
+                  <Text style={[styles.noteTitle, { color: colors.label }]} numberOfLines={2}>{note.title}</Text>
+                  <Text style={[styles.noteMeta, { color: colors.secondaryLabel }]}>
+                    {note.subject} • By {note.uploader?.name || 'CR'}
+                  </Text>
+                </View>
+                <AnimatedPressable 
+                  style={[styles.downloadBtn, { backgroundColor: colors.accent }]}
+                  onPress={() => handleDownload(note)}
+                >
+                  <Ionicons name="download-outline" size={18} color="#FFFFFF" />
+                </AnimatedPressable>
+              </Animated.View>
             ))
           )}
         </View>
 
-        {/* Spacer for bottom tab bar */}
-        <View style={{ height: 100 }} />
+        <View style={{ height: 110 }} />
       </ScrollView>
     </View>
   );
@@ -146,152 +143,99 @@ export default function FeedScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.systemBackground,
   },
   contentContainer: {
     paddingTop: 54,
+    paddingHorizontal: 16,
     gap: 16,
   },
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 20,
   },
   headerTitle: {
-    fontSize: 28,
+    fontSize: 24,
     fontWeight: '800',
-    color: colors.label,
     letterSpacing: -0.5,
   },
+  headerSubtitle: {
+    fontSize: 13,
+    fontWeight: '500',
+    marginTop: 2,
+  },
   bellIconCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: colors.cardBackground,
-    borderWidth: 1,
-    borderColor: colors.cardBorder,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  bellEmoji: {
-    fontSize: 16,
+    borderWidth: 1,
   },
   filterRibbon: {
-    paddingHorizontal: 20,
-    gap: 10,
+    gap: 8,
     paddingVertical: 4,
   },
   filterPill: {
     paddingHorizontal: 16,
     paddingVertical: 8,
     borderRadius: 18,
-    backgroundColor: colors.cardBackground,
     borderWidth: 1,
-    borderColor: colors.cardBorder,
-  },
-  filterPillActive: {
-    backgroundColor: colors.accent,
-    borderColor: colors.accent,
   },
   filterText: {
     fontSize: 13,
-    fontWeight: '600',
-    color: colors.secondaryLabel,
-  },
-  filterTextActive: {
-    color: '#FFF',
     fontWeight: '700',
   },
   feedList: {
-    paddingHorizontal: 20,
-    gap: 14,
-  },
-  emptyCard: {
-    padding: 24,
-    alignItems: 'center',
-    gap: 8,
-  },
-  emptyTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.label,
-  },
-  emptySubtitle: {
-    fontSize: 13,
-    color: colors.secondaryLabel,
-    textAlign: 'center',
-  },
-  postCard: {
-    padding: 18,
-    gap: 14,
-  },
-  postHeaderRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
-  authorGroup: {
-    flexDirection: 'row',
-    alignItems: 'center',
     gap: 12,
   },
-  authorAvatar: {
+  noteCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 18,
+    borderWidth: 1,
+  },
+  noteIconBox: {
+    width: 46,
+    height: 46,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  noteContent: {
+    flex: 1,
+    gap: 4,
+  },
+  noteTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  noteMeta: {
+    fontSize: 12,
+  },
+  downloadBtn: {
     width: 38,
     height: 38,
     borderRadius: 19,
-    backgroundColor: colors.accent,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  authorAvatarText: {
-    color: '#FFF',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  authorName: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: colors.label,
-  },
-  postTimestamp: {
-    fontSize: 12,
-    color: colors.tertiaryLabel,
-    marginTop: 1,
-  },
-  postBodyBox: {
-    gap: 4,
-  },
-  subjectBadgeText: {
-    fontSize: 11,
-    fontWeight: '800',
-    color: colors.accent,
-    letterSpacing: 0.5,
-  },
-  postTitleText: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: colors.label,
-  },
-  postFooterRow: {
-    flexDirection: 'row',
+  emptyCard: {
+    padding: 40,
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingTop: 6,
-    borderTopWidth: 1,
-    borderTopColor: 'rgba(255,255,255,0.06)',
+    borderRadius: 20,
+    borderWidth: 1,
+    gap: 10,
+    marginTop: 20,
   },
-  reactionsGroup: {
-    flexDirection: 'row',
-  },
-  downloadsText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: colors.secondaryLabel,
-  },
-  openBtnText: {
-    fontSize: 13,
+  emptyTitle: {
+    fontSize: 17,
     fontWeight: '700',
-    color: colors.accent,
+  },
+  emptySubtitle: {
+    fontSize: 13,
+    textAlign: 'center',
   },
 });

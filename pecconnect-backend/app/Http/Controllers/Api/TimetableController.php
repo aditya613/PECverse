@@ -31,10 +31,15 @@ class TimetableController extends Controller
         $holidays = Holiday::where('class_id', $user->class_id)
             ->get();
 
-        return response()->json([
-            'classes' => $classes,
-            'holidays' => $holidays
-        ], 200);
+        // Backward compatibility: old app expects raw array. New app sends ?v=2
+        if ($request->query('v') === '2') {
+            return response()->json([
+                'classes' => $classes,
+                'holidays' => $holidays
+            ], 200);
+        }
+
+        return response()->json($classes, 200);
     }
 
     /**

@@ -5,7 +5,7 @@ import { api } from '@/utils/api';
 import { colors } from '@/theme/colors';
 import { useAuthStore } from '@/stores/useAuthStore';
 import * as Haptics from 'expo-haptics';
-import { Image } from 'expo-image';
+import { Image } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 
 export default function OnboardingScreen() {
@@ -55,7 +55,7 @@ export default function OnboardingScreen() {
   return (
     <View style={styles.container}>
       <Animated.View entering={FadeInUp.duration(600).springify()} style={styles.header}>
-        <Image source={require('@/assets/images/pec-logo.jpg')} style={styles.logo} contentFit="contain" />
+        <Image source={require('@/assets/images/icon.png')} style={styles.logo} resizeMode="contain" />
         <Text style={styles.title}>Welcome to PECverse</Text>
         <Text style={styles.subtitle}>Let's get you set up. What branch are you in?</Text>
       </Animated.View>

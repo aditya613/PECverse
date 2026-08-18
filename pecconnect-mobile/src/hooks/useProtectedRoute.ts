@@ -15,9 +15,10 @@ export function useProtectedRoute() {
     const inAuthGroup = segments[0] === '(auth)';
     const inOnboarding = segments[0] === 'onboarding';
     const inOrientation = (segments[0] as string) === 'orientation';
+    const inClub = (segments[0] as string) === 'club';
     const isRoot = (segments as string[]).length === 0;
 
-    if (!isAuthenticated && !inAuthGroup && !inOrientation) {
+    if (!isAuthenticated && !inAuthGroup && !inOrientation && !inClub) {
       // User is not authenticated, must login
       router.replace('/(auth)');
     } else if (isAuthenticated) {

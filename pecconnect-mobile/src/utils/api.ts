@@ -23,6 +23,11 @@ api.interceptors.request.use(
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
+      
+      const fresherToken = await SecureStore.getItemAsync('fresher_token');
+      if (fresherToken) {
+        config.headers['X-Fresher-Token'] = fresherToken;
+      }
     } catch (error) {
       console.error('Error fetching auth token:', error);
     }
@@ -36,9 +41,12 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     if (error.response?.status === 401) {
-      // Token expired or invalid - clear secure store and trigger logout flow
+      // Token expired or invalid - clear secure store and trigger global logout flow
       await SecureStore.deleteItemAsync('auth_token');
-      // The Zustand store or a navigation listener should handle redirecting to Login
+      
+      // Lazily require useAuthStore to avoid circular dependency on app boot
+      const { useAuthStore } = require('../stores/useAuthStore');
+      useAuthStore.getState().logout();
     }
     return Promise.reject(error);
   }

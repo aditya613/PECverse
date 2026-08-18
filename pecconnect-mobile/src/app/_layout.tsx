@@ -13,6 +13,8 @@ import { NotificationPermissionModal } from '@/components/ui/NotificationPermiss
 
 // Export global ErrorBoundary to catch and display React render errors gracefully
 export { ErrorBoundary } from 'expo-router';
+import * as Updates from 'expo-updates';
+import { AppState } from 'react-native';
 
 // Prevent auto-hiding the splash screen until our auth check finishes.
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -29,6 +31,28 @@ function RootLayoutNav() {
   
   // Push Notifications Setup (checks internally if authenticated or fresher)
   usePushNotifications();
+
+  // Handle OTA updates on startup
+  useEffect(() => {
+    async function onFetchUpdateAsync() {
+      try {
+        const update = await Updates.checkForUpdateAsync();
+
+        if (update.isAvailable) {
+          await Updates.fetchUpdateAsync();
+          await Updates.reloadAsync();
+        }
+      } catch (error) {
+        // You can also add an alert or error boundary here if needed
+        console.log('Error fetching latest Expo update:', error);
+      }
+    }
+
+    // Only run in production builds, otherwise it errors in development
+    if (!__DEV__) {
+      onFetchUpdateAsync();
+    }
+  }, []);
 
   // On App Mount: Check if token exists and fetch user
   useEffect(() => {
@@ -98,6 +122,13 @@ function RootLayoutNav() {
           options={{
             presentation: 'transparentModal',
             animation: 'fade'
+          }} 
+        />
+        <Stack.Screen 
+          name="club/[id]" 
+          options={{
+            presentation: 'modal',
+            animation: 'slide_from_bottom'
           }} 
         />
       </Stack>

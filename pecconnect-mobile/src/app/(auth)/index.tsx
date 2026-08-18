@@ -1,8 +1,8 @@
 import { View, Text, StyleSheet, Pressable, ActivityIndicator, ImageBackground } from 'react-native';
 import { colors } from '@/theme/colors';
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
+import { Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -10,11 +10,23 @@ import { api } from '@/utils/api';
 import { useState } from 'react';
 import { Link } from 'expo-router';
 
-// Configure Google Sign-in Native SDK
-GoogleSignin.configure({
-  webClientId: '543780041775-6oh63o3lgn674sklfap5ltpaorosa7bg.apps.googleusercontent.com', 
-  iosClientId: '543780041775-5ofelpimp1c25edcer4et4g23ndsou84.apps.googleusercontent.com',
-});
+const isExpoGo = Constants.appOwnership === 'expo';
+let GoogleSignin: any = null;
+let statusCodes: any = {};
+
+if (!isExpoGo) {
+  try {
+    const gSignin = require('@react-native-google-signin/google-signin');
+    GoogleSignin = gSignin.GoogleSignin;
+    statusCodes = gSignin.statusCodes;
+    GoogleSignin.configure({
+      webClientId: '543780041775-6oh63o3lgn674sklfap5ltpaorosa7bg.apps.googleusercontent.com',
+      iosClientId: '543780041775-5ofelpimp1c25edcer4et4g23ndsou84.apps.googleusercontent.com',
+    });
+  } catch (e) {
+    console.log('Google Sign-in native module not available:', e);
+  }
+}
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -25,6 +37,15 @@ export default function LoginScreen() {
 
   const handleGoogleLogin = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+
+    if (isExpoGo) {
+      // In Expo Go, native Google Play Services module is not linked.
+      // Auto-fallback to dev student login so developers/testers can test the UI in Expo Go!
+      alert('Expo Go notice: Native Google Sign-In requires a development/standalone build. Logging in with Student Test Account for Expo Go testing...');
+      await handleGuestLogin();
+      return;
+    }
+
     setIsLoggingIn(true);
     try {
       await GoogleSignin.hasPlayServices();
@@ -63,7 +84,7 @@ export default function LoginScreen() {
       console.error('Login Failed', error.response?.data || error.message);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       alert(error.response?.data?.message || 'Login failed. Please use your @pec.edu.in email.');
-      
+
       // CRITICAL FIX: Sign out of Google SDK so the user isn't stuck in a silent login loop with the wrong email
       try {
         await GoogleSignin.signOut();
@@ -101,69 +122,84 @@ export default function LoginScreen() {
     }
   };
 
-  const animatedStyle = useAnimatedStyle(() => ({
+  const animatedButtonStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
   }));
 
+  const onPressIn = () => {
+    scale.value = withSpring(0.96, { damping: 10, stiffness: 300 });
+  };
+
+  const onPressOut = () => {
+    scale.value = withSpring(1, { damping: 10, stiffness: 300 });
+  };
+
   return (
     <ImageBackground
-      source={require('@/assets/images/mesh-bg.jpg')}
-      style={styles.container}
+      source={require('../../../assets/images/mesh-bg.jpg')}
+      style={styles.backgroundImage}
       resizeMode="cover"
     >
-      <View style={styles.overlay}>
-        <View style={styles.header}>
-          <Pressable onPress={handleLogoTap} style={styles.logoContainer}>
-            <Image
-              source={require('@/assets/images/splash-icon.png')}
-              style={styles.logoIcon}
-              contentFit="contain"
-            />
-          </Pressable>
+      <View style={styles.darkOverlay} />
+
+      <View style={styles.container}>
+        {/* Top Spacer */}
+        <View style={styles.spacer} />
+
+        {/* Brand & Crest Section */}
+        <Pressable onPress={handleLogoTap} style={styles.brandContainer}>
+          <Image
+            source={require('../../../assets/images/icon.png')}
+            style={styles.crestLogo}
+            resizeMode="contain"
+          />
           <Text style={styles.title}>PECverse</Text>
-          <Text style={styles.subtitle}>Made by PEC students, for PEC students.</Text>
-        </View>
+          <Text style={styles.subtitle}>Punjab Engineering College, Chandigarh</Text>
+        </Pressable>
 
-        <View style={styles.card}>
-          <Text style={styles.cardTitle}>Welcome Back</Text>
-          <Text style={styles.cardSubtitle}>Sign in with your PEC credentials to access your dashboard.</Text>
+        {/* Unified Login Portal Box */}
+        <View style={styles.portalContainer}>
+          {/* Freshers Section */}
+          <View style={styles.freshersSection}>
+            <Text style={styles.freshersTag}>NEW ADMISSIONS 2026</Text>
+            <Text style={styles.freshersTitle}>Orientation & Fresher Lounge</Text>
+            <Text style={styles.freshersSubtitle}>No login required! Connect with your batch, view reporting venues, and meet seniors.</Text>
+            <Link href="/orientation" asChild>
+              <Pressable style={styles.freshersButton} onPress={() => Haptics.selectionAsync()}>
+                <Text style={styles.freshersButtonText}>Freshers Login</Text>
+              </Pressable>
+            </Link>
+          </View>
 
-          <AnimatedPressable
-            style={[styles.button, animatedStyle, isLoggingIn && styles.buttonDisabled]}
-            onPressIn={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              scale.value = withSpring(0.95);
-            }}
-            onPressOut={() => {
-              scale.value = withSpring(1);
-            }}
-            onPress={handleGoogleLogin}
-            disabled={isLoggingIn}
-          >
-            {isLoggingIn ? (
-              <ActivityIndicator color="#ffffff" />
-            ) : (
-              <>
-                <SymbolView
-                  name="g.circle.fill"
-                  style={styles.buttonIcon}
-                  tintColor="#ffffff"
-                />
-                <Text style={styles.buttonText}>Continue with Google</Text>
-              </>
-            )}
-          </AnimatedPressable>
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>CURRENT STUDENTS</Text>
+            <View style={styles.dividerLine} />
+          </View>
 
-          <Link href={"/orientation/register" as any} asChild>
-            <Pressable style={styles.fresherButton}>
-              <SymbolView name="sparkles" style={styles.fresherButtonIcon} tintColor="#B0B0B0" />
-              <Text style={styles.fresherButtonText}>I'm a Fresher 🎉</Text>
-            </Pressable>
-          </Link>
+          {/* Action Section */}
+          <View style={styles.actionContainer}>
+            <AnimatedPressable
+              style={[styles.googleButton, animatedButtonStyle]}
+              onPress={handleGoogleLogin}
+              onPressIn={onPressIn}
+              onPressOut={onPressOut}
+              disabled={isLoggingIn}
+            >
+              {isLoggingIn ? (
+                <ActivityIndicator color={colors.accent} />
+              ) : (
+                <>
+                  <Ionicons name="lock-closed" size={20} color={colors.accent} style={styles.googleIcon} />
+                  <Text style={styles.buttonText}>Sign In with PEC Email</Text>
+                </>
+              )}
+            </AnimatedPressable>
 
-          <Text style={styles.disclaimer}>
-            Only official @pec.edu.in accounts are supported.
-          </Text>
+            <Text style={styles.footerText}>
+              Secured for official @pec.edu.in student accounts
+            </Text>
+          </View>
         </View>
       </View>
     </ImageBackground>
@@ -171,118 +207,145 @@ export default function LoginScreen() {
 }
 
 const styles = StyleSheet.create({
+  backgroundImage: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  darkOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(9, 9, 11, 0.88)',
+  },
   container: {
     flex: 1,
-    backgroundColor: colors.systemBackground as string,
+    justifyContent: 'space-between',
+    paddingHorizontal: 24,
+    paddingTop: 60,
+    paddingBottom: 48,
   },
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.4)', // Darkens the bright mesh gradient
-    justifyContent: 'center',
-    padding: 24,
-    gap: 48,
+  spacer: {
+    height: 10,
   },
-  header: {
+  brandContainer: {
     alignItems: 'center',
-    gap: 12,
+    marginTop: 20,
   },
-  logoContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: 90,
-    height: 90,
-    borderRadius: 28,
-    backgroundColor: 'rgba(32, 138, 239, 0.15)',
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-    boxShadow: '0 8px 32px rgba(32, 138, 239, 0.3)',
-  },
-  logoIcon: {
-    width: 56,
-    height: 56,
+  crestLogo: {
+    width: 80,
+    height: 80,
+    marginBottom: 16,
   },
   title: {
-    fontSize: 34,
+    fontSize: 32,
     fontWeight: '800',
-    color: '#ffffff', // Force white against gradient
-    letterSpacing: -1,
+    color: '#FFFFFF',
+    letterSpacing: -0.5,
+    marginBottom: 4,
   },
   subtitle: {
-    fontSize: 16,
-    color: 'rgba(255,255,255,0.7)',
-    fontWeight: '500',
-  },
-  card: {
-    backgroundColor: 'rgba(20, 20, 25, 0.75)', // Glassmorphism dark backing
-    borderRadius: 24,
-    padding: 24,
-    gap: 16,
-    alignItems: 'center',
-    boxShadow: '0 8px 32px rgba(0, 0, 0, 0.3)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.15)',
-  },
-  cardTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#ffffff',
-  },
-  cardSubtitle: {
-    fontSize: 15,
-    color: 'rgba(255,255,255,0.7)',
+    fontSize: 13,
+    color: colors.secondaryLabel,
     textAlign: 'center',
-    marginBottom: 8,
   },
-  button: {
+  portalContainer: {
+    backgroundColor: '#18181B',
+    borderRadius: 24,
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
+    padding: 24,
+    marginVertical: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.3,
+    shadowRadius: 20,
+    elevation: 8,
+  },
+  freshersSection: {
+    marginBottom: 20,
+  },
+  divider: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: colors.accent as string,
-    paddingVertical: 16,
-    paddingHorizontal: 32,
-    borderRadius: 100, // Pill shape
-    gap: 12,
-    width: '100%',
+    marginBottom: 20,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: 'rgba(255,255,255,0.1)',
+  },
+  dividerText: {
+    color: colors.secondaryLabel,
+    fontSize: 11,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    marginHorizontal: 12,
+  },
+  freshersTag: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: colors.accent,
+    letterSpacing: 1.2,
+    marginBottom: 6,
+  },
+  freshersTitle: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    marginBottom: 6,
+  },
+  freshersSubtitle: {
+    fontSize: 13,
+    color: 'rgba(255, 255, 255, 0.7)',
+    lineHeight: 18,
+    marginBottom: 16,
+  },
+  freshersButton: {
+    backgroundColor: colors.accent,
+    borderRadius: 14,
+    paddingVertical: 12,
+    alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0 8px 16px rgba(32, 138, 239, 0.4)',
   },
-  buttonDisabled: {
-    opacity: 0.7,
+  freshersButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '700',
   },
-  buttonIcon: {
-    width: 20,
-    height: 20,
+  actionContainer: {
+    width: '100%',
+    alignItems: 'center',
+    gap: 14,
+  },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: 16,
+    width: '100%',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  googleIcon: {
+    marginRight: 10,
   },
   buttonText: {
-    color: '#ffffff',
-    fontSize: 17,
-    fontWeight: '600',
+    color: '#09090B',
+    fontSize: 15,
+    fontWeight: '700',
   },
-  disclaimer: {
-    fontSize: 13,
-    color: 'rgba(255,255,255,0.5)',
+  footerText: {
+    fontSize: 12,
+    color: colors.tertiaryLabel,
     textAlign: 'center',
-    marginTop: 8,
-  },
-  fresherButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.08)',
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 100,
-    gap: 8,
-    marginTop: 8,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  fresherButtonIcon: {
-    width: 16,
-    height: 16,
-  },
-  fresherButtonText: {
-    color: '#B0B0B0',
-    fontSize: 14,
-    fontWeight: '500',
   },
 });

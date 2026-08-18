@@ -21,7 +21,12 @@ export default {
         "backgroundColor": "#0c0822"
       },
       "googleServicesFile": process.env.GOOGLE_SERVICES_JSON || "./google-services.json",
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "permissions": [
+        "NOTIFICATIONS",
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE"
+      ]
     },
     "web": {
       "output": "static",

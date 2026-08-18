@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ActivityIndicator, KeyboardAvoidingView, Platform, TextInput, ScrollView, Linking } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '@/theme/colors';
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
+import { Image } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown, FadeIn, SlideInRight, SlideOutLeft, withSpring, useSharedValue, useAnimatedStyle } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import * as Haptics from 'expo-haptics';
@@ -90,7 +90,7 @@ export default function RegisterFresherScreen() {
             if (step === 2) setStep(1);
             else router.back();
           }}>
-            <SymbolView name="chevron.left" tintColor={colors.label} size={24} />
+            <Ionicons name="chevron-back" color={colors.label} size={24} />
           </Pressable>
           <View style={styles.progressContainer}>
             <View style={[styles.progressDot, step >= 1 && styles.progressDotActive]} />
@@ -106,7 +106,7 @@ export default function RegisterFresherScreen() {
               exiting={SlideOutLeft.springify()}
               style={styles.stepContainer}
             >
-              <Image source={require('@/assets/images/splash-icon.png')} style={styles.logo} />
+              <Image source={require('@/assets/images/splash-icon.png')} style={styles.logo} resizeMode="contain" />
               <Text style={styles.title}>Welcome to PEC! 🎉</Text>
               <Text style={styles.subtitle}>Let's get you set up. What should we call you?</Text>
               
@@ -128,7 +128,7 @@ export default function RegisterFresherScreen() {
                 disabled={name.trim().length <= 2}
               >
                 <Text style={styles.buttonText}>Continue</Text>
-                <SymbolView name="arrow.right" tintColor="#FFFFFF" size={18} />
+                <Ionicons name="arrow-forward" color="#FFFFFF" size={18} />
               </Pressable>
 
               <Text style={styles.legalText}>
@@ -179,7 +179,7 @@ export default function RegisterFresherScreen() {
                 ) : (
                   <>
                     <Text style={styles.buttonText}>Join PECverse</Text>
-                    <SymbolView name="sparkles" tintColor="#FFFFFF" size={18} />
+                    <Ionicons name="sparkles" color="#FFFFFF" size={18} />
                   </>
                 )}
               </Pressable>

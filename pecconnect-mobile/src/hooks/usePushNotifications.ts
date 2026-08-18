@@ -1,7 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { Platform } from 'react-native';
 import * as Device from 'expo-device';
-import * as Notifications from 'expo-notifications';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/utils/api';
@@ -9,64 +8,58 @@ import { useNotificationModalStore } from '@/stores/useNotificationModalStore';
 import { useFresherStore } from '@/stores/useFresherStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 
-// Configure how notifications appear when the app is in the foreground
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+const isExpoGo = Constants.appOwnership === 'expo';
+
+// Lazily load expo-notifications safely outside Expo Go
+let Notifications: any = null;
+if (!isExpoGo) {
+  try {
+    Notifications = require('expo-notifications');
+    Notifications.setNotificationHandler({
+      handleNotification: async () => ({
+        shouldShowAlert: true,
+        shouldPlaySound: true,
+        shouldSetBadge: false,
+        shouldShowBanner: true,
+        shouldShowList: true,
+      }),
+    });
+  } catch (e) {
+    //
+  }
+}
 
 /**
  * Global utility function that can be called from Profile, Settings, or anywhere in the app
  * when a user manually taps a "Turn On Notifications" toggle/button.
  */
 export async function checkAndPromptPushPermissions(forceShow = false): Promise<boolean> {
+  if (isExpoGo || !Notifications) {
+    console.log('Push notifications are simulated in Expo Go');
+    return false;
+  }
+
   if (!Device.isDevice) {
     console.log('Must use physical device for Push Notifications');
     return false;
   }
 
-  const { status, canAskAgain } = await Notifications.getPermissionsAsync();
+  try {
+    const { status, canAskAgain } = await Notifications.getPermissionsAsync();
 
-  if (status === 'granted') {
-    // Already granted! Fetch and sync token immediately
-    const token = await fetchExpoPushToken();
-    if (token) {
-      await syncTokenToBackend(token);
+    if (status === 'granted') {
+      const token = await fetchExpoPushToken();
+      if (token) {
+        await syncTokenToBackend(token);
+      }
+      return true;
     }
-    return true;
-  }
 
-  const isDeniedForever = status === 'denied' || !canAskAgain;
+    const isDeniedForever = status === 'denied' || !canAskAgain;
 
-  // If forceShow is true (user tapped a button in settings), always show modal!
-  if (forceShow) {
-    useNotificationModalStore.getState().openModal({
-      isDeniedForever,
-      onSuccess: async () => {
-        const token = await fetchExpoPushToken();
-        if (token) {
-          await syncTokenToBackend(token);
-        }
-      },
-    });
-    return false;
-  }
-
-  // If NOT forceShow (automatic check on app launch):
-  // Only show soft prompt if we haven't asked them yet AND haven't shown modal recently (within 7 days)
-  if (!isDeniedForever) {
-    const lastSeen = await AsyncStorage.getItem('push_modal_seen_time');
-    const now = Date.now();
-    const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-
-    if (!lastSeen || now - parseInt(lastSeen, 10) > sevenDaysMs) {
+    if (forceShow) {
       useNotificationModalStore.getState().openModal({
-        isDeniedForever: false,
+        isDeniedForever,
         onSuccess: async () => {
           const token = await fetchExpoPushToken();
           if (token) {
@@ -74,13 +67,35 @@ export async function checkAndPromptPushPermissions(forceShow = false): Promise<
           }
         },
       });
+      return false;
     }
+
+    if (!isDeniedForever) {
+      const lastSeen = await AsyncStorage.getItem('push_modal_seen_time');
+      const now = Date.now();
+      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
+
+      if (!lastSeen || now - parseInt(lastSeen, 10) > sevenDaysMs) {
+        useNotificationModalStore.getState().openModal({
+          isDeniedForever: false,
+          onSuccess: async () => {
+            const token = await fetchExpoPushToken();
+            if (token) {
+              await syncTokenToBackend(token);
+            }
+          },
+        });
+      }
+    }
+  } catch (err) {
+    console.warn('Push permission check skipped:', err);
   }
 
   return false;
 }
 
 async function fetchExpoPushToken(): Promise<string | null> {
+  if (isExpoGo || !Notifications) return null;
   try {
     if (Platform.OS === 'android') {
       await Notifications.setNotificationChannelAsync('default', {
@@ -99,7 +114,7 @@ async function fetchExpoPushToken(): Promise<string | null> {
     });
     return tokenResponse.data;
   } catch (e) {
-    console.error('Error fetching Expo push token:', e);
+    console.log('Push token not available in this environment:', e);
     return null;
   }
 }
@@ -115,49 +130,57 @@ async function syncTokenToBackend(token: string) {
       await api.post('/freshers/push-token', { token, device_id: deviceId });
     }
   } catch (err) {
-    console.error('Failed to sync push token to backend:', err);
+    console.log('Failed to sync push token to backend:', err);
   }
 }
 
 export function usePushNotifications() {
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
-  const [notification, setNotification] = useState<Notifications.Notification | null>(null);
-  const notificationListener = useRef<Notifications.Subscription | null>(null);
-  const responseListener = useRef<Notifications.Subscription | null>(null);
+  const [notification, setNotification] = useState<any | null>(null);
+  const notificationListener = useRef<any | null>(null);
+  const responseListener = useRef<any | null>(null);
   
-  // We can just rely on the stores directly to know if we are authenticated or a fresher
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
   const isFresher = useFresherStore(state => !!state.fresher);
 
   const checkAndSync = useCallback(async () => {
-    if ((!isAuthenticated && !isFresher) || !Device.isDevice) return;
+    if (isExpoGo || !Notifications || (!isAuthenticated && !isFresher) || !Device.isDevice) return;
 
-    const { status } = await Notifications.getPermissionsAsync();
-    if (status === 'granted') {
-      const token = await fetchExpoPushToken();
-      if (token) {
-        setExpoPushToken(token);
-        await syncTokenToBackend(token);
+    try {
+      const { status } = await Notifications.getPermissionsAsync();
+      if (status === 'granted') {
+        const token = await fetchExpoPushToken();
+        if (token) {
+          setExpoPushToken(token);
+          await syncTokenToBackend(token);
+        }
+      } else {
+        await checkAndPromptPushPermissions(false);
       }
-    } else {
-      // Trigger our smart soft prompt (won't nag if already denied or seen recently)
-      await checkAndPromptPushPermissions(false);
+    } catch (e) {
+      // Ignore in Expo Go or dev environments
     }
   }, [isAuthenticated, isFresher]);
 
   useEffect(() => {
+    if (isExpoGo || !Notifications) return;
+
     checkAndSync();
 
-    notificationListener.current = Notifications.addNotificationReceivedListener((notif) => {
-      setNotification(notif);
-    });
+    try {
+      notificationListener.current = Notifications.addNotificationReceivedListener((notif: any) => {
+        setNotification(notif);
+      });
 
-    responseListener.current = Notifications.addNotificationResponseReceivedListener((response) => {
-      const data = response.notification.request.content.data;
-      if (data?.url) {
-        // Deep linking logic if url is provided in payload
-      }
-    });
+      responseListener.current = Notifications.addNotificationResponseReceivedListener((response: any) => {
+        const data = response.notification.request.content.data;
+        if (data?.url) {
+          // Deep linking logic
+        }
+      });
+    } catch (e) {
+      // Ignore
+    }
 
     return () => {
       if (notificationListener.current) {

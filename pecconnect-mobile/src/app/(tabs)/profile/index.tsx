@@ -1,169 +1,200 @@
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Linking } from 'react-native';
+import React from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Alert } from 'react-native';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { colors } from '@/theme/colors';
-import { Image } from 'expo-image';
-import { SymbolView } from 'expo-symbols';
+import { useTheme } from '@/theme/colors';
+import { Ionicons } from '@expo/vector-icons';
 import * as Haptics from 'expo-haptics';
 import { api } from '@/utils/api';
 import { checkAndPromptPushPermissions } from '@/hooks/usePushNotifications';
 import { useRouter } from 'expo-router';
+import Animated, { FadeInDown } from 'react-native-reanimated';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
+  const { themeMode, setThemeMode, colors, isDark } = useTheme();
 
   const handleLogout = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     try {
       await api.post('/auth/logout');
     } catch (e) {
-      // Ignore errors and force logout locally
+      // Force logout locally
     }
     logout();
+  };
+
+  const openAcademicCalendar = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    try {
+      const { Asset } = await import('expo-asset');
+      const FileSystem = await import('expo-file-system/legacy');
+      const Sharing = await import('expo-sharing');
+      const IntentLauncher = await import('expo-intent-launcher');
+
+      const asset = Asset.fromModule(require('../../../../assets/Academic_Calendar_26271.pdf'));
+      await asset.downloadAsync();
+      
+      const localFileUri = FileSystem.cacheDirectory + 'Academic_Calendar_2026.pdf';
+      await FileSystem.copyAsync({
+        from: asset.localUri || asset.uri,
+        to: localFileUri
+      });
+      
+      if (Platform.OS === 'android') {
+        const cUri = await FileSystem.getContentUriAsync(localFileUri);
+        await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
+          data: cUri,
+          flags: 1,
+          type: 'application/pdf'
+        });
+      } else {
+        await Sharing.shareAsync(localFileUri, { UTI: 'com.adobe.pdf', mimeType: 'application/pdf' });
+      }
+    } catch (e) {
+      Alert.alert('Academic Calendar', 'Opening college academic calendar.');
+    }
   };
 
   if (!user) return null;
 
   return (
-    <View style={styles.container}>
-      <ScrollView contentContainerStyle={styles.content}>
+    <View style={[styles.container, { backgroundColor: colors.systemBackground }]}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         
-        {/* Header Avatar Section */}
-        <View style={styles.avatarContainer}>
+        {/* Cover Background Banner */}
+        <View style={styles.coverBanner}>
+          <View style={styles.coverOverlay} />
+          <View style={styles.bannerBadge}>
+            <Text style={styles.bannerBadgeText}>PUNJAB ENGINEERING COLLEGE</Text>
+          </View>
+        </View>
+
+        {/* Profile Card Header */}
+        <View style={styles.profileHeader}>
           <View style={styles.avatarWrapper}>
-            {user.profile_photo ? (
-              <Image 
-                source={user.profile_photo} 
-                style={styles.avatar} 
-                contentFit="cover" 
-              />
-            ) : (
-              <SymbolView name="person.crop.circle.fill" style={styles.avatar} tintColor={colors.secondaryLabel} />
-            )}
-            <View style={styles.avatarBadge}>
-              <Text style={styles.badgeText}>B.Tech</Text>
+            <View style={[styles.avatarCircle, { backgroundColor: colors.accent, borderColor: colors.systemBackground }]}>
+              <Text style={styles.avatarText}>
+                {user.name ? user.name.trim().split(/\s+/).map(n => n?.[0] || '').join('').substring(0, 2).toUpperCase() : 'ME'}
+              </Text>
             </View>
-          </View>
-          <Text style={styles.name}>{user.name}</Text>
-          <Text style={styles.roleText}>{user.role.toUpperCase()}</Text>
-        </View>
-
-        {/* Info Data Panels */}
-        <View style={styles.panelSection}>
-          <Text style={styles.sectionTitle}>ACADEMIC INFO</Text>
-          
-          <View style={styles.dataGroup}>
-            <View style={styles.dataRow}>
-              <Text style={styles.dataLabel}>Roll Number</Text>
-              <Text style={styles.dataValue}>{user.roll_no}</Text>
-            </View>
-            <View style={styles.separator} />
-            <View style={styles.dataRow}>
-              <Text style={styles.dataLabel}>Course</Text>
-              <Text style={styles.dataValue}>B.Tech</Text>
-            </View>
-            <View style={styles.separator} />
-            <View style={styles.dataRow}>
-              <Text style={styles.dataLabel}>Branch</Text>
-              <Text style={styles.dataValue}>{user.courseClass?.branch?.name || 'N/A'}</Text>
-            </View>
-            <View style={styles.separator} />
-            <View style={styles.dataRow}>
-              <Text style={styles.dataLabel}>Class Group</Text>
-              <Text style={styles.dataValue}>{user.courseClass?.group_name || 'N/A'}</Text>
-            </View>
-            <View style={styles.separator} />
             <Pressable 
-              style={({ pressed }) => [styles.actionRow, pressed && { opacity: 0.7 }]}
-              onPress={() => {
-                Haptics.selectionAsync();
-                router.push('/edit-class');
-              }}
+              style={[styles.editBadge, { backgroundColor: colors.cardBackground, borderColor: colors.systemBackground }]}
+              onPress={() => router.push('/edit-class')}
             >
-              <Text style={[styles.dataLabel, { color: colors.accent }]}>Edit Class & Branch</Text>
-              <Text style={styles.chevron}>›</Text>
+              <Ionicons name="pencil" size={14} color={colors.label} />
             </Pressable>
           </View>
+
+          <Text style={[styles.userName, { color: colors.label }]}>{user.name}</Text>
+          <Text style={[styles.userSubtitle, { color: colors.secondaryLabel }]}>
+            {user.courseClass?.group_name ? `${user.courseClass.group_name}` : 'Student'}, {user.courseClass?.branch?.name || 'Punjab Engineering College'}
+          </Text>
+          <Text style={[styles.collegeName, { color: colors.tertiaryLabel }]}>
+            Punjab Engineering College (Deemed to be University)
+          </Text>
+
         </View>
 
-        {/* Resources */}
-        <View style={styles.panelSection}>
-          <Text style={styles.sectionTitle}>RESOURCES</Text>
-          <View style={styles.dataGroup}>
-            <Pressable 
-              style={({ pressed }) => [styles.actionRow, pressed && { opacity: 0.7 }]}
-              onPress={async () => {
-                const { Asset } = await import('expo-asset');
-                const FileSystem = await import('expo-file-system/legacy');
-                const Sharing = await import('expo-sharing');
-                const IntentLauncher = await import('expo-intent-launcher');
-                const { Platform } = await import('react-native');
-
-                try {
-                  const asset = Asset.fromModule(require('../../../../assets/Academic_Calendar_26271.pdf'));
-                  await asset.downloadAsync();
-                  
-                  // Copy to cache to guarantee a valid file:// URI for Android Content Provider
-                  const localFileUri = FileSystem.cacheDirectory + 'Academic_Calendar_2026.pdf';
-                  await FileSystem.copyAsync({
-                    from: asset.localUri || asset.uri,
-                    to: localFileUri
-                  });
-                  
-                  if (Platform.OS === 'android') {
-                    // Launch native PDF viewer instantly
-                    const cUri = await FileSystem.getContentUriAsync(localFileUri);
-                    await IntentLauncher.startActivityAsync('android.intent.action.VIEW', {
-                      data: cUri,
-                      flags: 1, // FLAG_GRANT_READ_URI_PERMISSION
-                      type: 'application/pdf'
-                    });
-                  } else {
-                    // iOS Quick Look preview
-                    await Sharing.shareAsync(localFileUri, { UTI: 'com.adobe.pdf', mimeType: 'application/pdf' });
-                  }
-                } catch (e) {
-                  console.error('Failed to open PDF:', e);
-                  alert('Could not open PDF viewer on your device.');
-                }
-              }}
-            >
-              <Text style={styles.dataLabel}>Academic Calendar</Text>
-              <Text style={styles.chevron}>›</Text>
-            </Pressable>
+        {/* Theme Preference Selector */}
+        <View style={[styles.cardSection, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+          <Text style={[styles.sectionHeaderTitle, { color: colors.label }]}>Appearance Theme</Text>
+          <View style={styles.themeSelectorRow}>
+            {[
+              { id: 'system', label: 'System', icon: 'phone-portrait-outline' },
+              { id: 'light', label: 'Light', icon: 'sunny-outline' },
+              { id: 'dark', label: 'Dark', icon: 'moon-outline' },
+            ].map((item) => {
+              const isSelected = themeMode === item.id;
+              return (
+                <Pressable
+                  key={item.id}
+                  style={[
+                    styles.themeOptionBtn,
+                    { backgroundColor: isSelected ? colors.accent : colors.secondarySystemBackground },
+                  ]}
+                  onPress={() => {
+                    Haptics.selectionAsync();
+                    setThemeMode(item.id as any);
+                  }}
+                >
+                  <Ionicons 
+                    name={item.icon as any} 
+                    size={16} 
+                    color={isSelected ? '#FFFFFF' : colors.secondaryLabel} 
+                  />
+                  <Text style={[styles.themeOptionText, { color: isSelected ? '#FFFFFF' : colors.secondaryLabel }]}>
+                    {item.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
           </View>
         </View>
 
-        {/* Settings & Preferences */}
-        <View style={styles.panelSection}>
-          <Text style={styles.sectionTitle}>SETTINGS & PREFERENCES</Text>
-          <View style={styles.dataGroup}>
-            <Pressable 
-              style={({ pressed }) => [styles.actionRow, pressed && { opacity: 0.7 }]}
-              onPress={async () => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                const isActive = await checkAndPromptPushPermissions(true);
-                if (isActive) {
-                  alert("Push notifications and class reminders are active!");
-                }
-              }}
-            >
-              <Text style={styles.dataLabel}>Push Notifications & Reminders</Text>
-              <Text style={styles.chevron}>›</Text>
-            </Pressable>
-          </View>
-        </View>
-
-        {/* Actions */}
-        <View style={styles.panelSection}>
+        {/* Resources & Settings */}
+        <View style={[styles.cardSection, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+          <Text style={[styles.sectionHeaderTitle, { color: colors.label }]}>Resources & Preferences</Text>
           <Pressable 
-            style={({ pressed }) => [styles.logoutGroup, pressed && { opacity: 0.7 }]}
-            onPress={handleLogout}
+            style={styles.actionRow}
+            onPress={openAcademicCalendar}
           >
-            <Text style={styles.logoutText}>Log Out</Text>
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(139, 92, 246, 0.15)' }]}>
+              <Ionicons name="calendar-outline" size={20} color="#8B5CF6" />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, { color: colors.label }]}>Academic Calendar</Text>
+              <Text style={[styles.actionSub, { color: colors.secondaryLabel }]}>Official 2026-27 Schedule</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.tertiaryLabel} />
+          </Pressable>
+
+        </View>
+
+        {/* Settings & Logout */}
+        <View style={[styles.cardSection, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
+          <Pressable 
+            style={styles.actionRow}
+            onPress={async () => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              const isActive = await checkAndPromptPushPermissions(true);
+              if (isActive) Alert.alert('Notifications', 'Push notifications & class reminders are active!');
+            }}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: colors.secondarySystemBackground }]}>
+              <Ionicons name="notifications-outline" size={20} color={colors.label} />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, { color: colors.label }]}>Push Notifications</Text>
+              <Text style={[styles.actionSub, { color: colors.secondaryLabel }]}>Class alerts & updates</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.tertiaryLabel} />
+          </Pressable>
+
+          <View style={[styles.rowDivider, { backgroundColor: colors.separator }]} />
+
+          <Pressable 
+            style={styles.actionRow}
+            onPress={() => router.push('/edit-class')}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(59, 130, 246, 0.15)' }]}>
+              <Ionicons name="school-outline" size={20} color={colors.accent} />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, { color: colors.label }]}>Edit Class & Branch</Text>
+              <Text style={[styles.actionSub, { color: colors.secondaryLabel }]}>{user.courseClass?.group_name || 'Set Group'}</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.tertiaryLabel} />
           </Pressable>
         </View>
 
+        {/* Logout Button */}
+        <Pressable style={styles.logoutBtn} onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={20} color="#EF4444" />
+          <Text style={styles.logoutBtnText}>Log Out</Text>
+        </Pressable>
+
+        <View style={{ height: 110 }} />
       </ScrollView>
     </View>
   );
@@ -172,120 +203,208 @@ export default function ProfileScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: colors.systemBackground,
   },
-  content: {
-    paddingTop: Platform.OS === 'ios' ? 80 : 60,
-    paddingHorizontal: 16,
-    paddingBottom: 120,
-    gap: 32,
+  scrollContent: {
+    paddingBottom: 40,
   },
-  avatarContainer: {
+  coverBanner: {
+    height: 140,
+    backgroundColor: '#1E1B4B',
+    position: 'relative',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    gap: 8,
+    paddingTop: 50,
+  },
+  coverOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(9, 9, 11, 0.4)',
+  },
+  bannerBadge: {
+    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    paddingHorizontal: 12,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.25)',
+  },
+  bannerBadgeText: {
+    fontSize: 10,
+    fontWeight: '800',
+    color: '#FFFFFF',
+    letterSpacing: 1.5,
+  },
+  profileHeader: {
+    alignItems: 'center',
+    marginTop: -50,
+    paddingHorizontal: 20,
   },
   avatarWrapper: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    backgroundColor: colors.secondarySystemBackground,
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    elevation: 4,
-    marginBottom: 8,
+    position: 'relative',
+    marginBottom: 12,
   },
-  avatar: {
+  avatarCircle: {
     width: 96,
     height: 96,
     borderRadius: 48,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 4,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    elevation: 6,
   },
-  name: {
-    color: colors.label,
+  avatarText: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: '#FFFFFF',
+  },
+  editBadge: {
+    position: 'absolute',
+    bottom: 2,
+    right: 2,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+  },
+  userName: {
     fontSize: 24,
+    fontWeight: '800',
+    letterSpacing: -0.5,
+    marginBottom: 4,
+  },
+  userSubtitle: {
+    fontSize: 14,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  collegeName: {
+    fontSize: 12,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  mottoPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 6,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  mottoText: {
+    fontSize: 13,
     fontWeight: '700',
   },
-  roleText: {
-    color: colors.secondaryLabel,
-    fontWeight: '500',
-    fontSize: 15,
+  statsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    marginHorizontal: 16,
+    marginTop: 20,
+    paddingVertical: 16,
+    borderRadius: 20,
+    borderWidth: 1,
   },
-  panelSection: {
+  statBox: {
+    alignItems: 'center',
+  },
+  statNum: {
+    fontSize: 18,
+    fontWeight: '800',
+    marginBottom: 2,
+  },
+  statLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  statDivider: {
+    width: 1,
+    height: 24,
+  },
+  cardSection: {
+    marginHorizontal: 16,
+    marginTop: 16,
+    padding: 16,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  sectionHeaderTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 12,
+  },
+  themeSelectorRow: {
+    flexDirection: 'row',
     gap: 8,
   },
-  sectionTitle: {
-    color: colors.secondaryLabel,
-    fontSize: 13,
-    fontWeight: '600',
-    textTransform: 'uppercase',
-    marginLeft: 16,
-  },
-  dataGroup: {
-    backgroundColor: colors.secondarySystemBackground,
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  dataRow: {
+  themeOptionBtn: {
+    flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
     alignItems: 'center',
-    backgroundColor: colors.secondarySystemBackground,
+    justifyContent: 'center',
+    paddingVertical: 10,
+    borderRadius: 12,
+    gap: 6,
   },
-  separator: {
-    height: StyleSheet.hairlineWidth,
-    backgroundColor: colors.separator,
-    marginLeft: 16,
+  themeOptionText: {
+    fontSize: 13,
+    fontWeight: '700',
   },
-  dataLabel: {
-    color: colors.label,
-    fontSize: 16,
-  },
-  dataValue: {
-    color: colors.secondaryLabel,
-    fontSize: 16,
+  aboutText: {
+    fontSize: 13,
+    lineHeight: 20,
   },
   actionRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
     alignItems: 'center',
-    backgroundColor: colors.secondarySystemBackground,
+    paddingVertical: 6,
   },
-  chevron: {
-    color: colors.secondaryLabel,
-    fontSize: 20,
-    fontWeight: '300',
-  },
-  logoutGroup: {
-    backgroundColor: colors.secondarySystemBackground,
+  actionIconBox: {
+    width: 40,
+    height: 40,
     borderRadius: 12,
-    overflow: 'hidden',
-    paddingHorizontal: 16,
-    paddingVertical: 14,
     alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
   },
-  logoutText: {
-    color: colors.destructive,
-    fontSize: 16,
-    fontWeight: '600',
+  actionContent: {
+    flex: 1,
   },
-  avatarBadge: {
-    position: 'absolute',
-    bottom: -4,
-    backgroundColor: colors.accent,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 8,
-  },
-  badgeText: {
-    color: '#FFF',
-    fontSize: 10,
+  actionTitle: {
+    fontSize: 14,
     fontWeight: '700',
-  }
+    marginBottom: 1,
+  },
+  actionSub: {
+    fontSize: 12,
+  },
+  rowDivider: {
+    height: 1,
+    marginVertical: 10,
+    marginLeft: 52,
+  },
+  logoutBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(239, 68, 68, 0.1)',
+    marginHorizontal: 16,
+    marginTop: 20,
+    paddingVertical: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(239, 68, 68, 0.25)',
+    gap: 8,
+  },
+  logoutBtnText: {
+    color: '#EF4444',
+    fontSize: 15,
+    fontWeight: '700',
+  },
 });

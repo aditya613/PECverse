@@ -20,11 +20,18 @@ class FresherController extends Controller
             'device_id' => 'required|string|max:255',
         ]);
 
+        $fresher = Fresher::where('device_id', $request->device_id)->first();
+        
+        $secretToken = $fresher && $fresher->secret_token 
+            ? $fresher->secret_token 
+            : bin2hex(random_bytes(16));
+
         $fresher = Fresher::updateOrCreate(
             ['device_id' => $request->device_id],
             [
                 'name' => $request->name,
                 'branch' => $request->branch,
+                'secret_token' => $secretToken,
             ]
         );
 
@@ -43,6 +50,12 @@ class FresherController extends Controller
 
         if (!$fresher) {
             return response()->json(['message' => 'Not found'], 404);
+        }
+
+        // Backward compatibility: generate token for old users
+        if (!$fresher->secret_token) {
+            $fresher->secret_token = bin2hex(random_bytes(16));
+            $fresher->save();
         }
 
         return response()->json(['fresher' => $fresher], 200);
@@ -70,11 +83,10 @@ class FresherController extends Controller
     public function updatePushToken(Request $request): JsonResponse
     {
         $request->validate([
-            'device_id' => 'required|string|max:255',
             'token' => 'required|string|max:255',
         ]);
 
-        $fresher = Fresher::where('device_id', $request->device_id)->first();
+        $fresher = $request->authenticated_fresher;
         if ($fresher) {
             $fresher->expo_push_token = $request->token;
             $fresher->save();

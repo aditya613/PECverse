@@ -12,10 +12,9 @@ class PecDs3rdSemSeeder extends Seeder
     /**
      * Seed the B.Tech CSE (Data Science) 3rd Semester timetable.
      * Groups division based on SIDs:
-     * DS1 -> 1-15
-     * DS2 -> 16-30
-     * DS3 -> 31-45
-     * DS4 -> 46-64
+     * DS1 -> 1-22
+     * DS2 -> 23-42
+     * DS3 -> 43-64
      */
     public function run(): void
     {
@@ -41,12 +40,12 @@ class PecDs3rdSemSeeder extends Seeder
             // ==================== MONDAY ====================
             [
                 'day' => 1, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3003 OS Lab (DS3: Roll 31-45)',
+                'subject' => 'DSN3003 OS Lab (DS3: Roll 43-64)',
                 'teacher' => 'Ramteke Mamta', 'room' => 'Lab 306'
             ],
             [
                 'day' => 1, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3002 PDS Lab (DS1: Roll 1-15)',
+                'subject' => 'DSN3002 PDS Lab (DS1: Roll 1-22)',
                 'teacher' => 'Kanu Goel', 'room' => 'CL13'
             ],
             [
@@ -103,19 +102,19 @@ class PecDs3rdSemSeeder extends Seeder
             ],
             [
                 'day' => 2, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00',
-                'subject' => 'DSN3001 DS Lab (DS3: Roll 31-45)',
+                'subject' => 'DSN3001 DS Lab (DS3: Roll 43-64)',
                 'teacher' => 'Sudesh Rani', 'room' => 'Lab 306'
             ],
 
             // ==================== WEDNESDAY ====================
             [
                 'day' => 3, 'period' => 1, 'start' => '08:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3002 PDS Lab (DS3: Roll 31-45)',
+                'subject' => 'DSN3002 PDS Lab (DS3: Roll 43-64)',
                 'teacher' => 'Kanu Goel', 'room' => 'Lab 304'
             ],
             [
                 'day' => 3, 'period' => 1, 'start' => '08:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3001 DS Lab (DS1, DS2: Roll 1-30)',
+                'subject' => 'DSN3001 DS Lab (DS1, DS2: Roll 1-42)',
                 'teacher' => 'Sudesh Rani', 'room' => 'Labs 301, 303'
             ],
             [
@@ -130,7 +129,7 @@ class PecDs3rdSemSeeder extends Seeder
             ],
             [
                 'day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '16:00:00',
-                'subject' => 'DSN3004 CN Lab (DS1, DS2: Roll 1-30)',
+                'subject' => 'DSN3004 CN Lab (DS1, DS2: Roll 1-42)',
                 'teacher' => 'Trilok Chand', 'room' => 'CL13, CL14'
             ],
             [
@@ -167,19 +166,19 @@ class PecDs3rdSemSeeder extends Seeder
             ],
             [
                 'day' => 4, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00',
-                'subject' => 'DSN3003 OS Lab (DS1, DS2: Roll 1-30)',
+                'subject' => 'DSN3003 OS Lab (DS1, DS2: Roll 1-42)',
                 'teacher' => 'Ramteke Mamta', 'room' => 'Lab 306'
             ],
 
             // ==================== FRIDAY ====================
             [
                 'day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3002 PDS Lab (DS1: Roll 1-15)',
+                'subject' => 'DSN3002 PDS Lab (DS2: Roll 23-42)',
                 'teacher' => 'Kanu Goel', 'room' => 'Lab 306'
             ],
             [
                 'day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3004 CN Lab (DS3: Roll 31-45)',
+                'subject' => 'DSN3004 CN Lab (DS3: Roll 43-64)',
                 'teacher' => 'Trilok Chand', 'room' => 'CL14'
             ],
             [

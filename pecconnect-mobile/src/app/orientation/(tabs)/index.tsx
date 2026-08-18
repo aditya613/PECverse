@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, Pressable, Linking, Modal } from 'react-native';
-import { colors } from '@/theme/colors';
+import { colors, useTheme } from '@/theme/colors';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -40,6 +40,7 @@ const LEGACY_FACTS = [
 export default function OrientationDashboard() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const { fresher } = useFresherStore();
   const [selectedBranch, setSelectedBranch] = useState(BRANCHES[0]);
   const [isMapVisible, setIsMapVisible] = useState(false);
@@ -59,8 +60,8 @@ export default function OrientationDashboard() {
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
       <View style={styles.header}>
-        <Pressable 
-          style={styles.backButton} 
+        <Pressable
+          style={styles.backButton}
           onPress={() => router.back()}
         >
           <Ionicons name="chevron-back" color={colors.label} size={24} />
@@ -70,12 +71,12 @@ export default function OrientationDashboard() {
       </View>
 
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
-        
+
         <Animated.View entering={FadeInDown.delay(100).springify()} style={styles.heroCard}>
           <Text style={styles.heroSub}>PUNJAB ENGINEERING COLLEGE</Text>
-          <Text style={styles.heroTitle}>Hello, {fresher?.name?.split(' ')[0] || 'Fresher'}! 👋</Text>
+          <Text style={styles.heroTitle}>Hello, {fresher?.name?.split(' ')[0] || 'Fresher'}!</Text>
           <Text style={styles.heroDesc}>Welcome to your new home.</Text>
-          
+
           {stats && (
             <View style={styles.statsBadge}>
               <Ionicons name="people" color="#FFFFFF" size={14} />
@@ -85,15 +86,15 @@ export default function OrientationDashboard() {
         </Animated.View>
 
         <Animated.Text entering={FadeIn.delay(200)} style={styles.sectionTitle}>The PEC Legacy</Animated.Text>
-        <ScrollView 
-          horizontal 
-          showsHorizontalScrollIndicator={false} 
-          style={styles.legacyScroll} 
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.legacyScroll}
           contentContainerStyle={{ paddingHorizontal: 16 }}
         >
           {LEGACY_FACTS.map((fact) => (
-            <Pressable 
-              key={fact.id} 
+            <Pressable
+              key={fact.id}
               style={styles.legacyCard}
               onPress={() => Haptics.selectionAsync()}
             >
@@ -154,12 +155,12 @@ export default function OrientationDashboard() {
         </Animated.View>
 
         <Animated.Text entering={FadeIn.delay(650)} style={styles.sectionTitle}>Campus Map</Animated.Text>
-        <AnimatedPressable 
-          entering={FadeInDown.delay(700).springify()} 
+        <AnimatedPressable
+          entering={FadeInDown.delay(700).springify()}
           style={styles.mapContainer}
           onPress={() => setIsMapVisible(true)}
         >
-          <Image 
+          <Image
             source={require('@/assets/images/pec-map.jpg')}
             style={styles.mapImage}
             contentFit="cover"
@@ -181,8 +182,8 @@ export default function OrientationDashboard() {
         <GestureHandlerRootView style={{ flex: 1 }}>
           <SafeAreaView style={styles.modalContainer}>
             <View style={styles.modalHeader}>
-              <Pressable 
-                style={styles.closeButton} 
+              <Pressable
+                style={styles.closeButton}
                 onPress={() => setIsMapVisible(false)}
               >
                 <Ionicons name="close-circle" color={colors.secondaryLabel} size={28} />

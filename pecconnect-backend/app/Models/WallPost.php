@@ -31,4 +31,9 @@ class WallPost extends Model
     {
         return $this->morphMany(WallLike::class, 'likable');
     }
+
+    public function reports()
+    {
+        return $this->hasMany(ReportedPost::class);
+    }
 }

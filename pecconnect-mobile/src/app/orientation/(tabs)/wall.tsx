@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Modal } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '@/theme/colors';
+import { colors, useTheme } from '@/theme/colors';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/utils/api';
 import { useFresherStore } from '@/stores/useFresherStore';
@@ -10,7 +10,6 @@ import * as Haptics from 'expo-haptics';
 import Animated, { FadeInDown, SlideInDown, ZoomIn } from 'react-native-reanimated';
 import { BlurView } from 'expo-blur';
 
-// Beautiful, vibrant colors for anonymous avatars
 const AVATAR_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEEAD', '#D4A5A5', '#9B5DE5', '#F15BB5', '#00BBF9', '#00F5D4'];
 
 const getAvatarColor = (name: string = '') => {
@@ -22,17 +21,42 @@ const getAvatarColor = (name: string = '') => {
   return AVATAR_COLORS[Math.abs(hash) % AVATAR_COLORS.length];
 };
 
+const formatRelativeTime = (dateString?: string) => {
+  if (!dateString) return 'Just now';
+  try {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    if (isNaN(diffMs) || diffMs < 0) return 'Just now';
+
+    const diffSecs = Math.floor(diffMs / 1000);
+    const diffMins = Math.floor(diffSecs / 60);
+    const diffHours = Math.floor(diffMins / 60);
+    const diffDays = Math.floor(diffHours / 24);
+
+    if (diffSecs < 60) return 'Just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    if (diffHours < 24) return `${diffHours}h ago`;
+    if (diffDays < 7) return `${diffDays}d ago`;
+
+    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  } catch (e) {
+    return 'Just now';
+  }
+};
+
 export default function WallScreen() {
   const insets = useSafeAreaInsets();
+  const { colors, isDark } = useTheme();
   const { deviceId } = useFresherStore();
   const queryClient = useQueryClient();
   const [isComposeVisible, setIsComposeVisible] = useState(false);
   const [composeText, setComposeText] = useState('');
-  
+
   // Comments state
   const [activePost, setActivePost] = useState<any | null>(null);
   const [commentText, setCommentText] = useState('');
-  
+
   // Anonymity toggles
   const [isAnonymousPost, setIsAnonymousPost] = useState(true);
   const [isAnonymousComment, setIsAnonymousComment] = useState(true);
@@ -119,6 +143,17 @@ export default function WallScreen() {
     }
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      await api.delete(`/wall/${optionsPost.id}`);
+    },
+    onSuccess: () => {
+      Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      setOptionsPost(null);
+      queryClient.invalidateQueries({ queryKey: ['wallPosts'] });
+    }
+  });
+
   const handlePost = () => {
     if (composeText.trim().length === 0) return;
     postMutation.mutate(composeText.trim());
@@ -136,9 +171,9 @@ export default function WallScreen() {
           </View>
           <View style={styles.headerTextContainer}>
             <Text style={styles.authorText}>{item.author}</Text>
-            <Text style={styles.timeText}>Just now</Text>
+            <Text style={styles.timeText}>{formatRelativeTime(item.created_at)}</Text>
           </View>
-          <Pressable 
+          <Pressable
             style={styles.moreOptions}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -168,7 +203,7 @@ export default function WallScreen() {
             </Text>
           </Pressable>
 
-          <Pressable 
+          <Pressable
             style={({ pressed }) => [styles.actionBtn, pressed && { opacity: 0.7 }]}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -212,9 +247,8 @@ export default function WallScreen() {
           onRefresh={refetch}
           ListHeaderComponent={
             <Animated.View entering={FadeInDown} style={styles.heroBanner}>
-              <Text style={styles.heroBannerTitle}>The Lounge</Text>
               <Text style={styles.heroBannerDesc}>
-                Welcome to the secret sauce. Share your excitement, ask questions, or just vibe with your batchmates. Everything here is pseudo-anonymous.
+                Share your excitement, ask questions, or just vibe with your batchmates.
               </Text>
             </Animated.View>
           }
@@ -250,8 +284,8 @@ export default function WallScreen() {
               <Text style={styles.fsCancelText}>Cancel</Text>
             </Pressable>
             <Text style={styles.fsTitle}>New Post</Text>
-            <Pressable 
-              onPress={handlePost} 
+            <Pressable
+              onPress={handlePost}
               disabled={composeText.trim().length === 0 || postMutation.isPending}
               style={[styles.fsPostBtn, (composeText.trim().length === 0 || postMutation.isPending) && { opacity: 0.5 }]}
             >
@@ -276,7 +310,7 @@ export default function WallScreen() {
                 {isAnonymousPost ? 'Your identity is hidden' : 'Your real name will be shown'}
               </Text>
             </View>
-            <Pressable 
+            <Pressable
               style={styles.fsToggleSwitch}
               onPress={() => setIsAnonymousPost(!isAnonymousPost)}
             >
@@ -304,7 +338,7 @@ export default function WallScreen() {
 
       {/* Comments Modal */}
       <Modal visible={!!activePost} animationType="slide" transparent>
-        <KeyboardAvoidingView 
+        <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : undefined}
           style={styles.modalOverlay}
         >
@@ -315,7 +349,7 @@ export default function WallScreen() {
                 <Ionicons name="close-circle" size={28} color={colors.secondaryLabel} />
               </Pressable>
             </View>
-            
+
             {activePost && (
               <View style={[styles.postCard, { marginHorizontal: 16, marginBottom: 8 }]}>
                 <View style={styles.postHeader}>
@@ -326,6 +360,7 @@ export default function WallScreen() {
                   </View>
                   <View style={styles.headerTextContainer}>
                     <Text style={styles.authorText}>{activePost.author}</Text>
+                    <Text style={styles.timeText}>{formatRelativeTime(activePost.created_at)}</Text>
                   </View>
                 </View>
                 <Text style={styles.postContent}>{activePost.content}</Text>
@@ -344,7 +379,10 @@ export default function WallScreen() {
                         {item.author.charAt(0).toUpperCase()}
                       </Text>
                     </View>
-                    <Text style={styles.commentAuthorText}>{item.author}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.commentAuthorText}>{item.author}</Text>
+                      <Text style={styles.commentTimeText}>{formatRelativeTime(item.created_at)}</Text>
+                    </View>
                   </View>
                   <Text style={styles.commentContent}>{item.content}</Text>
                 </Animated.View>
@@ -387,7 +425,7 @@ export default function WallScreen() {
                   maxLength={500}
                   multiline
                 />
-                <Pressable 
+                <Pressable
                   onPress={() => {
                     if (commentText.trim().length > 0) commentMutation.mutate(commentText.trim());
                   }}
@@ -410,7 +448,7 @@ export default function WallScreen() {
       <Modal visible={!!optionsPost && !reportReasonModalVisible} animationType="fade" transparent>
         <Pressable style={styles.optionsOverlay} onPress={() => setOptionsPost(null)}>
           <View style={styles.optionsContainer}>
-            <Pressable 
+            <Pressable
               style={styles.optionBtn}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -420,17 +458,36 @@ export default function WallScreen() {
               <Ionicons name="flag-outline" size={22} color={colors.label} />
               <Text style={styles.optionText}>Report Post</Text>
             </Pressable>
-            <View style={styles.optionDivider} />
-            <Pressable 
-              style={styles.optionBtn}
-              onPress={() => {
-                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
-                blockMutation.mutate();
-              }}
-            >
-              <Ionicons name="ban-outline" size={22} color="#FF3B30" />
-              <Text style={[styles.optionText, { color: '#FF3B30' }]}>Block User</Text>
-            </Pressable>
+            
+            {optionsPost?.is_author ? (
+              <>
+                <View style={styles.optionDivider} />
+                <Pressable
+                  style={styles.optionBtn}
+                  onPress={() => {
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                    deleteMutation.mutate();
+                  }}
+                >
+                  <Ionicons name="trash-outline" size={22} color="#FF3B30" />
+                  <Text style={[styles.optionText, { color: '#FF3B30' }]}>Delete Post</Text>
+                </Pressable>
+              </>
+            ) : (
+              <>
+                <View style={styles.optionDivider} />
+                <Pressable
+                  style={styles.optionBtn}
+                  onPress={() => {
+                    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
+                    blockMutation.mutate();
+                  }}
+                >
+                  <Ionicons name="ban-outline" size={22} color="#FF3B30" />
+                  <Text style={[styles.optionText, { color: '#FF3B30' }]}>Block User</Text>
+                </Pressable>
+              </>
+            )}
           </View>
         </Pressable>
       </Modal>
@@ -443,10 +500,10 @@ export default function WallScreen() {
         }}>
           <View style={styles.optionsContainer}>
             <Text style={styles.optionsTitle}>Why are you reporting this?</Text>
-            
+
             {['Spam', 'Harassment or Bullying', 'Inappropriate Content'].map((reason, index) => (
               <React.Fragment key={reason}>
-                <Pressable 
+                <Pressable
                   style={styles.optionBtn}
                   onPress={() => reportMutation.mutate(reason)}
                 >
@@ -455,9 +512,9 @@ export default function WallScreen() {
                 {index < 2 && <View style={styles.optionDivider} />}
               </React.Fragment>
             ))}
-            
+
             <View style={styles.optionDivider} />
-            <Pressable 
+            <Pressable
               style={[styles.optionBtn, { justifyContent: 'center' }]}
               onPress={() => {
                 setReportReasonModalVisible(false);
@@ -789,6 +846,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  commentTimeText: {
+    fontSize: 11,
+    color: 'rgba(255,255,255,0.4)',
+    fontWeight: '500',
   },
   commentContent: {
     fontSize: 15,

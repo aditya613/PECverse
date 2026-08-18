@@ -1,7 +1,7 @@
 import { Tabs, useRouter } from 'expo-router';
 import { StyleSheet, View, Platform, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { colors } from '@/theme/colors';
+import { useTheme } from '@/theme/colors';
 import { BlurView } from 'expo-blur';
 import { useAuthStore } from '@/stores/useAuthStore';
 import * as Haptics from 'expo-haptics';
@@ -9,6 +9,7 @@ import * as Haptics from 'expo-haptics';
 export default function TabLayout() {
   const user = useAuthStore(state => state.user);
   const router = useRouter();
+  const { colors, isDark } = useTheme();
   
   const isAuthorized = user?.role === 'cr' || user?.role === 'superadmin';
 
@@ -17,37 +18,42 @@ export default function TabLayout() {
       screenOptions={{
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: Platform.OS === 'ios' ? 'transparent' : 'rgba(15, 15, 20, 0.95)',
+          backgroundColor: Platform.OS === 'ios' ? 'transparent' : colors.cardBackground,
           borderTopWidth: 1,
-          borderTopColor: colors.glassBorder, // Subtle glass rim
-          height: Platform.OS === 'ios' ? 88 : 64,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 8,
+          borderTopColor: colors.cardBorder,
+          height: Platform.OS === 'ios' ? 88 : 68,
+          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
           paddingTop: 8,
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
-          elevation: 0, // Remove solid shadow
+          elevation: isDark ? 0 : 8,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: -2 },
+          shadowOpacity: isDark ? 0 : 0.06,
+          shadowRadius: 8,
         },
         tabBarBackground: () => (
           Platform.OS === 'ios' ? (
             <BlurView 
-              tint="dark" 
-              intensity={80} 
+              tint={isDark ? 'dark' : 'light'} 
+              intensity={90} 
               style={StyleSheet.absoluteFill} 
             />
           ) : null
         ),
-        tabBarActiveTintColor: colors.accent, // Electric Blue active tint
-        tabBarInactiveTintColor: colors.tertiaryLabel, // Slate muted inactive tint
+        tabBarActiveTintColor: colors.accent,
+        tabBarInactiveTintColor: colors.tertiaryLabel,
         tabBarShowLabel: true,
         tabBarLabelStyle: {
           fontSize: 11,
-          fontWeight: '600',
+          fontWeight: '700',
           marginTop: 2,
         },
       }}
     >
+      {/* 1. Home Dashboard */}
       <Tabs.Screen
         name="dashboard/index"
         options={{
@@ -61,6 +67,8 @@ export default function TabLayout() {
           ),
         }}
       />
+
+      {/* 2. Date-Wise Timetable Schedule */}
       <Tabs.Screen
         name="timetable/index"
         options={{
@@ -75,13 +83,13 @@ export default function TabLayout() {
         }}
       />
       
-      {/* Custom Post Button Tab */}
+      {/* 3. Center Create (+) Action Button */}
       <Tabs.Screen
         name="post"
         options={{
           title: '',
-          tabBarButton: (props) => (
-            isAuthorized ? (
+          ...(isAuthorized ? {
+            tabBarButton: () => (
               <Pressable
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -89,28 +97,33 @@ export default function TabLayout() {
                 }}
                 style={styles.customTabButton}
               >
-                <View style={styles.customTabIconContainer}>
-                  <Ionicons name="add" size={28} color="#fff" />
+                <View style={[styles.customTabIconContainer, { backgroundColor: colors.accent, borderColor: colors.systemBackground }]}>
+                  <Ionicons name="add" size={28} color="#FFFFFF" />
                 </View>
               </Pressable>
-            ) : null
-          ),
+            )
+          } : {
+            href: null
+          }),
         }}
       />
 
+      {/* 4. Notes & Study Resources */}
       <Tabs.Screen
         name="notes/index"
         options={{
           title: 'Resources',
           tabBarIcon: ({ color, focused }) => (
             <Ionicons 
-              name={focused ? "book" : "book-outline"} 
+              name={focused ? "folder-open" : "folder-open-outline"} 
               size={22} 
               color={color} 
             />
           ),
         }}
       />
+
+      {/* 5. Profile & Career */}
       <Tabs.Screen
         name="profile/index"
         options={{
@@ -124,28 +137,36 @@ export default function TabLayout() {
           ),
         }}
       />
+      
+      {/* Hidden Screens inside Tabs */}
+      <Tabs.Screen
+        name="dashboard/help-juniors"
+        options={{
+          href: null,
+        }}
+      />
     </Tabs>
   );
 }
 
 const styles = StyleSheet.create({
   customTabButton: {
-    top: -20,
+    top: -16,
     justifyContent: 'center',
     alignItems: 'center',
-    flex: 1, // Let it take even space with other tabs
+    flex: 1,
   },
   customTabIconContainer: {
-    width: 52,
-    height: 52,
-    borderRadius: 26,
-    backgroundColor: colors.accent,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: colors.accent,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowColor: '#3B82F6',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.4,
+    shadowRadius: 10,
+    elevation: 6,
+    borderWidth: 3,
   }
 });

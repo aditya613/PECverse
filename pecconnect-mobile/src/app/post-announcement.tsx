@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TextInput, Pressable, ActivityIndicator, Keyboa
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { colors } from '@/theme/colors';
-import { GlassView } from 'expo-glass-effect';
+import { Ionicons } from '@expo/vector-icons';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/utils/api';
 import * as Haptics from 'expo-haptics';
@@ -72,8 +72,7 @@ export default function PostAnnouncementScreen() {
   };
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <GlassView style={StyleSheet.absoluteFill} colorScheme="dark" />
+    <KeyboardAvoidingView style={{ flex: 1, backgroundColor: colors.systemBackground }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       
       <View style={styles.container}>
         <View style={styles.header}>
@@ -89,7 +88,10 @@ export default function PostAnnouncementScreen() {
             {mutation.isPending ? (
               <ActivityIndicator color="#fff" size="small" />
             ) : (
-              <Text style={styles.postText}>Post</Text>
+              <>
+                <Text style={styles.postText}>Post</Text>
+                <Ionicons name="paper-plane" size={16} color="#fff" />
+              </>
             )}
           </Pressable>
         </View>
@@ -140,14 +142,18 @@ const styles = StyleSheet.create({
     padding: 8,
   },
   cancelText: {
-    color: colors.secondaryLabel as string,
+    color: colors.secondaryLabel,
     fontSize: 16,
+    fontWeight: '500',
   },
   postBtn: {
-    backgroundColor: colors.accent as string,
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-    borderRadius: 20,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: colors.accent,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 24,
   },
   postText: {
     color: '#fff',
@@ -155,10 +161,11 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   titleInput: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: '800',
-    color: '#fff',
-    marginBottom: 16,
+    color: colors.label,
+    marginBottom: 20,
+    marginTop: 10,
   },
   divider: {
     height: 1,
@@ -168,7 +175,7 @@ const styles = StyleSheet.create({
   bodyInput: {
     flex: 1,
     fontSize: 18,
-    color: '#fff',
+    color: colors.label,
     lineHeight: 28,
   },
 });
