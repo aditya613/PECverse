@@ -12,6 +12,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '@/utils/api';
 import { useFresherStore } from '@/stores/useFresherStore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { EicRegistrationModal } from '@/components/orientation/EicRegistrationModal';
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
@@ -44,6 +46,23 @@ export default function OrientationDashboard() {
   const { fresher } = useFresherStore();
   const [selectedBranch, setSelectedBranch] = useState(BRANCHES[0]);
   const [isMapVisible, setIsMapVisible] = useState(false);
+
+  // EIC Registration state
+  const [isEicModalVisible, setIsEicModalVisible] = useState(false);
+  const [hasRegisteredForEic, setHasRegisteredForEic] = useState(false);
+
+  const checkEicRegistration = async () => {
+    try {
+      const isRegistered = await AsyncStorage.getItem('eic_registered');
+      setHasRegisteredForEic(!!isRegistered);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  React.useEffect(() => {
+    checkEicRegistration();
+  }, []);
 
   const { data: stats } = useQuery({
     queryKey: ['fresherStats'],
@@ -84,6 +103,14 @@ export default function OrientationDashboard() {
             </View>
           )}
         </Animated.View>
+
+        {!hasRegisteredForEic && (
+          <Animated.View entering={FadeInDown.delay(150).springify()} style={styles.eicCardContainer}>
+            <Pressable onPress={() => setIsEicModalVisible(true)} style={({pressed}) => [styles.eicCard, pressed && { opacity: 0.9, transform: [{scale: 0.98}] }]}>
+              <Image source={require('@/assets/images/eic_banner.png')} style={styles.eicCardImage} contentFit="cover" />
+            </Pressable>
+          </Animated.View>
+        )}
 
         <Animated.Text entering={FadeIn.delay(200)} style={styles.sectionTitle}>The PEC Legacy</Animated.Text>
         <ScrollView
@@ -197,6 +224,14 @@ export default function OrientationDashboard() {
           </SafeAreaView>
         </GestureHandlerRootView>
       </Modal>
+
+      <EicRegistrationModal 
+        visible={isEicModalVisible} 
+        onClose={() => {
+          setIsEicModalVisible(false);
+          checkEicRegistration();
+        }} 
+      />
     </View>
   );
 }
@@ -429,5 +464,28 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 16,
     fontWeight: '600',
+  },
+  eicCardContainer: {
+    marginHorizontal: 16,
+    marginBottom: 8,
+    borderRadius: 16,
+    shadowColor: '#E66E19',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 10,
+    elevation: 8,
+    backgroundColor: '#000',
+  },
+  eicCard: {
+    width: '100%',
+    aspectRatio: 2.5,
+    borderRadius: 16,
+    overflow: 'hidden',
+    borderWidth: 2,
+    borderColor: '#4A5043',
+  },
+  eicCardImage: {
+    width: '100%',
+    height: '100%',
   },
 });

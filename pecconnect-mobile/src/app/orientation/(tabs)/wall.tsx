@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Modal } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator, TextInput, KeyboardAvoidingView, Platform, Modal, Image } from 'react-native';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, useTheme } from '@/theme/colors';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
