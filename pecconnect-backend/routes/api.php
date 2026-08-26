@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\AnnouncementController;
 use App\Http\Controllers\Api\AttendanceController;
 use App\Http\Controllers\Api\NoteController;
 use App\Http\Controllers\Api\DataController;
+use App\Http\Controllers\Api\LostAndFoundController;
 
 // Public Routes
 Route::post('/auth/google', [AuthController::class, 'googleLogin']);
@@ -89,4 +90,14 @@ Route::middleware('auth:sanctum')->group(function () {
     // Mess Routes
     Route::get('/mess', [App\Http\Controllers\MessController::class, 'index']);
     Route::get('/mess/menu', [App\Http\Controllers\MessController::class, 'menu']);
+
+    // Lost and Found Routes
+    Route::get('/lost-and-found', [LostAndFoundController::class, 'index']);
+    Route::post('/lost-and-found', [LostAndFoundController::class, 'store']);
+    Route::put('/lost-and-found/{id}/resolve', [LostAndFoundController::class, 'resolve']);
+    Route::delete('/lost-and-found/{id}', [LostAndFoundController::class, 'destroy']);
+    Route::get('/lost-and-found/{id}/comments', [LostAndFoundController::class, 'getComments']);
+    Route::post('/lost-and-found/{id}/comments', [LostAndFoundController::class, 'storeComment']);
+    Route::delete('/lost-and-found/comments/{id}', [LostAndFoundController::class, 'destroyComment']);
+    Route::post('/lost-and-found/{id}/report', [LostAndFoundController::class, 'reportItem']);
 });

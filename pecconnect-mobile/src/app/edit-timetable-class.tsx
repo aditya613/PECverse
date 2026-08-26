@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, ActivityIndicator, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import { useState, useEffect } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -121,114 +121,119 @@ export default function EditTimetableClassModal() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.formContainer} keyboardShouldPersistTaps="handled">
-        <View style={styles.infoBox}>
-          <Text style={styles.infoSubject}>{originalSubject}</Text>
-          {targetDateStr && mode !== 'edit' && (
-            <Text style={styles.infoDate}>
-              For {new Date(targetDateStr).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
-            </Text>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.formContainer} keyboardShouldPersistTaps="handled">
+          <View style={styles.infoBox}>
+            <Text style={styles.infoSubject}>{originalSubject}</Text>
+            {targetDateStr && mode !== 'edit' && (
+              <Text style={styles.infoDate}>
+                For {new Date(targetDateStr).toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+              </Text>
+            )}
+          </View>
+
+          {mode !== 'cancel' && (
+            <>
+              {/* Time Selection */}
+              <View style={styles.row}>
+                <View style={[styles.inputGroup, { flex: 1 }]}>
+                  <Text style={styles.label}>Start Time</Text>
+                  <Pressable 
+                    style={styles.timePickerButton} 
+                    onPress={() => setShowStartTimePicker(true)}
+                  >
+                    <Text style={styles.timePickerButtonText}>
+                      {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </Pressable>
+                  {(showStartTimePicker || Platform.OS === 'ios') && (
+                    <DateTimePicker
+                      value={startTime}
+                      mode="time"
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={(event, selectedDate) => {
+                        if (Platform.OS === 'android') setShowStartTimePicker(false);
+                        if (selectedDate) setStartTime(selectedDate);
+                      }}
+                    />
+                  )}
+                </View>
+                
+                <View style={[styles.inputGroup, { flex: 1 }]}>
+                  <Text style={styles.label}>End Time</Text>
+                  <Pressable 
+                    style={styles.timePickerButton} 
+                    onPress={() => setShowEndTimePicker(true)}
+                  >
+                    <Text style={styles.timePickerButtonText}>
+                      {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </Pressable>
+                  {(showEndTimePicker || Platform.OS === 'ios') && (
+                    <DateTimePicker
+                      value={endTime}
+                      mode="time"
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={(event, selectedDate) => {
+                        if (Platform.OS === 'android') setShowEndTimePicker(false);
+                        if (selectedDate) setEndTime(selectedDate);
+                      }}
+                    />
+                  )}
+                </View>
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Room (Optional)</Text>
+                <TextInput 
+                  style={styles.input} 
+                  value={room} 
+                  onChangeText={setRoom} 
+                  placeholder="e.g. L1" 
+                  placeholderTextColor={colors.secondaryLabel as string} 
+                />
+              </View>
+            </>
           )}
-        </View>
 
-        {mode !== 'cancel' && (
-          <>
-            {/* Time Selection */}
-            <View style={styles.row}>
-              <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.label}>Start Time</Text>
-                <Pressable 
-                  style={styles.timePickerButton} 
-                  onPress={() => setShowStartTimePicker(true)}
-                >
-                  <Text style={styles.timePickerButtonText}>
-                    {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                </Pressable>
-                {(showStartTimePicker || Platform.OS === 'ios') && (
-                  <DateTimePicker
-                    value={startTime}
-                    mode="time"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    onChange={(event, selectedDate) => {
-                      if (Platform.OS === 'android') setShowStartTimePicker(false);
-                      if (selectedDate) setStartTime(selectedDate);
-                    }}
-                  />
-                )}
-              </View>
-              
-              <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.label}>End Time</Text>
-                <Pressable 
-                  style={styles.timePickerButton} 
-                  onPress={() => setShowEndTimePicker(true)}
-                >
-                  <Text style={styles.timePickerButtonText}>
-                    {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                </Pressable>
-                {(showEndTimePicker || Platform.OS === 'ios') && (
-                  <DateTimePicker
-                    value={endTime}
-                    mode="time"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    onChange={(event, selectedDate) => {
-                      if (Platform.OS === 'android') setShowEndTimePicker(false);
-                      if (selectedDate) setEndTime(selectedDate);
-                    }}
-                  />
-                )}
-              </View>
-            </View>
-
+          {(mode === 'cancel' || mode === 'reschedule') && (
             <View style={styles.inputGroup}>
-              <Text style={styles.label}>Room (Optional)</Text>
+              <Text style={styles.label}>Reason / Note to Students (Optional)</Text>
               <TextInput 
-                style={styles.input} 
-                value={room} 
-                onChangeText={setRoom} 
-                placeholder="e.g. L1" 
+                style={[styles.input, { height: 80, paddingTop: 16 }]} 
+                value={reason} 
+                onChangeText={setReason} 
+                placeholder={mode === 'cancel' ? "e.g. Teacher is on leave" : "e.g. Shifted due to practical"} 
                 placeholderTextColor={colors.secondaryLabel as string} 
+                multiline
               />
             </View>
-          </>
-        )}
+          )}
 
-        {(mode === 'cancel' || mode === 'reschedule') && (
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Reason / Note to Students (Optional)</Text>
-            <TextInput 
-              style={[styles.input, { height: 80, paddingTop: 16 }]} 
-              value={reason} 
-              onChangeText={setReason} 
-              placeholder={mode === 'cancel' ? "e.g. Teacher is on leave" : "e.g. Shifted due to practical"} 
-              placeholderTextColor={colors.secondaryLabel as string} 
-              multiline
-            />
-          </View>
-        )}
+          {mode === 'cancel' && (
+            <View style={styles.warningBox}>
+              <SymbolView name="exclamationmark.triangle.fill" tintColor={colors.destructive} size={24} />
+              <Text style={styles.warningText}>
+                This will cancel the class for this specific date only. Students will be notified instantly.
+              </Text>
+            </View>
+          )}
+          
+          {mode === 'edit' && (
+            <View style={[styles.warningBox, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
+              <SymbolView name="info.circle.fill" tintColor={colors.accent} size={24} />
+              <Text style={[styles.warningText, { color: colors.accent as string }]}>
+                This will permanently update the weekly routine for this class.
+              </Text>
+            </View>
+          )}
 
-        {mode === 'cancel' && (
-          <View style={styles.warningBox}>
-            <SymbolView name="exclamationmark.triangle.fill" tintColor={colors.destructive} size={24} />
-            <Text style={styles.warningText}>
-              This will cancel the class for this specific date only. Students will be notified instantly.
-            </Text>
-          </View>
-        )}
-        
-        {mode === 'edit' && (
-          <View style={[styles.warningBox, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
-            <SymbolView name="info.circle.fill" tintColor={colors.accent} size={24} />
-            <Text style={[styles.warningText, { color: colors.accent as string }]}>
-              This will permanently update the weekly routine for this class.
-            </Text>
-          </View>
-        )}
-
-        <View style={{ height: 100 }} />
-      </ScrollView>
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </BlurView>
   );
 }

@@ -13,6 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Announcement {
   id: number;
@@ -30,13 +31,14 @@ const QUICK_ACCESS = [
   { id: 'attendance', title: 'Attendance', icon: 'checkbox', color: '#10B981', route: '/attendance' },
   { id: 'mess', title: 'Mess Menu', icon: 'restaurant', color: '#F59E0B', route: '/mess' },
   { id: 'notes', title: 'Resources', icon: 'folder-open', color: '#8B5CF6', route: '/(tabs)/notes' },
-  { id: 'freshers', title: 'Explore', icon: 'compass', color: '#EC4899', route: '/clubs' },
+  { id: 'lost-found', title: 'Lost & Found', icon: 'search', color: '#EF4444', route: '/lost-found' },
 ];
 
 export default function DashboardScreen() {
   const user = useAuthStore(state => state.user);
   const router = useRouter();
   const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
 
   // Fetch announcements
   const { data: announcements, isLoading, refetch, isRefetching } = useQuery({
@@ -81,7 +83,7 @@ export default function DashboardScreen() {
   return (
     <View style={[styles.container, { backgroundColor: colors.systemBackground }]}>
       <ScrollView
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[styles.contentContainer, { paddingTop: Math.max(insets.top + 10, 54) }]}
         showsVerticalScrollIndicator={false}
         refreshControl={
           <RefreshControl
@@ -134,16 +136,7 @@ export default function DashboardScreen() {
           </Text>
         </View>
 
-        {/* Universal Search Bar */}
-        <View style={[styles.searchBar, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-          <Ionicons name="search" size={18} color={colors.tertiaryLabel} style={{ marginRight: 8 }} />
-          <TextInput
-            style={[styles.searchInput, { color: colors.label }]}
-            placeholder="Search people, notes, events..."
-            placeholderTextColor={colors.tertiaryLabel}
-          />
-          <Ionicons name="options-outline" size={20} color={colors.secondaryLabel} />
-        </View>
+
 
         {/* Quick Access Grid */}
         <View style={styles.sectionHeaderRow}>
@@ -163,24 +156,6 @@ export default function DashboardScreen() {
             </Animated.View>
           ))}
         </View>
-
-        {/* Help Juniors Banner */}
-        <Pressable
-          style={[styles.helpJuniorsBanner, { backgroundColor: 'rgba(59, 130, 246, 0.1)', borderColor: 'rgba(59, 130, 246, 0.3)' }]}
-          onPress={() => {
-            Haptics.selectionAsync();
-            router.push('/(tabs)/dashboard/help-juniors' as any);
-          }}
-        >
-          <View style={styles.helpJuniorsIconBox}>
-            <Ionicons name="chatbubbles" size={24} color={colors.accent} />
-          </View>
-          <View style={styles.helpJuniorsTextGroup}>
-            <Text style={[styles.helpJuniorsTitle, { color: colors.label }]}>Help the Freshers!</Text>
-            <Text style={[styles.helpJuniorsSub, { color: colors.secondaryLabel }]}>Answer pending questions from the new batch</Text>
-          </View>
-          <Ionicons name="chevron-forward" size={20} color={colors.accent} />
-        </Pressable>
 
         {/* Today's Schedule Card */}
         <View style={[styles.scheduleCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
@@ -256,38 +231,6 @@ export default function DashboardScreen() {
           </Pressable>
         </View>
 
-        {/* Upcoming Event / Spotlight Card (Temporarily Commented Out)
-        <View style={styles.sectionHeaderRow}>
-          <Text style={[styles.sectionTitle, { color: colors.label }]}>Upcoming Event</Text>
-          <Pressable onPress={() => {
-            Haptics.selectionAsync();
-            router.push('/orientation/(tabs)/explore' as any);
-          }}>
-            <Text style={[styles.sectionAction, { color: colors.accent }]}>See All</Text>
-          </Pressable>
-        </View>
-
-        <Pressable
-          style={[styles.eventCard, { backgroundColor: colors.cardBackground, borderColor: 'rgba(139, 92, 246, 0.3)' }]}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.push('/orientation/(tabs)/explore' as any);
-          }}
-        >
-          <View style={styles.eventIconBox}>
-            <Ionicons name="trophy" size={24} color="#8B5CF6" />
-          </View>
-          <View style={styles.eventDetails}>
-            <Text style={[styles.eventHeading, { color: colors.label }]}>CodeRush 4.0</Text>
-            <Text style={[styles.eventSub, { color: colors.secondaryLabel }]}>Annual Coding Competition • Cash Prizes</Text>
-          </View>
-          <View style={[styles.eventDateBadge, { backgroundColor: colors.secondarySystemBackground, borderColor: colors.cardBorder }]}>
-            <Text style={[styles.eventDay, { color: colors.label }]}>24</Text>
-            <Text style={styles.eventMonth}>MAY</Text>
-          </View>
-        </Pressable>
-        */}
-
         {/* Mess Menu Widget */}
         <DashboardMessWidget />
 
@@ -333,7 +276,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   contentContainer: {
-    paddingTop: 54,
     paddingHorizontal: 18,
     gap: 16,
   },
@@ -473,34 +415,6 @@ const styles = StyleSheet.create({
     gap: 14,
     marginBottom: 8,
   },
-  helpJuniorsBanner: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    padding: 16,
-    borderRadius: 20,
-    borderWidth: 1,
-    marginBottom: 24,
-  },
-  helpJuniorsIconBox: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 16,
-  },
-  helpJuniorsTextGroup: {
-    flex: 1,
-  },
-  helpJuniorsTitle: {
-    fontSize: 16,
-    fontWeight: '700',
-    marginBottom: 2,
-  },
-  helpJuniorsSub: {
-    fontSize: 12,
-  },
   scheduleHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -564,49 +478,6 @@ const styles = StyleSheet.create({
   viewFullText: {
     fontSize: 13,
     fontWeight: '700',
-  },
-  eventCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: 18,
-    padding: 16,
-    borderWidth: 1,
-  },
-  eventIconBox: {
-    width: 46,
-    height: 46,
-    borderRadius: 14,
-    backgroundColor: 'rgba(139, 92, 246, 0.15)',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 14,
-  },
-  eventDetails: {
-    flex: 1,
-  },
-  eventHeading: {
-    fontSize: 15,
-    fontWeight: '800',
-    marginBottom: 2,
-  },
-  eventSub: {
-    fontSize: 12,
-  },
-  eventDateBadge: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 10,
-    alignItems: 'center',
-    borderWidth: 1,
-  },
-  eventDay: {
-    fontSize: 14,
-    fontWeight: '900',
-  },
-  eventMonth: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: '#8B5CF6',
   },
   holidayBox: {
     alignItems: 'center',

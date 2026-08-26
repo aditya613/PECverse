@@ -5,11 +5,13 @@ import { useTheme } from '@/theme/colors';
 import { BlurView } from 'expo-blur';
 import { useAuthStore } from '@/stores/useAuthStore';
 import * as Haptics from 'expo-haptics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function TabLayout() {
   const user = useAuthStore(state => state.user);
   const router = useRouter();
   const { colors, isDark } = useTheme();
+  const insets = useSafeAreaInsets();
   
   const isAuthorized = user?.role === 'cr' || user?.role === 'superadmin';
 
@@ -21,8 +23,8 @@ export default function TabLayout() {
           backgroundColor: Platform.OS === 'ios' ? 'transparent' : colors.cardBackground,
           borderTopWidth: 1,
           borderTopColor: colors.cardBorder,
-          height: Platform.OS === 'ios' ? 88 : 68,
-          paddingBottom: Platform.OS === 'ios' ? 28 : 10,
+          height: Platform.OS === 'ios' ? 60 + Math.max(insets.bottom, 10) : 68,
+          paddingBottom: Platform.OS === 'ios' ? Math.max(insets.bottom, 10) : 10,
           paddingTop: 8,
           position: 'absolute',
           bottom: 0,
@@ -138,13 +140,6 @@ export default function TabLayout() {
         }}
       />
       
-      {/* Hidden Screens inside Tabs */}
-      <Tabs.Screen
-        name="dashboard/help-juniors"
-        options={{
-          href: null,
-        }}
-      />
     </Tabs>
   );
 }

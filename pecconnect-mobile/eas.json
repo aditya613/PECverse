@@ -29,6 +29,16 @@
         "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "543780041775-6oh63o3lgn674sklfap5ltpaorosa7bg.apps.googleusercontent.com",
         "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "543780041775-5ofelpimp1c25edcer4et4g23ndsou84.apps.googleusercontent.com"
       }
+    },
+    "simulator": {
+      "ios": {
+        "simulator": true
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://pecapp.theaspirants.co.in/api",
+        "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "543780041775-6oh63o3lgn674sklfap5ltpaorosa7bg.apps.googleusercontent.com",
+        "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "543780041775-5ofelpimp1c25edcer4et4g23ndsou84.apps.googleusercontent.com"
+      }
     }
   },
   "submit": {

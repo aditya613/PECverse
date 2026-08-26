@@ -1,6 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/utils/api';
-import { useFresherStore } from '@/stores/useFresherStore';
 import * as Haptics from 'expo-haptics';
 
 export interface SeniorAdviceItem {
@@ -15,7 +14,6 @@ export interface SeniorAdviceItem {
 
 export function useSeniorAdvice(category: string = 'All') {
   const queryClient = useQueryClient();
-  const { deviceId } = useFresherStore();
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['seniorAdvice', category],
@@ -41,7 +39,6 @@ export function useSeniorAdvice(category: string = 'All') {
     mutationFn: async (question: string) => {
       const res = await api.post('/senior-advice/questions', {
         question,
-        device_id: deviceId,
       });
       return res.data;
     },

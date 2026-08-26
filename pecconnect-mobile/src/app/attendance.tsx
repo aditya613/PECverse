@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform, TextInput, ActivityIndicator, Modal, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, TextInput, ActivityIndicator, Modal, Alert, KeyboardAvoidingView } from 'react-native';
 import { useAttendance, AttendanceSubject } from '@/hooks/useAttendance';
 import { colors } from '@/theme/colors';
 import { useRouter, Stack } from 'expo-router';
@@ -56,163 +56,169 @@ export default function AttendanceScreen() {
         }} 
       />
 
-      <ScrollView 
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
+      <KeyboardAvoidingView 
+        style={{ flex: 1 }} 
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 90 : 0}
       >
-        {/* Giant Circular Arc Gauge Header */}
-        <GlassCard style={styles.gaugeHeaderCard}>
-          <RadialProgressGauge 
-            percentage={overallAggregate}
-            size={160}
-            strokeWidth={12}
-            subtitle="Overall Aggregate"
-            statusText={
-              totalClasses === 0 
-                ? "Add subjects below to track your attendance." 
-                : overallAggregate >= 75 
-                  ? `On track! You can safely miss ${safeBunks} class${safeBunks !== 1 ? 'es' : ''} overall.`
-                  : `Action needed ⚠️ You must attend the next ${classesToAttend} class${classesToAttend !== 1 ? 'es' : ''} to reach 75%.`
-            }
-          />
-        </GlassCard>
-
-        {/* Add Subject Section Inline */}
-        {isAdding && (
-          <GlassCard style={styles.addCard}>
-            <Text style={styles.addCardTitle}>Add New Subject</Text>
-            <TextInput
-              style={styles.input}
-              placeholder="e.g. Computer Organization"
-              placeholderTextColor={colors.tertiaryLabel}
-              value={newSubjectName}
-              onChangeText={setNewSubjectName}
-              autoFocus
-              returnKeyType="done"
-              onSubmitEditing={handleAdd}
+        <ScrollView 
+          contentContainerStyle={styles.contentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {/* Giant Circular Arc Gauge Header */}
+          <GlassCard style={styles.gaugeHeaderCard}>
+            <RadialProgressGauge 
+              percentage={overallAggregate}
+              size={160}
+              strokeWidth={12}
+              subtitle="Overall Aggregate"
+              statusText={
+                totalClasses === 0 
+                  ? "Add subjects below to track your attendance." 
+                  : overallAggregate >= 75 
+                    ? `On track! You can safely miss ${safeBunks} class${safeBunks !== 1 ? 'es' : ''} overall.`
+                    : `Action needed ⚠️ You must attend the next ${classesToAttend} class${classesToAttend !== 1 ? 'es' : ''} to reach 75%.`
+              }
             />
-            <View style={styles.addActions}>
-              <Pressable style={styles.cancelBtn} onPress={() => setIsAdding(false)}>
-                <Text style={styles.cancelText}>Cancel</Text>
-              </Pressable>
-              <Pressable 
-                style={[styles.saveBtn, !newSubjectName.trim() && { opacity: 0.5 }]} 
-                onPress={handleAdd} 
-                disabled={!newSubjectName.trim()}
-              >
-                <Text style={styles.saveText}>Save</Text>
-              </Pressable>
-            </View>
           </GlassCard>
-        )}
 
-        {/* Real Subject Cards List */}
-        {isLoading ? (
-          <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 40 }} />
-        ) : !subjects || subjects.length === 0 ? (
-          <GlassCard style={styles.emptyContainer}>
-            <Text style={styles.emptyTitle}>No Subjects Tracked</Text>
-            <Text style={styles.emptySubtitle}>Tap "+ Add Subject" to start tracking attendance for your classes.</Text>
-            <AnimatedPressable onPress={() => setIsAdding(true)} scaleTo={0.94}>
-              <View style={styles.emptyAddBtn}>
-                <Text style={styles.emptyAddBtnText}>Add Subject</Text>
-              </View>
-            </AnimatedPressable>
-          </GlassCard>
-        ) : (
-          <View style={styles.subjectsList}>
-            {subjects.map((sub) => {
-              const subTotal = sub.attended_classes + sub.bunked_classes;
-              const pct = subTotal === 0 ? 0 : Math.round((sub.attended_classes / subTotal) * 100);
-
-              return (
-                <AnimatedPressable 
-                  key={sub.id} 
-                  onPress={() => {
-                    Haptics.selectionAsync();
-                    setSelectedSubjectId(sub.id);
-                  }}
-                  scaleTo={0.98}
+          {/* Add Subject Section Inline */}
+          {isAdding && (
+            <GlassCard style={styles.addCard}>
+              <Text style={styles.addCardTitle}>Add New Subject</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="e.g. Computer Organization"
+                placeholderTextColor={colors.tertiaryLabel}
+                value={newSubjectName}
+                onChangeText={setNewSubjectName}
+                autoFocus
+                returnKeyType="done"
+                onSubmitEditing={handleAdd}
+              />
+              <View style={styles.addActions}>
+                <Pressable style={styles.cancelBtn} onPress={() => setIsAdding(false)}>
+                  <Text style={styles.cancelText}>Cancel</Text>
+                </Pressable>
+                <Pressable 
+                  style={[styles.saveBtn, !newSubjectName.trim() && { opacity: 0.5 }]} 
+                  onPress={handleAdd} 
+                  disabled={!newSubjectName.trim()}
                 >
-                  <GlassCard style={styles.subjectCard}>
-                    {/* Header Row: Name & Percentage */}
-                    <View style={styles.subCardHeader}>
-                      <Text style={styles.subNameText}>{sub.name}</Text>
-                    <Text style={[
-                      styles.subPctText,
-                      { color: pct >= 75 ? colors.success : colors.destructive }
-                    ]}>
-                      {pct}%
-                    </Text>
-                  </View>
+                  <Text style={styles.saveText}>Save</Text>
+                </Pressable>
+              </View>
+            </GlassCard>
+          )}
 
-                  {/* Horizontal Progress Track Bar */}
-                  <View style={styles.progressTrack}>
-                    <View 
-                      style={[
-                        styles.progressFill, 
-                        { 
-                          width: `${Math.min(100, pct)}%`,
-                          backgroundColor: pct >= 75 ? colors.accent : colors.destructive 
-                        }
-                      ]} 
-                    />
-                  </View>
-
-                  {/* Counts Line */}
-                  <View style={styles.countsRow}>
-                    <Text style={styles.countText}>Attended: <Text style={styles.countVal}>{sub.attended_classes}</Text></Text>
-                    <Text style={styles.countText}>Bunked: <Text style={styles.countVal}>{sub.bunked_classes}</Text></Text>
-                    <Text style={styles.countText}>Total: <Text style={styles.countVal}>{subTotal}</Text></Text>
-                  </View>
-
-                  {/* Insightful Status Text */}
-                  {subTotal > 0 && (
-                    <Text style={[styles.insightText, { color: pct >= 75 ? colors.success : colors.destructive }]}>
-                      {pct >= 75 
-                        ? `On track. You can safely miss ${Math.max(0, Math.floor((sub.attended_classes - 0.75 * subTotal) / 0.75))} more class${Math.max(0, Math.floor((sub.attended_classes - 0.75 * subTotal) / 0.75)) !== 1 ? 'es' : ''}.`
-                        : `At risk. You must attend the next ${Math.max(0, 3 * subTotal - 4 * sub.attended_classes)} class${Math.max(0, 3 * subTotal - 4 * sub.attended_classes) !== 1 ? 'es' : ''} to reach 75%.`
-                      }
-                    </Text>
-                  )}
-
-                  {/* Quick Interactive Steppers */}
-                  <View style={styles.actionButtonsRow}>
-                    <AnimatedPressable 
-                      onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                        updateLog.mutate({ id: sub.id, type: 'bunked' });
-                      }}
-                      scaleTo={0.96}
-                      style={{ flex: 1 }}
-                    >
-                      <View style={styles.bunkBtn}>
-                        <Text style={styles.bunkBtnText}>— Bunked</Text>
-                      </View>
-                    </AnimatedPressable>
-
-                    <AnimatedPressable 
-                      onPress={() => {
-                        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                        updateLog.mutate({ id: sub.id, type: 'attended' });
-                      }}
-                      scaleTo={0.96}
-                      style={{ flex: 1 }}
-                    >
-                      <View style={styles.attendBtn}>
-                        <Text style={styles.attendBtnText}>+ Attended</Text>
-                      </View>
-                    </AnimatedPressable>
-                  </View>
-                </GlassCard>
+          {/* Real Subject Cards List */}
+          {isLoading ? (
+            <ActivityIndicator size="large" color={colors.accent} style={{ marginTop: 40 }} />
+          ) : !subjects || subjects.length === 0 ? (
+            <GlassCard style={styles.emptyContainer}>
+              <Text style={styles.emptyTitle}>No Subjects Tracked</Text>
+              <Text style={styles.emptySubtitle}>Tap "+ Add Subject" to start tracking attendance for your classes.</Text>
+              <AnimatedPressable onPress={() => setIsAdding(true)} scaleTo={0.94}>
+                <View style={styles.emptyAddBtn}>
+                  <Text style={styles.emptyAddBtnText}>Add Subject</Text>
+                </View>
               </AnimatedPressable>
-              );
-            })}
-          </View>
-        )}
+            </GlassCard>
+          ) : (
+            <View style={styles.subjectsList}>
+              {subjects.map((sub) => {
+                const subTotal = sub.attended_classes + sub.bunked_classes;
+                const pct = subTotal === 0 ? 0 : Math.round((sub.attended_classes / subTotal) * 100);
 
-        <View style={{ height: 40 }} />
-      </ScrollView>
+                return (
+                  <AnimatedPressable 
+                    key={sub.id} 
+                    onPress={() => {
+                      Haptics.selectionAsync();
+                      setSelectedSubjectId(sub.id);
+                    }}
+                    scaleTo={0.98}
+                  >
+                    <GlassCard style={styles.subjectCard}>
+                      {/* Header Row: Name & Percentage */}
+                      <View style={styles.subCardHeader}>
+                        <Text style={styles.subNameText}>{sub.name}</Text>
+                      <Text style={[
+                        styles.subPctText,
+                        { color: pct >= 75 ? colors.success : colors.destructive }
+                      ]}>
+                        {pct}%
+                      </Text>
+                    </View>
+
+                    {/* Horizontal Progress Track Bar */}
+                    <View style={styles.progressTrack}>
+                      <View 
+                        style={[
+                          styles.progressFill, 
+                          { 
+                            width: `${Math.min(100, pct)}%`,
+                            backgroundColor: pct >= 75 ? colors.accent : colors.destructive 
+                          }
+                        ]} 
+                      />
+                    </View>
+
+                    {/* Counts Line */}
+                    <View style={styles.countsRow}>
+                      <Text style={styles.countText}>Attended: <Text style={styles.countVal}>{sub.attended_classes}</Text></Text>
+                      <Text style={styles.countText}>Bunked: <Text style={styles.countVal}>{sub.bunked_classes}</Text></Text>
+                      <Text style={styles.countText}>Total: <Text style={styles.countVal}>{subTotal}</Text></Text>
+                    </View>
+
+                    {/* Insightful Status Text */}
+                    {subTotal > 0 && (
+                      <Text style={[styles.insightText, { color: pct >= 75 ? colors.success : colors.destructive }]}>
+                        {pct >= 75 
+                          ? `On track. You can safely miss ${Math.max(0, Math.floor((sub.attended_classes - 0.75 * subTotal) / 0.75))} more class${Math.max(0, Math.floor((sub.attended_classes - 0.75 * subTotal) / 0.75)) !== 1 ? 'es' : ''}.`
+                          : `At risk. You must attend the next ${Math.max(0, 3 * subTotal - 4 * sub.attended_classes)} class${Math.max(0, 3 * subTotal - 4 * sub.attended_classes) !== 1 ? 'es' : ''} to reach 75%.`
+                        }
+                      </Text>
+                    )}
+
+                    {/* Quick Interactive Steppers */}
+                    <View style={styles.actionButtonsRow}>
+                      <AnimatedPressable 
+                        onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                          updateLog.mutate({ id: sub.id, type: 'bunked' });
+                        }}
+                        scaleTo={0.96}
+                        style={{ flex: 1 }}
+                      >
+                        <View style={styles.bunkBtn}>
+                          <Text style={styles.bunkBtnText}>— Bunked</Text>
+                        </View>
+                      </AnimatedPressable>
+
+                      <AnimatedPressable 
+                        onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          updateLog.mutate({ id: sub.id, type: 'attended' });
+                        }}
+                        scaleTo={0.96}
+                        style={{ flex: 1 }}
+                      >
+                        <View style={styles.attendBtn}>
+                          <Text style={styles.attendBtnText}>+ Attended</Text>
+                        </View>
+                      </AnimatedPressable>
+                    </View>
+                  </GlassCard>
+                </AnimatedPressable>
+                );
+              })}
+            </View>
+          )}
+
+          <View style={{ height: 40 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
 
       {/* History & Settings Bottom Sheet */}
       <Modal

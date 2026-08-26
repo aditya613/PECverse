@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useMemo } from 'react';
+import { useMemo, useState, useEffect } from 'react';
+import { AppState } from 'react-native';
 import { api } from '@/utils/api';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { MergedClass } from '@/components/timetable/ClassCard';
@@ -43,6 +44,27 @@ export function useTimetable(targetDate: string) {
     },
     enabled: !!user?.class_id,
   });
+
+  const [currentTime, setCurrentTime] = useState(() => new Date());
+
+  useEffect(() => {
+    // Update time every minute
+    const intervalId = setInterval(() => {
+      setCurrentTime(new Date());
+    }, 60000);
+
+    // Also update time immediately when app comes to foreground
+    const subscription = AppState.addEventListener('change', nextAppState => {
+      if (nextAppState === 'active') {
+        setCurrentTime(new Date());
+      }
+    });
+
+    return () => {
+      clearInterval(intervalId);
+      subscription.remove();
+    };
+  }, []);
 
   const timetableCalculation: { mergedClasses: MergedClass[]; activeHoliday: HolidayRow | null } = useMemo(() => {
     if (!data || !data.classes) return { mergedClasses: [], activeHoliday: null };
@@ -158,7 +180,7 @@ export function useTimetable(targetDate: string) {
     merged.sort((a, b) => a.start_time.localeCompare(b.start_time));
 
     // 5. Determine active/next classes
-    const now = new Date();
+    const now = currentTime;
     // Only highlight active classes if targetDate is today in local device time
     const localYear = now.getFullYear();
     const localMonth = String(now.getMonth() + 1).padStart(2, '0');
@@ -214,7 +236,7 @@ export function useTimetable(targetDate: string) {
     }
 
     return { mergedClasses: merged, activeHoliday: null };
-  }, [data, targetDate]);
+  }, [data, targetDate, currentTime]);
 
   return {
     classes: timetableCalculation.mergedClasses,

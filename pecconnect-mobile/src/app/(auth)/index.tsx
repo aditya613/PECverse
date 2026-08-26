@@ -159,24 +159,6 @@ export default function LoginScreen() {
 
         {/* Unified Login Portal Box */}
         <View style={styles.portalContainer}>
-          {/* Freshers Section */}
-          <View style={styles.freshersSection}>
-            <Text style={styles.freshersTag}>NEW ADMISSIONS 2026</Text>
-            <Text style={styles.freshersTitle}>Orientation & Fresher Lounge</Text>
-            <Text style={styles.freshersSubtitle}>No login required! Connect with your batch, view reporting venues, and meet seniors.</Text>
-            <Link href="/orientation" asChild>
-              <Pressable style={styles.freshersButton} onPress={() => Haptics.selectionAsync()}>
-                <Text style={styles.freshersButtonText}>Freshers Login</Text>
-              </Pressable>
-            </Link>
-          </View>
-
-          <View style={styles.divider}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>CURRENT STUDENTS</Text>
-            <View style={styles.dividerLine} />
-          </View>
-
           {/* Action Section */}
           <View style={styles.actionContainer}>
             <AnimatedPressable
@@ -256,64 +238,13 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
-    padding: 24,
+    padding: 32,
     marginVertical: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
     elevation: 8,
-  },
-  freshersSection: {
-    marginBottom: 20,
-  },
-  divider: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: 'rgba(255,255,255,0.1)',
-  },
-  dividerText: {
-    color: colors.secondaryLabel,
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 1.5,
-    marginHorizontal: 12,
-  },
-  freshersTag: {
-    fontSize: 10,
-    fontWeight: '800',
-    color: colors.accent,
-    letterSpacing: 1.2,
-    marginBottom: 6,
-  },
-  freshersTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    marginBottom: 6,
-  },
-  freshersSubtitle: {
-    fontSize: 13,
-    color: 'rgba(255, 255, 255, 0.7)',
-    lineHeight: 18,
-    marginBottom: 16,
-  },
-  freshersButton: {
-    backgroundColor: colors.accent,
-    borderRadius: 14,
-    paddingVertical: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  freshersButtonText: {
-    color: '#FFFFFF',
-    fontSize: 14,
-    fontWeight: '700',
   },
   actionContainer: {
     width: '100%',

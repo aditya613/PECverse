@@ -5,7 +5,6 @@ import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/utils/api';
 import { useNotificationModalStore } from '@/stores/useNotificationModalStore';
-import { useFresherStore } from '@/stores/useFresherStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const isExpoGo = Constants.appOwnership === 'expo';
@@ -121,13 +120,10 @@ async function fetchExpoPushToken(): Promise<string | null> {
 
 async function syncTokenToBackend(token: string) {
   try {
-    const { fresher, deviceId } = useFresherStore.getState();
     const { isAuthenticated } = useAuthStore.getState();
 
     if (isAuthenticated) {
       await api.post('/user/push-token', { token });
-    } else if (fresher && deviceId) {
-      await api.post('/freshers/push-token', { token, device_id: deviceId });
     }
   } catch (err) {
     console.log('Failed to sync push token to backend:', err);
@@ -141,10 +137,9 @@ export function usePushNotifications() {
   const responseListener = useRef<any | null>(null);
   
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
-  const isFresher = useFresherStore(state => !!state.fresher);
 
   const checkAndSync = useCallback(async () => {
-    if (isExpoGo || !Notifications || (!isAuthenticated && !isFresher) || !Device.isDevice) return;
+    if (isExpoGo || !Notifications || !isAuthenticated || !Device.isDevice) return;
 
     try {
       const { status } = await Notifications.getPermissionsAsync();
@@ -160,7 +155,7 @@ export function usePushNotifications() {
     } catch (e) {
       // Ignore in Expo Go or dev environments
     }
-  }, [isAuthenticated, isFresher]);
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (isExpoGo || !Notifications) return;

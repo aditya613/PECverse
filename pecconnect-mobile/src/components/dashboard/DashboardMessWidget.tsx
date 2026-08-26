@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import { colors } from '@/theme/colors';
 import { useMessStore } from '@/stores/useMessStore';
-import { useMesses } from '@/hooks/useMess';
+import { useMesses, useMessMenu } from '@/hooks/useMess';
 import { useRouter } from 'expo-router';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { GlassCard } from '@/components/ui/GlassCard';
@@ -16,7 +16,17 @@ export function DashboardMessWidget() {
   }, []);
 
   const { data: messes } = useMesses();
+  const { data: menu, isLoading } = useMessMenu(selectedMessId);
+  
   const selectedMessName = messes?.find(m => m.id === selectedMessId)?.name || 'Shivalik Hostel';
+
+  const todayJs = new Date().getDay();
+  const todayBackend = todayJs === 0 ? 7 : todayJs;
+  
+  const todayMenu = React.useMemo(() => {
+    if (!menu) return null;
+    return menu.find(m => m.day_of_week === todayBackend);
+  }, [menu, todayBackend]);
 
   return (
     <View style={styles.container}>
@@ -29,9 +39,17 @@ export function DashboardMessWidget() {
             <Text style={styles.arrowText}>›</Text>
           </View>
 
-          <Text style={{ color: colors.secondaryLabel, fontSize: 13 }}>
-            Tap to view today's complete menu.
-          </Text>
+          {isLoading ? (
+            <Text style={{ color: colors.secondaryLabel, fontSize: 13 }}>Loading today's menu...</Text>
+          ) : todayMenu ? (
+            <Text style={{ color: colors.label, fontSize: 14, lineHeight: 22 }} numberOfLines={3}>
+              {todayMenu.items}
+            </Text>
+          ) : (
+            <Text style={{ color: colors.secondaryLabel, fontSize: 13 }}>
+              Tap to view today's complete menu.
+            </Text>
+          )}
         </GlassCard>
       </AnimatedPressable>
     </View>

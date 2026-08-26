@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, ActivityIndicator, Alert, Platform } from 'react-native';
+import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, ActivityIndicator, Alert, Platform, KeyboardAvoidingView } from 'react-native';
 import { useState } from 'react';
 import { useRouter } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -187,157 +187,162 @@ export default function ManageTimetableModal() {
         </Pressable>
       </View>
 
-      <ScrollView contentContainerStyle={styles.formContainer} keyboardShouldPersistTaps="handled">
-        
-        {/* Date / Day Selection */}
-        {classType === 'weekly' ? (
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Day of Week</Text>
-            <View style={styles.daysRow}>
-              {DAYS.map(day => (
-                <Pressable
-                  key={day.id}
-                  onPress={() => setDayOfWeek(day.id)}
-                  style={[styles.dayChip, dayOfWeek === day.id && styles.dayChipActive]}
-                >
-                  <Text style={[styles.dayChipText, dayOfWeek === day.id && { color: '#fff' }]}>
-                    {day.label}
-                  </Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        ) : (
-          <View style={styles.inputGroup}>
-            <Text style={styles.label}>Date</Text>
-            <Pressable 
-              style={styles.timePickerButton} 
-              onPress={() => setShowDatePicker(true)}
-            >
-              <Text style={styles.timePickerButtonText}>
-                {targetDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
-              </Text>
-            </Pressable>
-            {(showDatePicker || Platform.OS === 'ios') && (
-              <DateTimePicker
-                value={targetDate}
-                mode="date"
-                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                onChange={(event, selectedDate) => {
-                  if (Platform.OS === 'android') setShowDatePicker(false);
-                  if (selectedDate) setTargetDate(selectedDate);
-                }}
-              />
-            )}
-          </View>
-        )}
-
-        {/* Time Selection */}
-        {classType !== 'holiday' && (
-          <>
-            <View style={styles.row}>
-              <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.label}>Start Time</Text>
-                <Pressable 
-                  style={styles.timePickerButton} 
-                  onPress={() => setShowStartTimePicker(true)}
-                >
-                  <Text style={styles.timePickerButtonText}>
-                    {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                </Pressable>
-                {(showStartTimePicker || Platform.OS === 'ios') && (
-                  <DateTimePicker
-                    value={startTime}
-                    mode="time"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    onChange={(event, selectedDate) => {
-                      if (Platform.OS === 'android') setShowStartTimePicker(false);
-                      if (selectedDate) setStartTime(selectedDate);
-                    }}
-                  />
-                )}
-              </View>
-              
-              <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.label}>End Time</Text>
-                <Pressable 
-                  style={styles.timePickerButton} 
-                  onPress={() => setShowEndTimePicker(true)}
-                >
-                  <Text style={styles.timePickerButtonText}>
-                    {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                  </Text>
-                </Pressable>
-                {(showEndTimePicker || Platform.OS === 'ios') && (
-                  <DateTimePicker
-                    value={endTime}
-                    mode="time"
-                    display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-                    onChange={(event, selectedDate) => {
-                      if (Platform.OS === 'android') setShowEndTimePicker(false);
-                      if (selectedDate) setEndTime(selectedDate);
-                    }}
-                  />
-                )}
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      >
+        <ScrollView contentContainerStyle={styles.formContainer} keyboardShouldPersistTaps="handled">
+          
+          {/* Date / Day Selection */}
+          {classType === 'weekly' ? (
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Day of Week</Text>
+              <View style={styles.daysRow}>
+                {DAYS.map(day => (
+                  <Pressable
+                    key={day.id}
+                    onPress={() => setDayOfWeek(day.id)}
+                    style={[styles.dayChip, dayOfWeek === day.id && styles.dayChipActive]}
+                  >
+                    <Text style={[styles.dayChipText, dayOfWeek === day.id && { color: '#fff' }]}>
+                      {day.label}
+                    </Text>
+                  </Pressable>
+                ))}
               </View>
             </View>
+          ) : (
+            <View style={styles.inputGroup}>
+              <Text style={styles.label}>Date</Text>
+              <Pressable 
+                style={styles.timePickerButton} 
+                onPress={() => setShowDatePicker(true)}
+              >
+                <Text style={styles.timePickerButtonText}>
+                  {targetDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' })}
+                </Text>
+              </Pressable>
+              {(showDatePicker || Platform.OS === 'ios') && (
+                <DateTimePicker
+                  value={targetDate}
+                  mode="date"
+                  display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                  onChange={(event, selectedDate) => {
+                    if (Platform.OS === 'android') setShowDatePicker(false);
+                    if (selectedDate) setTargetDate(selectedDate);
+                  }}
+                />
+              )}
+            </View>
+          )}
 
-            <View style={styles.row}>
-              <View style={[styles.inputGroup, { flex: 1 }]}>
-                <Text style={styles.label}>Period No. (Optional)</Text>
+          {/* Time Selection */}
+          {classType !== 'holiday' && (
+            <>
+              <View style={styles.row}>
+                <View style={[styles.inputGroup, { flex: 1 }]}>
+                  <Text style={styles.label}>Start Time</Text>
+                  <Pressable 
+                    style={styles.timePickerButton} 
+                    onPress={() => setShowStartTimePicker(true)}
+                  >
+                    <Text style={styles.timePickerButtonText}>
+                      {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </Pressable>
+                  {(showStartTimePicker || Platform.OS === 'ios') && (
+                    <DateTimePicker
+                      value={startTime}
+                      mode="time"
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={(event, selectedDate) => {
+                        if (Platform.OS === 'android') setShowStartTimePicker(false);
+                        if (selectedDate) setStartTime(selectedDate);
+                      }}
+                    />
+                  )}
+                </View>
+                
+                <View style={[styles.inputGroup, { flex: 1 }]}>
+                  <Text style={styles.label}>End Time</Text>
+                  <Pressable 
+                    style={styles.timePickerButton} 
+                    onPress={() => setShowEndTimePicker(true)}
+                  >
+                    <Text style={styles.timePickerButtonText}>
+                      {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                    </Text>
+                  </Pressable>
+                  {(showEndTimePicker || Platform.OS === 'ios') && (
+                    <DateTimePicker
+                      value={endTime}
+                      mode="time"
+                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      onChange={(event, selectedDate) => {
+                        if (Platform.OS === 'android') setShowEndTimePicker(false);
+                        if (selectedDate) setEndTime(selectedDate);
+                      }}
+                    />
+                  )}
+                </View>
+              </View>
+
+              <View style={styles.row}>
+                <View style={[styles.inputGroup, { flex: 1 }]}>
+                  <Text style={styles.label}>Period No. (Optional)</Text>
+                  <TextInput 
+                    style={styles.input} 
+                    value={periodNo} 
+                    onChangeText={setPeriodNo} 
+                    keyboardType="number-pad" 
+                    placeholder="1"
+                    placeholderTextColor={colors.secondaryLabel as string} 
+                  />
+                </View>
+              </View>
+            </>
+          )}
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>{classType === 'holiday' ? 'Reason (Optional)' : 'Subject *'}</Text>
+            <TextInput 
+              style={styles.input} 
+              value={subject} 
+              onChangeText={setSubject} 
+              placeholder={classType === 'holiday' ? "e.g. Heavy Rain" : "e.g. Data Structures"} 
+              placeholderTextColor={colors.secondaryLabel as string} 
+            />
+          </View>
+          
+          {classType !== 'holiday' && (
+            <>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Room (Optional)</Text>
                 <TextInput 
                   style={styles.input} 
-                  value={periodNo} 
-                  onChangeText={setPeriodNo} 
-                  keyboardType="number-pad" 
-                  placeholder="1"
+                  value={room} 
+                  onChangeText={setRoom} 
+                  placeholder="e.g. L1" 
                   placeholderTextColor={colors.secondaryLabel as string} 
                 />
               </View>
-            </View>
-          </>
-        )}
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>{classType === 'holiday' ? 'Reason (Optional)' : 'Subject *'}</Text>
-          <TextInput 
-            style={styles.input} 
-            value={subject} 
-            onChangeText={setSubject} 
-            placeholder={classType === 'holiday' ? "e.g. Heavy Rain" : "e.g. Data Structures"} 
-            placeholderTextColor={colors.secondaryLabel as string} 
-          />
-        </View>
-        
-        {classType !== 'holiday' && (
-          <>
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Room (Optional)</Text>
-              <TextInput 
-                style={styles.input} 
-                value={room} 
-                onChangeText={setRoom} 
-                placeholder="e.g. L1" 
-                placeholderTextColor={colors.secondaryLabel as string} 
-              />
-            </View>
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Teacher (Optional)</Text>
+                <TextInput 
+                  style={styles.input} 
+                  value={teacher} 
+                  onChangeText={setTeacher} 
+                  placeholder="e.g. Dr. Smith" 
+                  placeholderTextColor={colors.secondaryLabel as string} 
+                />
+              </View>
+            </>
+          )}
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Teacher (Optional)</Text>
-              <TextInput 
-                style={styles.input} 
-                value={teacher} 
-                onChangeText={setTeacher} 
-                placeholder="e.g. Dr. Smith" 
-                placeholderTextColor={colors.secondaryLabel as string} 
-              />
-            </View>
-          </>
-        )}
-
-        <View style={{ height: 100 }} />
-      </ScrollView>
+          <View style={{ height: 100 }} />
+        </ScrollView>
+      </KeyboardAvoidingView>
     </BlurView>
   );
 }

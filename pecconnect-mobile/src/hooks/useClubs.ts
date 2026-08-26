@@ -1,7 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/utils/api';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useFresherStore } from '@/stores/useFresherStore';
 import * as Haptics from 'expo-haptics';
 
 export interface Club {
@@ -24,15 +23,11 @@ export interface Club {
 export function useClubs(category: string = 'All') {
   const queryClient = useQueryClient();
   const user = useAuthStore(state => state.user);
-  const { deviceId } = useFresherStore();
-
-  const effectiveDeviceId = user ? undefined : deviceId;
 
   const { data, isLoading, refetch, isRefetching } = useQuery({
-    queryKey: ['clubs', category, user?.id, effectiveDeviceId],
+    queryKey: ['clubs', category, user?.id],
     queryFn: async () => {
       const params: any = { category };
-      if (effectiveDeviceId) params.device_id = effectiveDeviceId;
       const res = await api.get('/clubs', { params });
       return res.data.clubs as Club[];
     },
@@ -41,9 +36,7 @@ export function useClubs(category: string = 'All') {
   const toggleJoinMutation = useMutation({
     mutationFn: async (clubId: number) => {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      const payload: any = {};
-      if (effectiveDeviceId) payload.device_id = effectiveDeviceId;
-      const res = await api.post(`/clubs/${clubId}/toggle-join`, payload);
+      const res = await api.post(`/clubs/${clubId}/toggle-join`);
       return res.data;
     },
     onSuccess: () => {

@@ -3,7 +3,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect } from 'react';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { useFresherStore } from '@/stores/useFresherStore';
 import * as SecureStore from 'expo-secure-store';
 import { api } from '@/utils/api';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
@@ -75,9 +74,6 @@ function RootLayoutNav() {
       }
     };
     checkAuth();
-
-    // Initialize Fresher Pseudo-session
-    useFresherStore.getState().initSession();
   }, []);
 
   // Unconditionally return the Stack. 
