@@ -72,7 +72,7 @@ class Pec1stYearRemainingBranchesSeeder extends Seeder
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'ES2302', 'teacher' => 'TBD', 'room' => 'L-26'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'ES2304', 'teacher' => 'TBD', 'room' => 'L-26'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'MA2301', 'teacher' => 'TBD', 'room' => 'L-26'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2302 LAB', 'teacher' => 'TBD', 'room' => 'DH-1'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2302 LAB', 'teacher' => 'TBD', 'room' => 'DH-1'],
                 ]
             ],
             'M&C' => [
@@ -80,7 +80,7 @@ class Pec1stYearRemainingBranchesSeeder extends Seeder
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'ES2302', 'teacher' => 'TBD', 'room' => 'L-26'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'ES2304', 'teacher' => 'TBD', 'room' => 'L-26'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'MA2301', 'teacher' => 'TBD', 'room' => 'L-26'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2302 LAB', 'teacher' => 'TBD', 'room' => 'DH-2'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2302 LAB', 'teacher' => 'TBD', 'room' => 'DH-2'],
                 ]
             ],
             'ECE' => [
@@ -94,7 +94,7 @@ class Pec1stYearRemainingBranchesSeeder extends Seeder
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'CH2301 G2', 'teacher' => 'TBD', 'room' => 'L-11'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'MA2301 G2', 'teacher' => 'TBD', 'room' => 'L-11'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'ES2304 G2', 'teacher' => 'TBD', 'room' => 'L-11'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2307 LAB G2', 'teacher' => 'TBD', 'room' => 'TBD'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2307 LAB G2', 'teacher' => 'TBD', 'room' => 'TBD'],
                 ]
             ],
             'MECH' => [
@@ -102,13 +102,13 @@ class Pec1stYearRemainingBranchesSeeder extends Seeder
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'ES2304 G1', 'teacher' => 'TBD', 'room' => 'L-28'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'ES2302 G1', 'teacher' => 'TBD', 'room' => 'L-28'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'MA2301 G1', 'teacher' => 'TBD', 'room' => 'L-28'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2302 LAB G1', 'teacher' => 'TBD', 'room' => 'DH-3, DH-4'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2302 LAB G1', 'teacher' => 'TBD', 'room' => 'DH-3, DH-4'],
                 ],
                 'G2' => [
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'ES2304 G2', 'teacher' => 'TBD', 'room' => 'L-29'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'ES2302 G2', 'teacher' => 'TBD', 'room' => 'L-29'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'MA2301 G2', 'teacher' => 'TBD', 'room' => 'L-29'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2307 LAB G2', 'teacher' => 'TBD', 'room' => 'TBD'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2307 LAB G2', 'teacher' => 'TBD', 'room' => 'TBD'],
                 ]
             ],
             'AI' => [
@@ -134,7 +134,7 @@ class Pec1stYearRemainingBranchesSeeder extends Seeder
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'CH2302', 'teacher' => 'TBD', 'room' => 'L-10'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'ES2304', 'teacher' => 'TBD', 'room' => 'L-10'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'OR2302', 'teacher' => 'TBD', 'room' => 'TBD'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2303 LAB', 'teacher' => 'TBD', 'room' => 'TBD'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2303 LAB', 'teacher' => 'TBD', 'room' => 'TBD'],
                 ]
             ],
             'CIVIL' => [
@@ -219,13 +219,13 @@ class Pec1stYearRemainingBranchesSeeder extends Seeder
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'GS2302 G1', 'teacher' => 'TBD', 'room' => 'L-26'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'ES2302 G1', 'teacher' => 'TBD', 'room' => 'L-26'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'MA2301 G1', 'teacher' => 'TBD', 'room' => 'L-26'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2302 LAB G1', 'teacher' => 'TBD', 'room' => 'DH-1, DH-2'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2302 LAB G1', 'teacher' => 'TBD', 'room' => 'DH-1, DH-2'],
                 ],
                 'G2' => [
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'GS2302 G2', 'teacher' => 'TBD', 'room' => 'L-27'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'ES2302 G2', 'teacher' => 'TBD', 'room' => 'L-27'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'MA2301 G2', 'teacher' => 'TBD', 'room' => 'L-27'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2303 LAB G2', 'teacher' => 'TBD', 'room' => 'TBD'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2303 LAB G2', 'teacher' => 'TBD', 'room' => 'TBD'],
                 ]
             ],
             'MECH' => [
@@ -247,7 +247,7 @@ class Pec1stYearRemainingBranchesSeeder extends Seeder
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'MA2301', 'teacher' => 'TBD', 'room' => 'L-29'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'ES2304', 'teacher' => 'TBD', 'room' => 'L-29'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'ES2302', 'teacher' => 'TBD', 'room' => 'L-29'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2307 LAB', 'teacher' => 'TBD', 'room' => 'TBD'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2307 LAB', 'teacher' => 'TBD', 'room' => 'TBD'],
                 ]
             ],
             'VLSI' => [
@@ -255,7 +255,7 @@ class Pec1stYearRemainingBranchesSeeder extends Seeder
                     ['period' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'MA2301', 'teacher' => 'TBD', 'room' => 'L-29'],
                     ['period' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'ES2304', 'teacher' => 'TBD', 'room' => 'L-29'],
                     ['period' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'ES2302', 'teacher' => 'TBD', 'room' => 'L-29'],
-                    ['period' => 7, 'start' => '14:00:00', 'end' => '17:00:00', 'subject' => 'ES2307 LAB', 'teacher' => 'TBD', 'room' => 'TBD'],
+                    ['period' => 6, 'start' => '13:00:00', 'end' => '17:00:00', 'subject' => 'ES2307 LAB', 'teacher' => 'TBD', 'room' => 'TBD'],
                 ]
             ],
             'METTA' => [
