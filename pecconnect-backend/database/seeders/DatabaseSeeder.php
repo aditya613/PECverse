@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
     {
         $this->call([
             PecCse1stYearSeeder::class,
+            Pec1stYearRemainingBranchesSeeder::class,
             PecCse3rdSemSeeder::class,
             PecCseAi3rdSemSeeder::class,
             PecDs3rdSemSeeder::class,

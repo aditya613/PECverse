@@ -141,47 +141,77 @@ export default function EditTimetableClassModal() {
               <View style={styles.row}>
                 <View style={[styles.inputGroup, { flex: 1 }]}>
                   <Text style={styles.label}>Start Time</Text>
-                  <Pressable 
-                    style={styles.timePickerButton} 
-                    onPress={() => setShowStartTimePicker(true)}
-                  >
-                    <Text style={styles.timePickerButtonText}>
-                      {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </Text>
-                  </Pressable>
-                  {(showStartTimePicker || Platform.OS === 'ios') && (
+                  {Platform.OS === 'ios' ? (
                     <DateTimePicker
                       value={startTime}
                       mode="time"
-                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      display="default"
+                      themeVariant="dark"
                       onChange={(event, selectedDate) => {
-                        if (Platform.OS === 'android') setShowStartTimePicker(false);
                         if (selectedDate) setStartTime(selectedDate);
                       }}
+                      style={{ height: 44, width: 100, alignSelf: 'flex-start', marginTop: 8 }}
                     />
+                  ) : (
+                    <>
+                      <Pressable 
+                        style={styles.timePickerButton} 
+                        onPress={() => setShowStartTimePicker(true)}
+                      >
+                        <Text style={styles.timePickerButtonText}>
+                          {startTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Text>
+                      </Pressable>
+                      {showStartTimePicker && (
+                        <DateTimePicker
+                          value={startTime}
+                          mode="time"
+                          display="default"
+                          onChange={(event, selectedDate) => {
+                            setShowStartTimePicker(false);
+                            if (selectedDate) setStartTime(selectedDate);
+                          }}
+                        />
+                      )}
+                    </>
                   )}
                 </View>
                 
                 <View style={[styles.inputGroup, { flex: 1 }]}>
                   <Text style={styles.label}>End Time</Text>
-                  <Pressable 
-                    style={styles.timePickerButton} 
-                    onPress={() => setShowEndTimePicker(true)}
-                  >
-                    <Text style={styles.timePickerButtonText}>
-                      {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </Text>
-                  </Pressable>
-                  {(showEndTimePicker || Platform.OS === 'ios') && (
+                  {Platform.OS === 'ios' ? (
                     <DateTimePicker
                       value={endTime}
                       mode="time"
-                      display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                      display="default"
+                      themeVariant="dark"
                       onChange={(event, selectedDate) => {
-                        if (Platform.OS === 'android') setShowEndTimePicker(false);
                         if (selectedDate) setEndTime(selectedDate);
                       }}
+                      style={{ height: 44, width: 100, alignSelf: 'flex-start', marginTop: 8 }}
                     />
+                  ) : (
+                    <>
+                      <Pressable 
+                        style={styles.timePickerButton} 
+                        onPress={() => setShowEndTimePicker(true)}
+                      >
+                        <Text style={styles.timePickerButtonText}>
+                          {endTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </Text>
+                      </Pressable>
+                      {showEndTimePicker && (
+                        <DateTimePicker
+                          value={endTime}
+                          mode="time"
+                          display="default"
+                          onChange={(event, selectedDate) => {
+                            setShowEndTimePicker(false);
+                            if (selectedDate) setEndTime(selectedDate);
+                          }}
+                        />
+                      )}
+                    </>
                   )}
                 </View>
               </View>

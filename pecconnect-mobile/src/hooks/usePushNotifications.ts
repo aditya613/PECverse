@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Platform } from 'react-native';
+import { Platform, AppState, AppStateStatus } from 'react-native';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -177,6 +177,12 @@ export function usePushNotifications() {
       // Ignore
     }
 
+    const appStateListener = AppState.addEventListener('change', (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        checkAndSync();
+      }
+    });
+
     return () => {
       if (notificationListener.current) {
         notificationListener.current.remove();
@@ -184,6 +190,7 @@ export function usePushNotifications() {
       if (responseListener.current) {
         responseListener.current.remove();
       }
+      appStateListener.remove();
     };
   }, [checkAndSync]);
 
