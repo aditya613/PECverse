@@ -14,6 +14,8 @@ import { Image } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { registerAndSyncPushToken } from '@/hooks/usePushNotifications';
+import { trackScreen, trackEvent } from '@/utils/analytics';
 
 interface Announcement {
   id: number;
@@ -49,6 +51,14 @@ export default function DashboardScreen() {
     },
   });
 
+  // Ensure push token is registered & synced for the active user
+  React.useEffect(() => {
+    trackScreen('dashboard');
+    if (user && !user.expo_push_token) {
+      registerAndSyncPushToken().catch(() => {});
+    }
+  }, [user]);
+
   const today = new Date();
   const y = today.getFullYear();
   const m = String(today.getMonth() + 1).padStart(2, '0');
@@ -67,12 +77,14 @@ export default function DashboardScreen() {
   const { classes: todayClasses = [], activeHoliday, isLoading: isTimetableLoading, refetch: refetchTimetable } = useTimetable(todayStr);
 
   const handleRefresh = () => {
+    trackEvent('dashboard_refresh');
     refetch();
     refetchTimetable();
   };
 
   const handleQuickAccess = (item: typeof QUICK_ACCESS[0]) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    trackEvent('quick_access_click', { feature: item.id, title: item.title });
     if (item.route) {
       router.push(item.route as any);
     } else {
@@ -265,7 +277,7 @@ export default function DashboardScreen() {
         )}
 
         {/* Bottom padding for tab bar */}
-        <View style={{ height: 110 }} />
+        <View style={{ height: Math.max(insets.bottom + 90, 110) }} />
       </ScrollView>
     </View>
   );

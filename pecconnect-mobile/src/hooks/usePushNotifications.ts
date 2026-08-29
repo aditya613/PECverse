@@ -8,6 +8,7 @@ import { useNotificationModalStore } from '@/stores/useNotificationModalStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const isExpoGo = Constants.appOwnership === 'expo';
+export const EAS_PROJECT_ID = '999365ed-edd9-4525-9357-1edf51149ed7';
 
 // Lazily load expo-notifications safely outside Expo Go
 let Notifications: any = null;
@@ -29,17 +30,87 @@ if (!isExpoGo) {
 }
 
 /**
- * Global utility function that can be called from Profile, Settings, or anywhere in the app
- * when a user manually taps a "Turn On Notifications" toggle/button.
+ * Robust function to fetch Expo Push Token
  */
-export async function checkAndPromptPushPermissions(forceShow = false): Promise<boolean> {
-  if (isExpoGo || !Notifications) {
-    console.log('Push notifications are simulated in Expo Go');
-    return false;
+export async function fetchExpoPushToken(): Promise<string | null> {
+  if (isExpoGo || !Notifications) return null;
+  try {
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default', {
+        name: 'default',
+        importance: Notifications.AndroidImportance.MAX,
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#3B82F6',
+      });
+    }
+
+    const projectId =
+      Constants?.expoConfig?.extra?.eas?.projectId ??
+      Constants?.easConfig?.projectId ??
+      EAS_PROJECT_ID;
+
+    const tokenResponse = await Notifications.getExpoPushTokenAsync({
+      projectId: projectId || EAS_PROJECT_ID,
+    });
+    return tokenResponse.data;
+  } catch (e) {
+    console.log('Push token generation failed:', e);
+    return null;
+  }
+}
+
+/**
+ * Sync token to backend for authenticated user
+ */
+export async function syncTokenToBackend(token: string) {
+  try {
+    const { isAuthenticated, user, setUser } = useAuthStore.getState();
+
+    if (isAuthenticated && token) {
+      await api.post('/user/push-token', { token });
+      if (user && user.expo_push_token !== token) {
+        setUser({ ...user, expo_push_token: token } as any);
+      }
+    }
+  } catch (err) {
+    console.log('Failed to sync push token to backend:', err);
+  }
+}
+
+/**
+ * Top-level function to request permissions, fetch token, and sync to backend immediately.
+ * Can be called during Google Sign-In, Onboarding, or App Boot.
+ */
+export async function registerAndSyncPushToken(): Promise<string | null> {
+  if (isExpoGo || !Notifications || !Device.isDevice) return null;
+
+  try {
+    let { status } = await Notifications.getPermissionsAsync();
+
+    if (status !== 'granted') {
+      const permissionRes = await Notifications.requestPermissionsAsync();
+      status = permissionRes.status;
+    }
+
+    if (status === 'granted') {
+      const token = await fetchExpoPushToken();
+      if (token) {
+        await syncTokenToBackend(token);
+        return token;
+      }
+    }
+  } catch (error) {
+    console.log('Error in registerAndSyncPushToken:', error);
   }
 
-  if (!Device.isDevice) {
-    console.log('Must use physical device for Push Notifications');
+  return null;
+}
+
+/**
+ * Global utility function that can be called from Profile or Settings
+ */
+export async function checkAndPromptPushPermissions(forceShow = false): Promise<boolean> {
+  if (isExpoGo || !Notifications || !Device.isDevice) {
     return false;
   }
 
@@ -60,7 +131,7 @@ export async function checkAndPromptPushPermissions(forceShow = false): Promise<
       useNotificationModalStore.getState().openModal({
         isDeniedForever,
         onSuccess: async () => {
-          const token = await fetchExpoPushToken();
+          const token = await registerAndSyncPushToken();
           if (token) {
             await syncTokenToBackend(token);
           }
@@ -69,65 +140,16 @@ export async function checkAndPromptPushPermissions(forceShow = false): Promise<
       return false;
     }
 
+    // Directly request native permission if not forceShow and not permanently denied
     if (!isDeniedForever) {
-      const lastSeen = await AsyncStorage.getItem('push_modal_seen_time');
-      const now = Date.now();
-      const sevenDaysMs = 7 * 24 * 60 * 60 * 1000;
-
-      if (!lastSeen || now - parseInt(lastSeen, 10) > sevenDaysMs) {
-        useNotificationModalStore.getState().openModal({
-          isDeniedForever: false,
-          onSuccess: async () => {
-            const token = await fetchExpoPushToken();
-            if (token) {
-              await syncTokenToBackend(token);
-            }
-          },
-        });
-      }
+      const token = await registerAndSyncPushToken();
+      if (token) return true;
     }
   } catch (err) {
     console.warn('Push permission check skipped:', err);
   }
 
   return false;
-}
-
-async function fetchExpoPushToken(): Promise<string | null> {
-  if (isExpoGo || !Notifications) return null;
-  try {
-    if (Platform.OS === 'android') {
-      await Notifications.setNotificationChannelAsync('default', {
-        name: 'default',
-        importance: Notifications.AndroidImportance.MAX,
-        vibrationPattern: [0, 250, 250, 250],
-        lightColor: '#3B82F6',
-      });
-    }
-
-    const projectId =
-      Constants?.expoConfig?.extra?.eas?.projectId ?? Constants?.easConfig?.projectId;
-
-    const tokenResponse = await Notifications.getExpoPushTokenAsync({
-      projectId: projectId || 'pec-connect-project',
-    });
-    return tokenResponse.data;
-  } catch (e) {
-    console.log('Push token not available in this environment:', e);
-    return null;
-  }
-}
-
-async function syncTokenToBackend(token: string) {
-  try {
-    const { isAuthenticated } = useAuthStore.getState();
-
-    if (isAuthenticated) {
-      await api.post('/user/push-token', { token });
-    }
-  } catch (err) {
-    console.log('Failed to sync push token to backend:', err);
-  }
 }
 
 export function usePushNotifications() {
@@ -142,18 +164,12 @@ export function usePushNotifications() {
     if (isExpoGo || !Notifications || !isAuthenticated || !Device.isDevice) return;
 
     try {
-      const { status } = await Notifications.getPermissionsAsync();
-      if (status === 'granted') {
-        const token = await fetchExpoPushToken();
-        if (token) {
-          setExpoPushToken(token);
-          await syncTokenToBackend(token);
-        }
-      } else {
-        await checkAndPromptPushPermissions(false);
+      const token = await registerAndSyncPushToken();
+      if (token) {
+        setExpoPushToken(token);
       }
     } catch (e) {
-      // Ignore in Expo Go or dev environments
+      // Ignore
     }
   }, [isAuthenticated]);
 

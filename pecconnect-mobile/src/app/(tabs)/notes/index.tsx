@@ -9,6 +9,8 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import { trackScreen, trackEvent } from '@/utils/analytics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Note {
   id: number;
@@ -26,9 +28,14 @@ interface Note {
 const CATEGORIES = ['All', 'Notes', 'Assignments', 'PYQs'];
 
 export default function NotesScreen() {
+  const insets = useSafeAreaInsets();
   const user = useAuthStore(state => state.user);
   const [selectedCategory, setSelectedCategory] = useState('All');
   const { colors, isDark } = useTheme();
+
+  React.useEffect(() => {
+    trackScreen('notes');
+  }, []);
 
   const { data: notes, isLoading, refetch, isRefetching } = useQuery({
     queryKey: ['notes'],
@@ -41,6 +48,7 @@ export default function NotesScreen() {
 
   const handleDownload = async (note: Note) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    trackEvent('note_download', { note_id: note.id, title: note.title, subject: note.subject });
     try {
       if (note.file_url) {
         await Linking.openURL(note.file_url);
@@ -134,7 +142,7 @@ export default function NotesScreen() {
           )}
         </View>
 
-        <View style={{ height: 110 }} />
+        <View style={{ height: Math.max(insets.bottom + 90, 110) }} />
       </ScrollView>
     </View>
   );

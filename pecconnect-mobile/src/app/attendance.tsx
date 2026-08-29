@@ -7,8 +7,11 @@ import * as Haptics from 'expo-haptics';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { GlassCard } from '@/components/ui/GlassCard';
 import { RadialProgressGauge } from '@/components/ui/RadialProgressGauge';
+import { trackScreen, trackEvent } from '@/utils/analytics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function AttendanceScreen() {
+  const insets = useSafeAreaInsets();
   const router = useRouter();
   const { subjects, isLoading, addSubject, updateLog, deleteLog, deleteSubject, resetSubjectStats } = useAttendance();
   const [newSubjectName, setNewSubjectName] = useState('');
@@ -16,9 +19,14 @@ export default function AttendanceScreen() {
   const [selectedSubjectId, setSelectedSubjectId] = useState<number | null>(null);
   const selectedSubject = subjects?.find(s => s.id === selectedSubjectId) || null;
 
+  React.useEffect(() => {
+    trackScreen('attendance');
+  }, []);
+
   const handleAdd = () => {
     if (!newSubjectName.trim()) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    trackEvent('attendance_subject_add', { subject: newSubjectName.trim() });
     addSubject.mutate(newSubjectName.trim());
     setNewSubjectName('');
     setIsAdding(false);
@@ -216,7 +224,7 @@ export default function AttendanceScreen() {
             </View>
           )}
 
-          <View style={{ height: 40 }} />
+          <View style={{ height: Math.max(insets.bottom + 40, 60) }} />
         </ScrollView>
       </KeyboardAvoidingView>
 
@@ -228,7 +236,7 @@ export default function AttendanceScreen() {
         onRequestClose={() => setSelectedSubjectId(null)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.bottomSheet}>
+          <View style={[styles.bottomSheet, { paddingBottom: Math.max(insets.bottom + 24, 36) }]}>
             <View style={styles.sheetHeader}>
               <Text style={styles.sheetTitle}>{selectedSubject?.name}</Text>
               <Text style={styles.sheetSubtitle}>Attendance Logs</Text>

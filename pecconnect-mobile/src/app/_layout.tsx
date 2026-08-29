@@ -7,7 +7,7 @@ import * as SecureStore from 'expo-secure-store';
 import { api } from '@/utils/api';
 import { useProtectedRoute } from '@/hooks/useProtectedRoute';
 import * as SplashScreen from 'expo-splash-screen';
-import { usePushNotifications } from '@/hooks/usePushNotifications';
+import { usePushNotifications, registerAndSyncPushToken } from '@/hooks/usePushNotifications';
 import { NotificationPermissionModal } from '@/components/ui/NotificationPermissionModal';
 
 // Export global ErrorBoundary to catch and display React render errors gracefully
@@ -16,6 +16,8 @@ import * as Updates from 'expo-updates';
 import { AppState, Platform } from 'react-native';
 import Constants from 'expo-constants';
 import { useRouter } from 'expo-router';
+import { PostHogProvider } from 'posthog-react-native';
+import { trackEvent, posthog, identifyUser, resetAnalyticsUser } from '@/utils/analytics';
 
 // Prevent auto-hiding the splash screen until our auth check finishes.
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -24,9 +26,9 @@ SplashScreen.preventAutoHideAsync().catch(() => {
 
 // Setup Global Error Handler for Prod Crashes
 if (!__DEV__) {
-  const defaultErrorHandler = (global as any).ErrorUtils?.getGlobalHandler?.();
+  const defaultErrorHandler = (globalThis as any).ErrorUtils?.getGlobalHandler?.();
   if (defaultErrorHandler) {
-    (global as any).ErrorUtils.setGlobalHandler(async (error: any, isFatal: boolean) => {
+    (globalThis as any).ErrorUtils.setGlobalHandler(async (error: any, isFatal: boolean) => {
       try {
         await api.post('/log-error', {
           message: error?.message || 'Unknown Error',
@@ -47,7 +49,22 @@ const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const user = useAuthStore(state => state.user);
   const router = useRouter();
+
+  // App Open Telemetry
+  useEffect(() => {
+    trackEvent('app_open', { platform: Platform.OS });
+  }, []);
+
+  // PostHog User Identification
+  useEffect(() => {
+    if (user) {
+      identifyUser(user);
+    } else {
+      resetAnalyticsUser();
+    }
+  }, [user]);
 
   // Version Check
   useEffect(() => {
@@ -120,6 +137,7 @@ function RootLayoutNav() {
             isAuthenticated: true, 
             isLoading: false 
           });
+          registerAndSyncPushToken().catch(() => {});
         } else {
           useAuthStore.setState({ isAuthenticated: false, isLoading: false });
         }
@@ -203,10 +221,20 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  return (
+  const content = (
     <QueryClientProvider client={queryClient}>
       <RootLayoutNav />
       <StatusBar style="light" />
     </QueryClientProvider>
   );
+
+  if (posthog) {
+    return (
+      <PostHogProvider client={posthog}>
+        {content}
+      </PostHogProvider>
+    );
+  }
+
+  return content;
 }

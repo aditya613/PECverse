@@ -14,6 +14,8 @@ export default function TabLayout() {
   const insets = useSafeAreaInsets();
   
   const isAuthorized = user?.role === 'cr' || user?.role === 'superadmin';
+  const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 10 : 12);
+  const tabHeight = 58 + bottomInset;
 
   return (
     <Tabs
@@ -23,9 +25,9 @@ export default function TabLayout() {
           backgroundColor: Platform.OS === 'ios' ? 'transparent' : colors.cardBackground,
           borderTopWidth: 1,
           borderTopColor: colors.cardBorder,
-          height: Platform.OS === 'ios' ? 60 + Math.max(insets.bottom, 10) : 68,
-          paddingBottom: Platform.OS === 'ios' ? Math.max(insets.bottom, 10) : 10,
-          paddingTop: 8,
+          height: tabHeight,
+          paddingBottom: bottomInset,
+          paddingTop: 6,
           position: 'absolute',
           bottom: 0,
           left: 0,

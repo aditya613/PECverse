@@ -10,8 +10,11 @@ import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import * as Updates from 'expo-updates';
 import * as Linking from 'expo-linking';
+import { trackScreen } from '@/utils/analytics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function ProfileScreen() {
+  const insets = useSafeAreaInsets();
   const { user, logout } = useAuthStore();
   const router = useRouter();
   const { themeMode, setThemeMode, colors, isDark } = useTheme();
@@ -20,6 +23,7 @@ export default function ProfileScreen() {
   const [isUpdating, setIsUpdating] = useState(false);
 
   useEffect(() => {
+    trackScreen('profile');
     async function checkUpdate() {
       if (!__DEV__) {
         try {
@@ -301,7 +305,7 @@ export default function ProfileScreen() {
           <Text style={styles.logoutBtnText}>Log Out</Text>
         </Pressable>
 
-        <View style={{ height: 110 }} />
+        <View style={{ height: Math.max(insets.bottom + 90, 110) }} />
       </ScrollView>
     </View>
   );

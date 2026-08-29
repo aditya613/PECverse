@@ -6,8 +6,10 @@ import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { api } from '@/utils/api';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function FeedbackScreen() {
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const router = useRouter();
   
@@ -55,7 +57,7 @@ export default function FeedbackScreen() {
       </View>
 
       <Animated.ScrollView 
-        contentContainerStyle={styles.scrollContent}
+        contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 24, 40) }]}
         entering={FadeInUp.duration(400)}
         keyboardShouldPersistTaps="handled"
       >

@@ -7,8 +7,11 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import * as Haptics from 'expo-haptics';
 import { Image } from 'react-native';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { registerAndSyncPushToken } from '@/hooks/usePushNotifications';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function OnboardingScreen() {
+  const insets = useSafeAreaInsets();
   const { user, setUser } = useAuthStore();
   const [selectedBranch, setSelectedBranch] = useState<number | null>(null);
   const [selectedClass, setSelectedClass] = useState<number | null>(null);
@@ -39,6 +42,7 @@ export default function OnboardingScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       // Update global auth store with the new user object
       setUser(data.user);
+      registerAndSyncPushToken().catch(() => {});
     },
     onError: (err: any) => {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
@@ -60,7 +64,7 @@ export default function OnboardingScreen() {
         <Text style={styles.subtitle}>Let's get you set up. What branch are you in?</Text>
       </Animated.View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 120, 140) }]}>
         {loadingBranches ? (
           <ActivityIndicator color={colors.accent as string} />
         ) : (
@@ -110,7 +114,7 @@ export default function OnboardingScreen() {
                     ]}
                   >
                     <Text style={[styles.listText, selectedClass === cls.id && styles.textActive]}>
-                      {cls.group_name} (Year {cls.year})
+                      {cls.group_name}
                     </Text>
                   </Pressable>
                 ))}
@@ -121,7 +125,7 @@ export default function OnboardingScreen() {
       </ScrollView>
 
       {selectedClass && (
-        <Animated.View entering={FadeInUp} style={styles.footer}>
+        <Animated.View entering={FadeInUp} style={[styles.footer, { paddingBottom: Math.max(insets.bottom + 16, 28) }]}>
           <Pressable 
             style={[styles.joinButton, joinMutation.isPending && styles.joinButtonDisabled]} 
             onPress={handleJoin}

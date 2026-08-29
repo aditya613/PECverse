@@ -9,6 +9,7 @@ export interface User {
   role: 'student' | 'cr' | 'superadmin';
   class_id: number | null;
   profile_photo: string | null;
+  expo_push_token?: string | null;
   courseClass?: {
     group_name: string;
     branch: {

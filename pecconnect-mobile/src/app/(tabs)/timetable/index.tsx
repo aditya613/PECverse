@@ -13,6 +13,7 @@ import { useTimetable } from '@/hooks/useTimetable';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
+import { trackScreen, trackEvent } from '@/utils/analytics';
 
 export default function TimetableScreen() {
   const user = useAuthStore(state => state.user);
@@ -29,6 +30,15 @@ export default function TimetableScreen() {
   const todayDateStr = `${todayYear}-${todayMonth}-${todayDay}`;
 
   const [selectedDate, setSelectedDate] = useState(todayDateStr);
+
+  React.useEffect(() => {
+    trackScreen('timetable');
+  }, []);
+
+  const handleDateChange = (newDate: string) => {
+    setSelectedDate(newDate);
+    trackEvent('timetable_date_select', { date: newDate });
+  };
 
   const weekDates = Array.from({ length: 21 }, (_, i) => {
     const d = new Date();
@@ -128,7 +138,7 @@ export default function TimetableScreen() {
           todayDate={todayDateStr}
           onSelectDate={(dateStr) => {
             Haptics.selectionAsync();
-            setSelectedDate(dateStr);
+            handleDateChange(dateStr);
           }}
         />
       </SafeAreaView>

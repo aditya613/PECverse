@@ -6,6 +6,8 @@ import { useMessStore } from '@/stores/useMessStore';
 import { useMesses, useMessMenu } from '@/hooks/useMess';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
 import { GlassCard } from '@/components/ui/GlassCard';
+import { trackScreen, trackEvent } from '@/utils/analytics';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const DAYS = [
   { id: 1, label: 'Mon' },
@@ -19,6 +21,7 @@ const DAYS = [
 
 export default function MessScreen() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   
   const { selectedMessId, setSelectedMessId, loadMessId } = useMessStore();
   const { data: messes, isLoading: isLoadingMesses } = useMesses();
@@ -31,10 +34,12 @@ export default function MessScreen() {
   const [selectedDay, setSelectedDay] = useState(todayBackend);
 
   useEffect(() => {
+    trackScreen('mess');
     loadMessId();
   }, []);
 
   const handleSelectMess = async (id: number) => {
+    trackEvent('mess_selected', { mess_id: id });
     await setSelectedMessId(id);
     setMessModalVisible(false);
   };
@@ -60,7 +65,7 @@ export default function MessScreen() {
       />
 
       <ScrollView 
-        contentContainerStyle={styles.contentContainer}
+        contentContainerStyle={[styles.contentContainer, { paddingBottom: Math.max(insets.bottom + 30, 40) }]}
         showsVerticalScrollIndicator={false}
       >
         {/* Hostel Picker Dropdown Capsule */}
@@ -122,7 +127,7 @@ export default function MessScreen() {
         onRequestClose={() => setMessModalVisible(false)}
       >
         <View style={styles.modalOverlay}>
-          <View style={styles.bottomSheet}>
+          <View style={[styles.bottomSheet, { paddingBottom: Math.max(insets.bottom + 24, 36) }]}>
             <Text style={styles.sheetTitle}>Select Hostel Mess</Text>
             <View style={styles.optionsList}>
               {messes?.map((mess) => (

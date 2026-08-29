@@ -7,8 +7,10 @@ import { Ionicons } from '@expo/vector-icons';
 import { Stack, useRouter } from 'expo-router';
 import { BlurView } from 'expo-blur';
 import Animated, { FadeInUp } from 'react-native-reanimated';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function LostAndFoundFeed() {
+  const insets = useSafeAreaInsets();
   const { colors } = useTheme();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'lost' | 'found'>('lost');
@@ -101,7 +103,7 @@ export default function LostAndFoundFeed() {
         data={items?.data || []}
         keyExtractor={item => item.id.toString()}
         renderItem={renderItem}
-        contentContainerStyle={styles.listContent}
+        contentContainerStyle={[styles.listContent, { paddingBottom: Math.max(insets.bottom + 80, 100) }]}
         refreshControl={<RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.accent} />}
         ListEmptyComponent={
           !isLoading ? (
@@ -113,7 +115,7 @@ export default function LostAndFoundFeed() {
         }
       />
 
-      <BlurView intensity={80} style={styles.fabContainer} tint="dark">
+      <BlurView intensity={80} style={[styles.fabContainer, { bottom: Math.max(insets.bottom + 20, 30) }]} tint="dark">
         <Pressable 
           style={[styles.fab, { backgroundColor: colors.accent }]} 
           onPress={() => router.push('/post-lost-found')}

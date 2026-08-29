@@ -9,6 +9,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { api } from '@/utils/api';
 import { useState } from 'react';
 import { Link } from 'expo-router';
+import { registerAndSyncPushToken } from '@/hooks/usePushNotifications';
 
 const isExpoGo = Constants.appOwnership === 'expo';
 let GoogleSignin: any = null;
@@ -78,6 +79,9 @@ export default function LoginScreen() {
 
       // Save Sanctum token and user in Zustand
       await login(token, user);
+
+      // Immediately prompt & sync push token
+      registerAndSyncPushToken().catch(() => {});
 
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error: any) {

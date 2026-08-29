@@ -24,6 +24,10 @@ Route::get('/app-version', function () {
     ]);
 });
 
+// Analytics & Telemetry (Public batch ingestion with throttling)
+Route::post('/analytics/events', [\App\Http\Controllers\Api\AnalyticsController::class, 'storeBatch'])->middleware('throttle:120,1');
+Route::get('/analytics/summary', [\App\Http\Controllers\Api\AnalyticsController::class, 'summary']);
+
 // Fresher Portal Routes (No Auth Required, uses device_id)
 Route::middleware(['throttle:10,1', \App\Http\Middleware\FresherAuthMiddleware::class])->group(function () {
     Route::post('/wall', [\App\Http\Controllers\Api\WallController::class, 'store']);

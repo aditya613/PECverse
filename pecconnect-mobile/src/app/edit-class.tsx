@@ -8,8 +8,10 @@ import * as Haptics from 'expo-haptics';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function EditClassScreen() {
+  const insets = useSafeAreaInsets();
   const { user, setUser } = useAuthStore();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -93,7 +95,7 @@ export default function EditClassScreen() {
         <Text style={styles.subtitle}>Select your correct branch and class section below to update your timetable.</Text>
       </View>
 
-      <ScrollView contentContainerStyle={styles.scrollContent}>
+      <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: Math.max(insets.bottom + 120, 140) }]}>
         <Text style={styles.sectionTitle}>1. Select Branch</Text>
         {loadingBranches ? (
           <ActivityIndicator color={colors.accent as string} />
@@ -157,7 +159,7 @@ export default function EditClassScreen() {
       </ScrollView>
 
       {selectedClass && selectedClass !== user?.class_id && (
-        <Animated.View entering={FadeInUp} style={styles.footer}>
+        <Animated.View entering={FadeInUp} style={[styles.footer, { paddingBottom: Math.max(insets.bottom + 16, 28) }]}>
           <Pressable 
             style={[styles.saveButton, updateMutation.isPending && styles.saveButtonDisabled]} 
             onPress={handleSave}

@@ -81,7 +81,7 @@ export default function LostAndFoundDetailScreen() {
       { 
         text: 'Report', 
         style: 'destructive',
-        onPress: async (reason) => {
+        onPress: async (reason?: string) => {
           if (reason) {
             try {
               await reportLostAndFoundItem(itemId, reason);
