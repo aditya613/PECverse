@@ -11,10 +11,13 @@ export default function ForceUpdateScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     const storeUrl = Platform.OS === 'ios' 
       ? 'https://apps.apple.com/app/idYOUR_APPLE_ID' 
-      : 'market://details?id=com.pecconnect.app';
+      : 'market://details?id=in.edu.pec.connect';
+    const webFallbackUrl = 'https://play.google.com/store/apps/details?id=in.edu.pec.connect';
     
     Linking.openURL(storeUrl).catch(() => {
-      // Ignore
+      if (Platform.OS === 'android') {
+        Linking.openURL(webFallbackUrl).catch(() => {});
+      }
     });
   };
 

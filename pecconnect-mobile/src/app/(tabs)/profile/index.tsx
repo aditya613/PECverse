@@ -51,13 +51,19 @@ export default function ProfileScreen() {
 
   const handleRateApp = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    // Replace with actual App Store and Play Store IDs once live
     const storeUrl = Platform.OS === 'ios' 
       ? 'https://apps.apple.com/app/idYOUR_APPLE_ID' 
-      : 'market://details?id=com.pecconnect.app';
+      : 'market://details?id=in.edu.pec.connect';
+    const webFallbackUrl = 'https://play.google.com/store/apps/details?id=in.edu.pec.connect';
     
     Linking.openURL(storeUrl).catch(() => {
-      Alert.alert('Error', 'Unable to open the app store.');
+      if (Platform.OS === 'android') {
+        Linking.openURL(webFallbackUrl).catch(() => {
+          Alert.alert('Error', 'Unable to open the app store.');
+        });
+      } else {
+        Alert.alert('Error', 'Unable to open the app store.');
+      }
     });
   };
 
