@@ -20,6 +20,7 @@ class DatabaseSeeder extends Seeder
             PecMech3rdSemSeeder::class,
             PecCivil3rdSemSeeder::class,
             PecVlsi3rdSemSeeder::class,
+            PecAero3rdSemSeeder::class,
             MessSeeder::class,
             AravaliMessSeeder::class,
             PecClubsSeeder::class,
