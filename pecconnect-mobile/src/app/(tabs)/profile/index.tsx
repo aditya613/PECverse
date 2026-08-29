@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Alert } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Platform, Alert, ActivityIndicator } from 'react-native';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useTheme } from '@/theme/colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -8,11 +8,58 @@ import { api } from '@/utils/api';
 import { checkAndPromptPushPermissions } from '@/hooks/usePushNotifications';
 import { useRouter } from 'expo-router';
 import Animated, { FadeInDown } from 'react-native-reanimated';
+import * as Updates from 'expo-updates';
+import * as Linking from 'expo-linking';
 
 export default function ProfileScreen() {
   const { user, logout } = useAuthStore();
   const router = useRouter();
   const { themeMode, setThemeMode, colors, isDark } = useTheme();
+  
+  const [updateAvailable, setUpdateAvailable] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+
+  useEffect(() => {
+    async function checkUpdate() {
+      if (!__DEV__) {
+        try {
+          const update = await Updates.checkForUpdateAsync();
+          if (update.isAvailable) {
+            setUpdateAvailable(true);
+          }
+        } catch (e) {
+          // Ignore error silently
+        }
+      }
+    }
+    checkUpdate();
+  }, []);
+
+  const handleUpdateApp = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    setIsUpdating(true);
+    try {
+      await Updates.fetchUpdateAsync();
+      Alert.alert('Update Downloaded', 'The app will now restart to apply the update.', [
+        { text: 'Restart Now', onPress: () => Updates.reloadAsync() }
+      ]);
+    } catch (e) {
+      setIsUpdating(false);
+      Alert.alert('Update Failed', 'Failed to download the update. Please try again later.');
+    }
+  };
+
+  const handleRateApp = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    // Replace with actual App Store and Play Store IDs once live
+    const storeUrl = Platform.OS === 'ios' 
+      ? 'https://apps.apple.com/app/idYOUR_APPLE_ID' 
+      : 'market://details?id=com.pecconnect.app';
+    
+    Linking.openURL(storeUrl).catch(() => {
+      Alert.alert('Error', 'Unable to open the app store.');
+    });
+  };
 
   const handleLogout = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
@@ -75,7 +122,7 @@ export default function ProfileScreen() {
           <View style={styles.avatarWrapper}>
             <View style={[styles.avatarCircle, { backgroundColor: colors.accent, borderColor: colors.systemBackground }]}>
               <Text style={styles.avatarText}>
-                {user.name ? user.name.trim().split(/\s+/).map(n => n?.[0] || '').join('').substring(0, 2).toUpperCase() : 'ME'}
+                {user.name ? user.name.trim().split(/\s+/).map((n: string) => n?.[0] || '').join('').substring(0, 2).toUpperCase() : 'ME'}
               </Text>
             </View>
             <Pressable 
@@ -132,7 +179,29 @@ export default function ProfileScreen() {
           </View>
         </View>
 
-        {/* Resources & Settings */}
+        {/* OTA Update Banner */}
+        {updateAvailable && (
+          <Animated.View entering={FadeInDown} style={[styles.cardSection, { backgroundColor: 'rgba(16, 185, 129, 0.1)', borderColor: '#10B981' }]}>
+            <Pressable 
+              style={styles.actionRow}
+              onPress={handleUpdateApp}
+              disabled={isUpdating}
+            >
+              <View style={[styles.actionIconBox, { backgroundColor: '#10B981' }]}>
+                {isUpdating ? <ActivityIndicator size="small" color="#FFF" /> : <Ionicons name="cloud-download-outline" size={20} color="#FFFFFF" />}
+              </View>
+              <View style={styles.actionContent}>
+                <Text style={[styles.actionTitle, { color: '#10B981' }]}>Update Available</Text>
+                <Text style={[styles.actionSub, { color: colors.secondaryLabel }]}>
+                  {isUpdating ? 'Downloading update...' : 'Tap to download the latest features'}
+                </Text>
+              </View>
+              <Ionicons name="chevron-forward" size={18} color="#10B981" />
+            </Pressable>
+          </Animated.View>
+        )}
+
+        {/* Resources & Preferences */}
         <View style={[styles.cardSection, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
           <Text style={[styles.sectionHeaderTitle, { color: colors.label }]}>Resources & Preferences</Text>
           <Pressable 
@@ -145,6 +214,22 @@ export default function ProfileScreen() {
             <View style={styles.actionContent}>
               <Text style={[styles.actionTitle, { color: colors.label }]}>Academic Calendar</Text>
               <Text style={[styles.actionSub, { color: colors.secondaryLabel }]}>Official 2026-27 Schedule</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.tertiaryLabel} />
+          </Pressable>
+          
+          <View style={[styles.rowDivider, { backgroundColor: colors.separator }]} />
+
+          <Pressable 
+            style={styles.actionRow}
+            onPress={handleRateApp}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(245, 158, 11, 0.15)' }]}>
+              <Ionicons name="star-outline" size={20} color="#F59E0B" />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, { color: colors.label }]}>Rate PECverse</Text>
+              <Text style={[styles.actionSub, { color: colors.secondaryLabel }]}>Show some love on the App Store</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.tertiaryLabel} />
           </Pressable>
@@ -167,6 +252,22 @@ export default function ProfileScreen() {
             <View style={styles.actionContent}>
               <Text style={[styles.actionTitle, { color: colors.label }]}>Push Notifications</Text>
               <Text style={[styles.actionSub, { color: colors.secondaryLabel }]}>Class alerts & updates</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.tertiaryLabel} />
+          </Pressable>
+
+          <View style={[styles.rowDivider, { backgroundColor: colors.separator }]} />
+
+          <Pressable 
+            style={styles.actionRow}
+            onPress={() => router.push('/feedback' as any)}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(236, 72, 153, 0.15)' }]}>
+              <Ionicons name="chatbubbles-outline" size={20} color="#EC4899" />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, { color: colors.label }]}>Contact & Feedback</Text>
+              <Text style={[styles.actionSub, { color: colors.secondaryLabel }]}>Report issues or suggest features</Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.tertiaryLabel} />
           </Pressable>

@@ -13,17 +13,71 @@ import { NotificationPermissionModal } from '@/components/ui/NotificationPermiss
 // Export global ErrorBoundary to catch and display React render errors gracefully
 export { ErrorBoundary } from 'expo-router';
 import * as Updates from 'expo-updates';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
+import Constants from 'expo-constants';
+import { useRouter } from 'expo-router';
 
 // Prevent auto-hiding the splash screen until our auth check finishes.
 SplashScreen.preventAutoHideAsync().catch(() => {
   /* reloading the app might trigger some race conditions, ignore them */
 });
 
+// Setup Global Error Handler for Prod Crashes
+if (!__DEV__) {
+  const defaultErrorHandler = (global as any).ErrorUtils?.getGlobalHandler?.();
+  if (defaultErrorHandler) {
+    (global as any).ErrorUtils.setGlobalHandler(async (error: any, isFatal: boolean) => {
+      try {
+        await api.post('/log-error', {
+          message: error?.message || 'Unknown Error',
+          stack: error?.stack || '',
+          isFatal,
+          os: Platform.OS,
+          version: Constants.expoConfig?.version
+        });
+      } catch (e) {
+        // Ignore network errors while reporting
+      }
+      defaultErrorHandler(error, isFatal);
+    });
+  }
+}
+
 const queryClient = new QueryClient();
 
 function RootLayoutNav() {
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+  const router = useRouter();
+
+  // Version Check
+  useEffect(() => {
+    const checkVersion = async () => {
+      try {
+        const res = await api.get('/app-version');
+        const minVersion = Platform.OS === 'ios' ? res.data.min_ios : res.data.min_android;
+        const currentVersion = Constants.expoConfig?.version || '1.0.0';
+        
+        const isVersionOutdated = (current: string, minimum: string) => {
+          const v1 = current.split('.').map(Number);
+          const v2 = minimum.split('.').map(Number);
+          for (let i = 0; i < Math.max(v1.length, v2.length); i++) {
+            const num1 = v1[i] || 0;
+            const num2 = v2[i] || 0;
+            if (num1 < num2) return true;
+            if (num1 > num2) return false;
+          }
+          return false;
+        };
+
+        if (isVersionOutdated(currentVersion, minVersion)) {
+          router.replace('/force-update' as any);
+        }
+      } catch (e) {
+        console.log('Failed to check app version', e);
+      }
+    };
+    checkVersion();
+  }, []);
   
   // Call the robust navigation guard
   useProtectedRoute();
@@ -125,6 +179,21 @@ function RootLayoutNav() {
           options={{
             presentation: 'modal',
             animation: 'slide_from_bottom'
+          }} 
+        />
+        <Stack.Screen 
+          name="feedback" 
+          options={{
+            presentation: 'modal',
+            animation: 'slide_from_bottom'
+          }} 
+        />
+        <Stack.Screen 
+          name="force-update" 
+          options={{
+            presentation: 'fullScreenModal',
+            gestureEnabled: false,
+            animation: 'fade'
           }} 
         />
       </Stack>

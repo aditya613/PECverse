@@ -3,7 +3,7 @@ export default {
     "name": "PECverse",
     "slug": "pecverse-mobile",
     "version": "1.0.1",
-    "orientation": "portrait",
+    "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "pecconnectmobile",
     "userInterfaceStyle": "automatic",
@@ -16,6 +16,7 @@ export default {
     "android": {
       "package": "in.edu.pec.connect",
       "versionCode": 2,
+      "resizeableActivity": true,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundColor": "#0c0822"
@@ -75,7 +76,7 @@ export default {
         "projectId": "999365ed-edd9-4525-9357-1edf51149ed7"
       }
     },
-    "runtimeVersion": "1.0.0",
+    "runtimeVersion": "1.0.1",
     "updates": {
       "url": "https://u.expo.dev/999365ed-edd9-4525-9357-1edf51149ed7"
     }

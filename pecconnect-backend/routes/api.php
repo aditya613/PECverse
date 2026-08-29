@@ -13,6 +13,16 @@ use App\Http\Controllers\Api\LostAndFoundController;
 // Public Routes
 Route::post('/auth/google', [AuthController::class, 'googleLogin']);
 Route::post('/auth/guest', [AuthController::class, 'guestLogin']);
+Route::post('/log-error', function (\Illuminate\Http\Request $request) {
+    \Illuminate\Support\Facades\Log::error('Mobile App Crash:', $request->all());
+    return response()->json(['message' => 'Error logged']);
+});
+Route::get('/app-version', function () {
+    return response()->json([
+        'min_ios' => env('MIN_APP_VERSION_IOS', '1.0.0'),
+        'min_android' => env('MIN_APP_VERSION_ANDROID', '1.0.0')
+    ]);
+});
 
 // Fresher Portal Routes (No Auth Required, uses device_id)
 Route::middleware(['throttle:10,1', \App\Http\Middleware\FresherAuthMiddleware::class])->group(function () {
@@ -100,4 +110,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/lost-and-found/{id}/comments', [LostAndFoundController::class, 'storeComment']);
     Route::delete('/lost-and-found/comments/{id}', [LostAndFoundController::class, 'destroyComment']);
     Route::post('/lost-and-found/{id}/report', [LostAndFoundController::class, 'reportItem']);
+
+    // Feedback
+    Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'store']);
 });

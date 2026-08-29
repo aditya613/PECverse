@@ -32,23 +32,23 @@ class PecMech3rdSemSeeder extends Seeder
             ['day' => 1, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'Mechanics of Material (Tutorial - M2)', 'teacher' => 'TBA', 'room' => 'T16'],
             ['day' => 1, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'Kinematics of Machine (Lecture)', 'teacher' => 'TBA', 'room' => 'L7'],
             ['day' => 1, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'Fluid Mechanics (Lecture)', 'teacher' => 'TBA', 'room' => 'L7'],
-            ['day' => 1, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'Elements of Thermo (Tutorial - M2)', 'teacher' => 'TBA', 'room' => 'L5'],
+            ['day' => 1, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'Elements of Thermo (Tutorial - M2)', 'teacher' => 'TBA', 'room' => 'L7'],
             ['day' => 1, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'Kinematics of Machine (Tutorial - M1)', 'teacher' => 'TBA', 'room' => 'L6'],
             ['day' => 1, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
 
             // TUESDAY
-            ['day' => 2, 'start' => '09:00:00', 'end' => '10:00:00', 'subject' => 'Elements of Thermo (Tutorial - M3)', 'teacher' => 'TBA', 'room' => 'L6'],
-            ['day' => 2, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'Elements of Manuf (Lecture)', 'teacher' => 'TBA', 'room' => 'L6'],
             ['day' => 2, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'Elements of Thermo (Lecture)', 'teacher' => 'TBA', 'room' => 'L6'],
             ['day' => 2, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'Physical Metallurgy (Lecture)', 'teacher' => 'TBA', 'room' => 'L5'],
-            ['day' => 2, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'Mechanics of Material (Tutorial - M1)', 'teacher' => 'TBA', 'room' => 'T16'],
+            ['day' => 2, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'Elements of Manuf (Lecture)', 'teacher' => 'TBA', 'room' => 'L7'],
+            ['day' => 2, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'Elements of Thermo (Tutorial - M3)', 'teacher' => 'TBA', 'room' => 'L6'],
+            ['day' => 2, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'Mechanics of Material (Tutorial - M1)', 'teacher' => 'TBA', 'room' => 'T16'],
             ['day' => 2, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
 
             // WEDNESDAY
             ['day' => 3, 'start' => '09:00:00', 'end' => '11:00:00', 'subject' => 'Fluid Mechanics (Lab - M3)', 'teacher' => 'TBA', 'room' => 'FM lab/T6'],
             ['day' => 3, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'Kinematics of Machine (Tutorial - M2)', 'teacher' => 'TBA', 'room' => 'T16'],
             ['day' => 3, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'Mechanics of Material (Lecture)', 'teacher' => 'TBA', 'room' => 'L26'],
-            ['day' => 3, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'Fluid Mechanics (Lecture)', 'teacher' => 'TBA', 'room' => 'L6'],
+            ['day' => 3, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'Physical Metallurgy (Lecture)', 'teacher' => 'TBA', 'room' => 'L6'],
             ['day' => 3, 'start' => '14:00:00', 'end' => '16:00:00', 'subject' => 'Elements of Manuf (Lab - M2)', 'teacher' => 'TBA', 'room' => 'TBA'],
             ['day' => 3, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'Kinematics of Machine (Tutorial - M3)', 'teacher' => 'TBA', 'room' => 'T6'],
             ['day' => 3, 'start' => '16:00:00', 'end' => '17:00:00', 'subject' => 'Minor Specialization', 'teacher' => 'MSC Dept', 'room' => 'TBA'],
@@ -58,7 +58,7 @@ class PecMech3rdSemSeeder extends Seeder
             ['day' => 4, 'start' => '10:00:00', 'end' => '11:00:00', 'subject' => 'Kinematics of Machine (Lecture)', 'teacher' => 'TBA', 'room' => 'L6'],
             ['day' => 4, 'start' => '11:00:00', 'end' => '12:00:00', 'subject' => 'Mechanics of Material (Lecture)', 'teacher' => 'TBA', 'room' => 'L15'],
             ['day' => 4, 'start' => '12:00:00', 'end' => '13:00:00', 'subject' => 'Elements of Thermo (Lecture)', 'teacher' => 'TBA', 'room' => 'L6'],
-            ['day' => 4, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'Physical Metallurgy (Lecture)', 'teacher' => 'TBA', 'room' => 'L7'],
+            ['day' => 4, 'start' => '14:00:00', 'end' => '15:00:00', 'subject' => 'Fluid Mechanics (Lecture)', 'teacher' => 'TBA', 'room' => 'L7'],
             ['day' => 4, 'start' => '15:00:00', 'end' => '17:00:00', 'subject' => 'Elements of Manuf (Lab - M3)', 'teacher' => 'TBA', 'room' => 'TBA'],
             ['day' => 4, 'start' => '15:00:00', 'end' => '16:00:00', 'subject' => 'Elements of Thermo (Tutorial - M1)', 'teacher' => 'TBA', 'room' => 'L6'],
 

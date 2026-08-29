@@ -41,4 +41,8 @@ return [
         ],
     ],
 
+    'discord' => [
+        'feedback_webhook' => env('DISCORD_FEEDBACK_WEBHOOK_URL'),
+    ],
+
 ];
