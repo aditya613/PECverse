@@ -73,7 +73,7 @@ class PecAero3rdSemSeeder extends Seeder
                 Timetable::create([
                     'class_id' => $aeroClass->id,
                     'day_of_week' => $dayOfWeek,
-                    'period' => $slot['period'],
+                    'period_no' => $slot['period'],
                     'start_time' => $slot['start'],
                     'end_time' => $slot['end'],
                     'subject' => $slot['subject'],
