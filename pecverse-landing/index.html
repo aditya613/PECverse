@@ -1,384 +1,1009 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PECverse | Your Campus, Unified</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <title>PECverse — The All-in-One App for PEC Students</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Official campus utility app for Punjab Engineering College students. Check your live timetable, track 75% attendance, check hostel mess menus, and download class notes.">
+    <meta name="keywords" content="PEC, Punjab Engineering College, PECverse, PEC Chandigarh, PEC Timetable, PEC Attendance, PEC Mess Menu, PEC Notes">
+    <meta name="theme-color" content="#030712">
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="PECverse — All-in-One App for PEC Students">
+    <meta property="og:description" content="Check your live timetable, track attendance, check mess menus, and download study notes.">
+    <meta property="og:image" content="./assets/logo.png">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="./assets/logo.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#030712',
+                            darker: '#010409',
+                            card: 'rgba(15, 23, 42, 0.72)',
+                            cardElevated: 'rgba(30, 41, 59, 0.88)',
+                            cyan: '#00F0FF',
+                            blue: '#3B82F6',
+                            indigo: '#6366F1',
+                            border: 'rgba(255, 255, 255, 0.08)',
+                            glow: 'rgba(0, 240, 255, 0.25)',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                        mono: ['"JetBrains Mono"', 'monospace'],
+                    },
+                    animation: {
+                        'float-slow': 'float 7s ease-in-out infinite',
+                        'float-reverse': 'floatRev 8s ease-in-out infinite',
+                        'pulse-glow': 'pulseGlow 5s ease-in-out infinite',
+                        'spin-slow': 'spin 25s linear infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-12px)' },
+                        },
+                        floatRev: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(12px)' },
+                        },
+                        pulseGlow: {
+                            '0%, 100%': { opacity: '0.3', transform: 'scale(1)' },
+                            '50%': { opacity: '0.65', transform: 'scale(1.08)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- React 18 & Babel -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
     <style>
-        :root {
-            --glass-bg: rgba(9, 13, 22, 0.45);
-            --glass-border: rgba(255, 255, 255, 0.1);
-            --accent: #60A5FA;
-            --accent-glow: rgba(96, 165, 250, 0.4);
-            --text-primary: #FFFFFF;
-            --text-secondary: #94A3B8;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
         body {
-            background-color: #050505;
-            color: var(--text-primary);
+            background-color: #030712;
+            color: #E2E8F0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
             overflow-x: hidden;
-            background-image: linear-gradient(to bottom, rgba(5,5,5,0.7), rgba(5,5,5,0.9)), url('./assets/bg.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            background-repeat: no-repeat;
+            perspective: 1200px;
         }
 
-        /* Navigation */
-        nav {
-            padding: 20px 48px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+        /* Interactive Particle Background Canvas */
+        #particle-canvas {
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            z-index: 100;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.75;
+        }
+
+        .ambient-mesh {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: 0;
+            pointer-events: none;
+            background: 
+                radial-gradient(circle at 10% 10%, rgba(0, 240, 255, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 90% 20%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 50% 85%, rgba(16, 185, 129, 0.06) 0%, transparent 55%),
+                #030712;
+        }
+
+        .grid-bg {
+            background-size: 36px 36px;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+        }
+
+        /* Glassmorphic 3D Cards */
+        .glass-card {
+            background: rgba(15, 23, 42, 0.75);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border-bottom: 1px solid var(--glass-border);
-            background: rgba(5, 5, 5, 0.4);
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 22px;
-            font-weight: 800;
-            letter-spacing: -0.5px;
-        }
-
-        .logo img {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            box-shadow: 0 0 15px var(--accent-glow);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 32px;
-        }
-
-        .nav-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.3s;
-        }
-
-        .nav-links a:hover {
-            color: var(--text-primary);
-        }
-
-        /* Hero Section */
-        .hero {
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            padding: 120px 24px 60px;
-            position: relative;
-        }
-
-        .hero-img-container {
-            margin-bottom: 40px;
-            animation: float 6s ease-in-out infinite;
-        }
-
-        .hero-img-container img {
-            width: 160px;
-            height: 160px;
-            border-radius: 36px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.5), 0 0 80px var(--accent-glow);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        @keyframes float {
-            0% { transform: translateY(0px); }
-            50% { transform: translateY(-20px); }
-            100% { transform: translateY(0px); }
-        }
-
-        h1 {
-            font-size: 84px;
-            font-weight: 900;
-            letter-spacing: -3px;
-            line-height: 1;
-            margin-bottom: 24px;
-            background: linear-gradient(135deg, #ffffff 0%, #94A3B8 100%);
-            background-clip: text;
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            max-width: 900px;
-        }
-
-        .subtitle {
-            font-size: 24px;
-            color: var(--text-secondary);
-            max-width: 600px;
-            line-height: 1.5;
-            margin-bottom: 50px;
-            font-weight: 400;
-        }
-
-        .cta-group {
-            display: flex;
-            gap: 20px;
-        }
-
-        .btn {
-            padding: 18px 40px;
-            border-radius: 100px;
-            font-size: 18px;
-            font-weight: 600;
-            text-decoration: none;
-            transition: all 0.3s ease;
-            backdrop-filter: blur(10px);
-        }
-
-        .btn-primary {
-            background: rgba(255, 255, 255, 0.95);
-            color: #000;
-            box-shadow: 0 10px 30px rgba(255,255,255,0.2);
-        }
-
-        .btn-primary:hover {
-            background: #ffffff;
-            transform: scale(1.05);
-        }
-
-        .btn-secondary {
-            background: var(--glass-bg);
-            color: var(--text-primary);
-            border: 1px solid var(--glass-border);
-        }
-
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: scale(1.05);
-        }
-
-        /* Features Section */
-        .features {
-            padding: 100px 24px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .section-header {
-            text-align: center;
-            margin-bottom: 80px;
-        }
-
-        .section-header h2 {
-            font-size: 48px;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-            margin-bottom: 20px;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 30px;
-        }
-
-        .glass-card {
-            background: linear-gradient(180deg, rgba(30, 35, 50, 0.4) 0%, rgba(15, 18, 25, 0.6) 100%);
             border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 32px;
-            padding: 40px;
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            transition: all 0.4s ease;
-            position: relative;
+            box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.6);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card-interactive:hover {
+            border-color: rgba(0, 240, 255, 0.35);
+            transform: translateY(-4px);
+            box-shadow: 0 25px 50px -15px rgba(0, 240, 255, 0.15);
+        }
+
+        /* Realistic 3D Titanium Phone Frame */
+        .phone-stage {
+            perspective: 1200px;
+            transform-style: preserve-3d;
+        }
+
+        .phone-3d-wrapper {
+            transition: transform 0.2s cubic-bezier(0.2, 0, 0.2, 1);
+            transform-style: preserve-3d;
+            will-change: transform;
+        }
+
+        .phone-body {
+            width: 310px;
+            height: 635px;
+            background: #090D16;
+            border-radius: 48px;
+            box-shadow: 
+                0 0 0 3px #1E293B,
+                0 0 0 7px #0F172A,
+                0 30px 80px rgba(0, 0, 0, 0.85),
+                0 0 100px rgba(0, 240, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.14);
             overflow: hidden;
+            position: relative;
+            transform: translateZ(20px);
         }
 
-        .glass-card::before {
-            content: '';
+        .phone-island {
             position: absolute;
-            top: 0; left: 0; right: 0; height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-        }
-
-        .glass-card:hover {
-            transform: translateY(-10px);
-            border-color: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.4);
-        }
-
-        .card-icon {
-            font-size: 32px;
-            margin-bottom: 24px;
-            background: rgba(255, 255, 255, 0.05);
-            width: 64px; height: 64px;
+            top: 12px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 86px;
+            height: 23px;
+            background: #000000;
+            border-radius: 12px;
+            z-index: 30;
             display: flex;
             align-items: center;
-            justify-content: center;
-            border-radius: 16px;
-            border: 1px solid rgba(255,255,255,0.1);
+            justify-content: flex-end;
+            padding-right: 8px;
         }
 
-        .glass-card h3 {
-            font-size: 26px;
-            font-weight: 700;
-            margin-bottom: 16px;
-            letter-spacing: -0.5px;
+        .phone-lens {
+            width: 9px;
+            height: 9px;
+            border-radius: 50%;
+            background: #111827;
+            border: 1.5px solid #1F2937;
         }
 
-        .glass-card p {
-            color: var(--text-secondary);
-            line-height: 1.7;
-            font-size: 16px;
+        /* 3D Floating Badges */
+        .floating-badge {
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
 
-        /* Footer */
-        footer {
-            border-top: 1px solid rgba(255,255,255,0.1);
-            padding: 60px 24px;
-            text-align: center;
-            background: rgba(0,0,0,0.5);
-            backdrop-filter: blur(20px);
+        /* Mouse highlight follower */
+        .glow-spotlight {
+            position: absolute;
+            inset: -1px;
+            border-radius: inherit;
+            background: radial-gradient(400px circle at var(--mouse-x, 0px) var(--mouse-y, 0px), rgba(0, 240, 255, 0.1), transparent 70%);
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+        .glass-card-interactive:hover .glow-spotlight {
+            opacity: 1;
         }
 
-        .footer-logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 20px;
-            font-weight: 800;
-            margin-bottom: 20px;
-            opacity: 0.5;
-        }
-
-        .footer-logo img {
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-        }
-
-        .footer-links {
-            margin-top: 24px;
-            display: flex;
-            justify-content: center;
-            gap: 32px;
-        }
-
-        .footer-links a {
-            color: var(--text-secondary);
-            text-decoration: none;
-            font-size: 15px;
-            transition: color 0.2s;
-        }
-
-        .footer-links a:hover {
-            color: var(--text-primary);
-        }
-
-        @media (max-width: 768px) {
-            h1 { font-size: 56px; }
-            .subtitle { font-size: 20px; }
-            .cta-group { flex-direction: column; width: 100%; max-width: 320px; }
-            .btn { width: 100%; justify-content: center; }
-            nav { padding: 20px; }
-            .nav-links { display: none; }
-            .hero-img-container img { width: 120px; height: 120px; }
-        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 7px; }
+        ::-webkit-scrollbar-track { background: #030712; }
+        ::-webkit-scrollbar-thumb { background: #1E293B; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #00F0FF; }
     </style>
 </head>
-<body>
+<body class="relative min-h-screen text-slate-200 antialiased selection:bg-cyan-500 selection:text-black">
 
-    <nav>
-        <div class="logo">
-            <img src="./assets/logo.png" alt="PECverse Logo">
-            PECverse
-        </div>
-        <div class="nav-links">
-            <a href="#features">Features</a>
-            <a href="#download">Download</a>
-            <a href="./child-safety-standards.html">Safety</a>
-        </div>
-    </nav>
+    <div class="ambient-mesh"></div>
+    <div class="fixed inset-0 grid-bg pointer-events-none z-0"></div>
+    <canvas id="particle-canvas"></canvas>
 
-    <div class="hero">
-        <div class="hero-img-container">
-            <img src="./assets/logo.png" alt="PECverse App Icon">
-        </div>
-        <h1>Your Campus.<br>Unified.</h1>
-        <p class="subtitle">Experience the ultimate digital ecosystem for Punjab Engineering College. Connect on the anonymous Lounge, track your academics, and access resources in a breathtaking interface.</p>
-        
-        <div class="cta-group">
-            <a href="#download" class="btn btn-primary">Download App</a>
-            <a href="#features" class="btn btn-secondary">Explore Features</a>
-        </div>
-    </div>
+    <div id="root" class="relative z-10"></div>
 
-    <section id="features" class="features">
-        <div class="section-header">
-            <h2>Everything you need.</h2>
-        </div>
+    <script type="text/babel">
+        const { useState, useEffect, useMemo, useRef } = React;
 
-        <div class="grid">
-            <div class="glass-card">
-                <div class="card-icon">📅</div>
-                <h3>Dynamic Timetables</h3>
-                <p>Never miss a class. Real-time scheduling that automatically adjusts for single-day exceptions, cancellations, and extra lectures with zero effort.</p>
-            </div>
-            
-            <div class="glass-card">
-                <div class="card-icon">📊</div>
-                <h3>Smart Attendance</h3>
-                <p>Track your bunks securely. Zero-drift database counters ensure your 75% aggregate is always calculated with absolute precision.</p>
-            </div>
+        const PLAY_STORE_URL = "https://play.google.com/store/apps/details?id=in.edu.pec.connect";
 
-            <div class="glass-card">
-                <div class="card-icon">📚</div>
-                <h3>Resource Vault</h3>
-                <p>Access notes, past papers, and critical resources shared by your CRs. Fast, organized, and always available offline right in your pocket.</p>
-            </div>
+        const SCREENS = [
+            {
+                id: 'timetable',
+                title: 'Timetable',
+                label: 'Dynamic Timetable',
+                badge: 'Live Shifts',
+                description: 'Pre-seeded for all branches. Updates automatically when classes shift rooms or get cancelled.',
+                image: './assets/screenshots/screen-timetable.png',
+                icon: 'calendar-days',
+                color: 'from-cyan-500/20 to-blue-500/20',
+                annotation: 'Next: EXN301 (L-24)'
+            },
+            {
+                id: 'attendance',
+                title: 'Attendance',
+                label: '75% Attendance Guard',
+                badge: 'Target 75%',
+                description: 'Track present and missed classes. Calculates your exact margin to comfortably maintain the mandatory 75% requirement.',
+                image: './assets/screenshots/screen-attendance.png',
+                icon: 'pie-chart',
+                color: 'from-emerald-500/20 to-teal-500/20',
+                annotation: '81.4% • Goal Met'
+            },
+            {
+                id: 'dashboard',
+                title: 'Dashboard',
+                label: 'Daily Schedule',
+                badge: 'Today Hub',
+                description: 'Live countdown to your next lecture, today’s hostel mess menu, and academic calendar.',
+                image: './assets/screenshots/screen-dashboard.png',
+                icon: 'layout-dashboard',
+                color: 'from-indigo-500/20 to-purple-500/20',
+                annotation: 'Countdown: 24m'
+            },
+            {
+                id: 'mess',
+                title: 'Mess Menu',
+                label: 'Hostel Mess Menu',
+                badge: 'Daily Food',
+                description: 'Daily breakfast, lunch, snacks, and dinner menus for Aravali and campus hostels.',
+                image: './assets/screenshots/screen-mess.png',
+                icon: 'utensils',
+                color: 'from-amber-500/20 to-orange-500/20',
+                annotation: 'Lunch: Rajma Chawal'
+            },
+            {
+                id: 'profile',
+                title: 'Notes & Community',
+                label: 'Notes & Campus Wall',
+                badge: 'Resources',
+                description: 'Download class notes and PYQs uploaded by CRs, or post lost & found items across campus.',
+                image: './assets/screenshots/screen-profile.png',
+                icon: 'book-open',
+                color: 'from-rose-500/20 to-pink-500/20',
+                annotation: '14 New Lecture PDFs'
+            }
+        ];
 
-            <div class="glass-card">
-                <div class="card-icon">🍽️</div>
-                <h3>Live Mess Menu</h3>
-                <p>Check what's cooking in the hostel mess directly from your dashboard. Daily updates and special weekend menus at a glance.</p>
-            </div>
+        const BRANCH_LIST = [
+            { code: 'CSE', name: 'Computer Science', preview: '4 Classes Today • Data Structures (L-20)' },
+            { code: 'AI', name: 'Artificial Intelligence', preview: '3 Classes Today • Machine Learning (T-19)' },
+            { code: 'DS', name: 'Data Science', preview: '4 Classes Today • Stats & Probability (L-24)' },
+            { code: 'ECE', name: 'Electronics & Comm.', preview: '5 Classes Today • Digital Electronics (L-23)' },
+            { code: 'VLSI', name: 'VLSI Design', preview: '4 Classes Today • Semiconductor Devices (Lab-2)' },
+            { code: 'EE', name: 'Electrical Engineering', preview: '4 Classes Today • Circuit Theory (L-6)' },
+            { code: 'MECH', name: 'Mechanical Engg.', preview: '4 Classes Today • Thermodynamics (L-7)' },
+            { code: 'CIVIL', name: 'Civil Engineering', preview: '3 Classes Today • Fluid Mechanics (L-12)' },
+            { code: 'AERO', name: 'Aerospace Engineering', preview: '4 Classes Today • Aerodynamics (Audi)' },
+        ];
 
-            <div class="glass-card" style="border-color: rgba(96, 165, 250, 0.5); box-shadow: 0 0 20px rgba(96, 165, 250, 0.1);">
-                <div class="card-icon">🎭</div>
-                <h3>Anonymous Lounge</h3>
-                <p>Post, comment, and connect with your batchmates freely. Toggle between Ghost Mode and Public Mode. Fully moderated with native reporting and blocking tools for a safe community.</p>
-            </div>
-        </div>
-    </section>
+        const FAQS = [
+            {
+                q: "Where do I install PECverse for Android?",
+                a: "You can download and install PECverse directly from the official Google Play Store. It is 100% verified, ad-free, and safe."
+            },
+            {
+                q: "When will the iOS version be released?",
+                a: "The iOS version is complete and undergoing Apple App Store review. You can enter your email to get a direct TestFlight / App Store notification on launch day."
+            },
+            {
+                q: "How does the 75% Attendance Guard work?",
+                a: "You log your attended and missed lectures. The app calculates whether your aggregate satisfies the 75% college requirement and indicates how many classes you can afford to miss or need to attend."
+            },
+            {
+                q: "How are room shifts and class cancellations updated?",
+                a: "Verified Class Representatives (CRs) log single-day changes. When you open the app, your daily schedule updates automatically without altering your weekly timetable."
+            },
+            {
+                q: "Are all 1st-year groups and branches supported?",
+                a: "Yes! Schedules for all 1st Year groups (G1 to G12) and 2nd/3rd/4th Year branches (CSE, AI, DS, ECE, VLSI, EE, MECH, CIVIL, AERO) are already built-in."
+            }
+        ];
 
-    <footer>
-        <div class="footer-logo">
-            <img src="./assets/logo.png" alt="Logo">
-            PECverse
-        </div>
-        <p style="color: var(--text-secondary);">&copy; 2026 PECverse. Crafted for Punjab Engineering College.</p>
-        <div class="footer-links">
-            <a href="./child-safety-standards.html">Child Safety Standards</a>
-            <a href="./privacy-policy.html">Privacy Policy</a>
-            <a href="./terms.html">Terms of Service</a>
-        </div>
-    </footer>
+        function App() {
+            const [activeScreenIndex, setActiveScreenIndex] = useState(0);
+            const [isIosModalOpen, setIsIosModalOpen] = useState(false);
+            const [iosEmail, setIosEmail] = useState('');
+            const [iosSubmitted, setIosSubmitted] = useState(false);
+            const [openFaqIndex, setOpenFaqIndex] = useState(0);
+            const [selectedBranch, setSelectedBranch] = useState(BRANCH_LIST[0]);
 
+            // Interactive 3D Tilt State for Phone
+            const [tilt, setTilt] = useState({ x: 0, y: 0 });
+            const stageRef = useRef(null);
+
+            // Attendance Calculator State
+            const [attended, setAttended] = useState(26);
+            const [total, setTotal] = useState(32);
+
+            const percent = useMemo(() => {
+                if (total <= 0) return 100;
+                return Math.round((attended / total) * 100);
+            }, [attended, total]);
+
+            const calculationResult = useMemo(() => {
+                if (percent >= 75) {
+                    const margin = Math.max(0, Math.floor((attended / 0.75) - total));
+                    return {
+                        isSafe: true,
+                        text: `You have ${percent}% attendance. You have a margin of ${margin} ${margin === 1 ? 'class' : 'classes'} while staying at or above the 75% requirement.`
+                    };
+                } else {
+                    const required = Math.max(1, Math.ceil((0.75 * total - attended) / 0.25));
+                    return {
+                        isSafe: false,
+                        text: `Attendance is ${percent}%. You must attend the next ${required} consecutive ${required === 1 ? 'class' : 'classes'} without absence to reach 75%.`
+                    };
+                }
+            }, [attended, total, percent]);
+
+            // Mouse parallax tilt handler
+            const handleMouseMove = (e) => {
+                if (!stageRef.current) return;
+                const rect = stageRef.current.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                // Clamp rotation
+                const rotateX = Math.max(-14, Math.min(14, (-y / rect.height) * 25));
+                const rotateY = Math.max(-14, Math.min(14, (x / rect.width) * 25));
+                setTilt({ x: rotateX, y: rotateY });
+            };
+
+            const handleMouseLeave = () => {
+                setTilt({ x: 0, y: 0 });
+            };
+
+            useEffect(() => {
+                if (window.lucide) {
+                    window.lucide.createIcons();
+                }
+            });
+
+            const activeScreen = SCREENS[activeScreenIndex];
+
+            return (
+                <div className="min-h-screen flex flex-col font-sans">
+                    
+                    {/* Header */}
+                    <header className="fixed top-0 left-0 right-0 z-50 px-5 py-4">
+                        <div className="max-w-6xl mx-auto flex items-center justify-between px-6 py-3 rounded-2xl glass-card border border-white/10 shadow-2xl backdrop-blur-2xl">
+                            <a href="#" className="flex items-center gap-3 group">
+                                <div className="relative">
+                                    <div className="absolute -inset-1 bg-gradient-to-r from-cyan-400 to-indigo-500 rounded-xl blur opacity-75 group-hover:opacity-100 transition duration-300"></div>
+                                    <img src="./assets/logo.png" alt="PECverse Logo" className="relative w-9 h-9 rounded-xl object-cover" />
+                                </div>
+                                <span className="font-display font-extrabold text-xl tracking-tight text-white flex items-center gap-1">
+                                    PEC<span className="text-cyan-400">verse</span>
+                                </span>
+                            </a>
+
+                            <div className="hidden md:flex items-center gap-8 text-sm font-semibold text-slate-300">
+                                <a href="#features" className="hover:text-cyan-400 transition-colors">Features</a>
+                                <a href="#showcase" className="hover:text-cyan-400 transition-colors">App Tour</a>
+                                <a href="#calculator" className="hover:text-cyan-400 transition-colors">Attendance Planner</a>
+                                <a href="#branches" className="hover:text-cyan-400 transition-colors">Branches</a>
+                                <a href="#faq" className="hover:text-cyan-400 transition-colors">FAQ</a>
+                            </div>
+
+                            <div className="flex items-center gap-3">
+                                <a 
+                                    href={PLAY_STORE_URL}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-slate-950 font-extrabold text-xs sm:text-sm transition-all flex items-center gap-2 shadow-lg shadow-cyan-500/25 transform hover:scale-105 active:scale-95"
+                                >
+                                    <i data-lucide="play" className="w-4 h-4 fill-slate-950"></i>
+                                    <span>Get on Google Play</span>
+                                </a>
+                            </div>
+                        </div>
+                    </header>
+
+                    {/* Hero Section with 3D Spatial Layout */}
+                    <section className="pt-36 pb-20 md:pt-44 md:pb-28 px-6 max-w-6xl mx-auto w-full text-center flex flex-col items-center relative">
+                        
+                        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-cyan-950/70 border border-cyan-500/30 text-cyan-300 text-xs font-semibold mb-6 shadow-lg shadow-cyan-950/40">
+                            <span className="w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+                            Live on Google Play Store for Punjab Engineering College
+                        </div>
+
+                        <h1 className="text-4xl sm:text-6xl md:text-7xl font-display font-black text-white tracking-tight leading-[1.08] max-w-4xl mb-6">
+                            The All-in-One App for <br className="hidden sm:block" />
+                            <span className="bg-gradient-to-r from-cyan-400 via-sky-300 to-indigo-400 bg-clip-text text-transparent">PEC Students.</span>
+                        </h1>
+
+                        <p className="text-base sm:text-lg text-slate-300 max-w-2xl mb-10 leading-relaxed font-normal">
+                            Check your live timetable with room shift updates, calculate attendance so you stay safely above 75%, view today’s hostel mess menu, and download class notes.
+                        </p>
+
+                        {/* CTA Buttons */}
+                        <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-md mb-14">
+                            
+                            {/* Google Play Button */}
+                            <a
+                                href={PLAY_STORE_URL}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-full sm:w-auto px-7 py-4 rounded-2xl bg-white hover:bg-slate-100 text-slate-950 font-extrabold text-sm flex items-center justify-center gap-3 transition-all shadow-xl shadow-white/10 transform hover:-translate-y-1 active:translate-y-0"
+                            >
+                                <svg className="w-5 h-5 text-slate-950" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M3.609 1.814L13.792 12 3.61 22.186a1.597 1.597 0 0 1-.61-.926V2.74c0-.36.108-.696.61-.926zm11.598 11.601L12.44 16.18l6.398 3.702-3.631-6.467zm0-2.83l3.631-6.468-6.398 3.702 2.767 2.766zm1.415 1.415l4.316 2.5a1.2 1.2 0 0 0 0-2.083l-4.316-2.5 1.01 2.083z"/>
+                                </svg>
+                                <div className="text-left">
+                                    <div className="text-[10px] uppercase font-semibold text-slate-600 leading-tight">GET IT ON</div>
+                                    <div className="text-sm font-black text-slate-950 leading-tight">Google Play</div>
+                                </div>
+                            </a>
+
+                            {/* iOS Waitlist */}
+                            <button
+                                onClick={() => setIsIosModalOpen(true)}
+                                className="w-full sm:w-auto px-7 py-4 rounded-2xl glass-card hover:bg-slate-800/80 border border-white/15 text-white text-sm font-semibold flex items-center justify-center gap-3 transition-all transform hover:-translate-y-1 active:translate-y-0"
+                            >
+                                <i data-lucide="apple" className="w-5 h-5 text-slate-300"></i>
+                                <div className="text-left">
+                                    <div className="text-[10px] uppercase font-semibold text-slate-400 leading-tight">App Store</div>
+                                    <div className="text-sm font-bold text-white leading-tight">iOS (Coming Soon)</div>
+                                </div>
+                            </button>
+
+                        </div>
+
+                        {/* Badges */}
+                        <div className="flex flex-wrap justify-center gap-3 text-xs text-slate-400">
+                            <span className="px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 flex items-center gap-2 shadow-sm">
+                                <i data-lucide="check" className="w-4 h-4 text-cyan-400"></i>
+                                All 9 PEC Branches Covered
+                            </span>
+                            <span className="px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 flex items-center gap-2 shadow-sm">
+                                <i data-lucide="check" className="w-4 h-4 text-cyan-400"></i>
+                                100% Ad-Free & Fast
+                            </span>
+                            <span className="px-4 py-2 rounded-xl bg-slate-900/80 border border-white/10 flex items-center gap-2 shadow-sm">
+                                <i data-lucide="check" className="w-4 h-4 text-cyan-400"></i>
+                                Real-Time Room Shift Sync
+                            </span>
+                        </div>
+
+                    </section>
+
+                    {/* Interactive 3D Phone Showcase with Spatial Badges */}
+                    <section 
+                        id="showcase" 
+                        ref={stageRef}
+                        onMouseMove={handleMouseMove}
+                        onMouseLeave={handleMouseLeave}
+                        className="py-20 px-6 max-w-6xl mx-auto w-full phone-stage relative"
+                    >
+                        <div className="text-center mb-14">
+                            <span className="text-cyan-400 text-xs uppercase font-bold tracking-wider block mb-2">Interactive Preview</span>
+                            <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-white mb-3">
+                                See PECverse in Action
+                            </h2>
+                            <p className="text-slate-400 text-sm sm:text-base max-w-xl mx-auto">
+                                Move your mouse to explore the 3D phone and tap any feature tab to switch screens.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+                            
+                            {/* Left Switcher Tabs */}
+                            <div className="lg:col-span-6 space-y-3">
+                                {SCREENS.map((screen, idx) => {
+                                    const isActive = idx === activeScreenIndex;
+                                    return (
+                                        <div
+                                            key={screen.id}
+                                            onClick={() => setActiveScreenIndex(idx)}
+                                            className={`p-5 rounded-2xl cursor-pointer transition-all border ${
+                                                isActive 
+                                                    ? 'bg-slate-900/90 border-cyan-500/60 shadow-xl shadow-cyan-500/10 text-white translate-x-2' 
+                                                    : 'glass-card hover:bg-slate-900/60 border-white/5 text-slate-400 opacity-70 hover:opacity-100'
+                                            }`}
+                                        >
+                                            <div className="flex items-center justify-between mb-1.5">
+                                                <div className="flex items-center gap-3.5">
+                                                    <div className={`p-2 rounded-xl ${isActive ? 'bg-cyan-500/20 text-cyan-400 border border-cyan-500/30' : 'bg-slate-800 text-slate-400'}`}>
+                                                        <i data-lucide={screen.icon} className="w-5 h-5"></i>
+                                                    </div>
+                                                    <h3 className={`font-bold text-base ${isActive ? 'text-white' : 'text-slate-300'}`}>
+                                                        {screen.label}
+                                                    </h3>
+                                                </div>
+                                                <span className={`text-[10px] font-bold uppercase px-2 py-0.5 rounded-full ${
+                                                    isActive ? 'bg-cyan-400 text-slate-950' : 'bg-slate-800 text-slate-400'
+                                                }`}>
+                                                    {screen.badge}
+                                                </span>
+                                            </div>
+                                            <p className="text-xs sm:text-sm text-slate-400 pl-11">
+                                                {screen.description}
+                                            </p>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+
+                            {/* Right 3D Spatial Phone & Floating Badges */}
+                            <div className="lg:col-span-6 flex flex-col items-center justify-center relative min-h-[660px]">
+                                
+                                {/* Ambient Glow */}
+                                <div className="absolute w-72 h-96 bg-cyan-500/20 rounded-full blur-3xl pointer-events-none animate-pulse-glow"></div>
+
+                                {/* 3D Phone with Gyroscopic Parallax */}
+                                <div 
+                                    className="phone-3d-wrapper relative"
+                                    style={{
+                                        transform: `rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`
+                                    }}
+                                >
+                                    {/* Floating 3D Badge 1: Top Left */}
+                                    <div 
+                                        className="floating-badge hidden sm:flex absolute -left-16 top-16 z-40 items-center gap-2.5 px-4 py-2.5 rounded-2xl glass-card border border-cyan-500/30 text-xs font-bold text-white shadow-2xl animate-float-slow"
+                                        style={{ transform: 'translateZ(45px)' }}
+                                    >
+                                        <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                                        <span>{activeScreen.annotation}</span>
+                                    </div>
+
+                                    {/* Floating 3D Badge 2: Bottom Right */}
+                                    <div 
+                                        className="floating-badge hidden sm:flex absolute -right-12 bottom-20 z-40 items-center gap-2.5 px-4 py-2.5 rounded-2xl glass-card border border-indigo-500/30 text-xs font-bold text-white shadow-2xl animate-float-reverse"
+                                        style={{ transform: 'translateZ(45px)' }}
+                                    >
+                                        <i data-lucide="bell" className="w-3.5 h-3.5 text-indigo-400"></i>
+                                        <span>Real-Time Sync</span>
+                                    </div>
+
+                                    {/* Titanium Phone Body */}
+                                    <div className="phone-body">
+                                        <div className="phone-island">
+                                            <div className="phone-lens"></div>
+                                        </div>
+                                        <img 
+                                            src={activeScreen.image} 
+                                            alt={activeScreen.title} 
+                                            className="w-full h-full object-cover select-none transition-opacity duration-300"
+                                        />
+                                        <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-transparent pointer-events-none"></div>
+                                    </div>
+                                </div>
+
+                                <div className="mt-5 text-xs text-slate-400 flex items-center gap-1.5">
+                                    <span className="w-2 h-2 rounded-full bg-cyan-400"></span>
+                                    <span>Previewing: <strong className="text-white">{activeScreen.label}</strong></span>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </section>
+
+                    {/* Interactive 75% Attendance Planner Widget */}
+                    <section id="calculator" className="py-20 px-6 max-w-6xl mx-auto w-full">
+                        <div className="glass-card p-8 sm:p-12 rounded-3xl border border-cyan-500/30 relative overflow-hidden">
+                            <div className="absolute -right-20 -top-20 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                                <div className="lg:col-span-6">
+                                    <span className="text-cyan-400 text-xs uppercase font-bold tracking-wider block mb-2">Attendance Target Planner</span>
+                                    <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-white mb-3">
+                                        75% Attendance Calculator
+                                    </h2>
+                                    <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                                        Adjust the sliders to view your aggregate attendance and see how many classes you can miss or need to attend to satisfy the 75% threshold.
+                                    </p>
+                                    <div className="text-xs text-slate-400 flex items-center gap-2">
+                                        <i data-lucide="shield-check" className="w-4 h-4 text-emerald-400 shrink-0"></i>
+                                        <span>Inside the PECverse app, this is tracked automatically for every subject.</span>
+                                    </div>
+                                </div>
+
+                                <div className="lg:col-span-6 bg-slate-950/90 p-6 sm:p-8 rounded-2xl border border-white/10 space-y-6">
+                                    
+                                    <div>
+                                        <div className="flex justify-between text-xs font-semibold mb-2">
+                                            <span className="text-slate-400">Total Classes Held:</span>
+                                            <span className="text-white font-mono font-bold text-base">{total}</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="1" max="60" value={total}
+                                            onChange={(e) => {
+                                                const v = Number(e.target.value);
+                                                setTotal(v);
+                                                if (attended > v) setAttended(v);
+                                            }}
+                                            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <div className="flex justify-between text-xs font-semibold mb-2">
+                                            <span className="text-slate-400">Classes Attended:</span>
+                                            <span className="text-cyan-400 font-mono font-bold text-base">{attended}</span>
+                                        </div>
+                                        <input 
+                                            type="range" min="0" max={total} value={attended}
+                                            onChange={(e) => setAttended(Number(e.target.value))}
+                                            className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-cyan-400"
+                                        />
+                                    </div>
+
+                                    <div className={`p-4 rounded-xl border ${
+                                        calculationResult.isSafe 
+                                            ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300' 
+                                            : 'bg-rose-950/40 border-rose-500/40 text-rose-300'
+                                    }`}>
+                                        <div className="flex items-center justify-between mb-1.5">
+                                            <span className="text-[11px] font-bold uppercase tracking-wider">Calculated Aggregate</span>
+                                            <span className="text-2xl font-black font-display">{percent}%</span>
+                                        </div>
+                                        <p className="text-xs text-slate-200 leading-normal">
+                                            {calculationResult.text}
+                                        </p>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    {/* Features Bento Grid */}
+                    <section id="features" className="py-20 px-6 max-w-6xl mx-auto w-full">
+                        <div className="text-center mb-14">
+                            <h2 className="text-3xl sm:text-4xl font-display font-extrabold text-white mb-3">
+                                Built Specifically for PEC
+                            </h2>
+                            <p className="text-slate-400 text-sm sm:text-base">
+                                Clean, reliable utilities without unnecessary bloat.
+                            </p>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            
+                            <div className="glass-card glass-card-interactive p-6 rounded-2xl relative">
+                                <div className="glow-spotlight"></div>
+                                <div className="w-11 h-11 rounded-xl bg-cyan-500/20 text-cyan-400 flex items-center justify-center mb-4 border border-cyan-500/30">
+                                    <i data-lucide="refresh-cw" className="w-5 h-5"></i>
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Class Shift Updates</h3>
+                                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    When a room shifts or a lecture is cancelled for today, your CR updates it so you don't walk across campus to an empty classroom.
+                                </p>
+                            </div>
+
+                            <div className="glass-card glass-card-interactive p-6 rounded-2xl relative">
+                                <div className="glow-spotlight"></div>
+                                <div className="w-11 h-11 rounded-xl bg-indigo-500/20 text-indigo-400 flex items-center justify-center mb-4 border border-indigo-500/30">
+                                    <i data-lucide="utensils" className="w-5 h-5"></i>
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Hostel Mess Menus</h3>
+                                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Check today's breakfast, lunch, snacks, and dinner menu directly from your home tab.
+                                </p>
+                            </div>
+
+                            <div className="glass-card glass-card-interactive p-6 rounded-2xl relative">
+                                <div className="glow-spotlight"></div>
+                                <div className="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center mb-4 border border-emerald-500/30">
+                                    <i data-lucide="folder-down" className="w-5 h-5"></i>
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Class Notes & PYQs</h3>
+                                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Download organized subject notes, assignments, and past papers uploaded by your classmates and CRs.
+                                </p>
+                            </div>
+
+                            <div className="glass-card glass-card-interactive p-6 rounded-2xl relative">
+                                <div className="glow-spotlight"></div>
+                                <div className="w-11 h-11 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mb-4 border border-purple-500/30">
+                                    <i data-lucide="message-circle" className="w-5 h-5"></i>
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Campus Lounge & Wall</h3>
+                                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Ask senior advice, share campus thoughts, or switch on Ghost Mode for anonymous posting. Built with full reporting and moderation tools.
+                                </p>
+                            </div>
+
+                            <div className="glass-card glass-card-interactive p-6 rounded-2xl relative">
+                                <div className="glow-spotlight"></div>
+                                <div className="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center mb-4 border border-amber-500/30">
+                                    <i data-lucide="search" className="w-5 h-5"></i>
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Lost & Found</h3>
+                                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Lost a drafter or ID card in NAB? Post photos and connect with the student who found it.
+                                </p>
+                            </div>
+
+                            <div className="glass-card glass-card-interactive p-6 rounded-2xl relative">
+                                <div className="glow-spotlight"></div>
+                                <div className="w-11 h-11 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-4 border border-blue-500/30">
+                                    <i data-lucide="bell" className="w-5 h-5"></i>
+                                </div>
+                                <h3 className="text-lg font-bold text-white mb-2">Class Reminders</h3>
+                                <p className="text-slate-400 text-xs sm:text-sm leading-relaxed">
+                                    Get quiet push notifications before your morning lecture starts so you're always on time.
+                                </p>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    {/* Interactive Branch Schedule Previewer */}
+                    <section id="branches" className="py-20 px-6 max-w-6xl mx-auto w-full">
+                        <div className="text-center mb-10">
+                            <h3 className="text-2xl sm:text-3xl font-display font-extrabold text-white mb-2">
+                                Pre-Configured for All 9 Branches
+                            </h3>
+                            <p className="text-xs sm:text-sm text-slate-400 max-w-lg mx-auto">
+                                Click any branch to see a sample live schedule configured in PECverse.
+                            </p>
+                        </div>
+
+                        {/* Branch Pills */}
+                        <div className="flex flex-wrap justify-center gap-2 mb-8">
+                            {BRANCH_LIST.map((b) => {
+                                const isSelected = selectedBranch.code === b.code;
+                                return (
+                                    <button
+                                        key={b.code}
+                                        onClick={() => setSelectedBranch(b)}
+                                        className={`px-4 py-2 rounded-xl font-bold text-xs transition-all ${
+                                            isSelected 
+                                                ? 'bg-cyan-400 text-slate-950 shadow-md shadow-cyan-500/25 scale-105' 
+                                                : 'glass-card text-slate-300 hover:text-white border-white/10'
+                                        }`}
+                                    >
+                                        {b.code}
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Active Branch Preview Card */}
+                        <div className="glass-card p-6 rounded-2xl max-w-2xl mx-auto border border-cyan-500/30 text-center">
+                            <div className="text-xs text-cyan-400 uppercase font-mono font-bold mb-1">
+                                {selectedBranch.code} • {selectedBranch.name}
+                            </div>
+                            <div className="text-base font-bold text-white mb-2">{selectedBranch.preview}</div>
+                            <div className="text-xs text-slate-400">All semester lectures, tutorials, and practical batches are pre-seeded in the app.</div>
+                        </div>
+                    </section>
+
+                    {/* Google Play Store & QR Code Download Card */}
+                    <section className="py-16 px-6 max-w-6xl mx-auto w-full">
+                        <div className="glass-card p-8 sm:p-12 rounded-3xl border border-cyan-500/40 shadow-2xl flex flex-col md:flex-row items-center justify-between gap-8 relative overflow-hidden">
+                            
+                            <div className="text-center md:text-left max-w-lg">
+                                <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-white mb-3">
+                                    Download PECverse Today
+                                </h2>
+                                <p className="text-slate-300 text-sm leading-relaxed mb-6">
+                                    Install directly from the Google Play Store for Android. Fast install, lightweight size, and zero ads.
+                                </p>
+
+                                <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+                                    <a
+                                        href={PLAY_STORE_URL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-bold text-sm flex items-center gap-2.5 transition-all shadow-lg shadow-white/10 transform hover:scale-105"
+                                    >
+                                        <svg className="w-4 h-4 text-slate-950" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M3.609 1.814L13.792 12 3.61 22.186a1.597 1.597 0 0 1-.61-.926V2.74c0-.36.108-.696.61-.926zm11.598 11.601L12.44 16.18l6.398 3.702-3.631-6.467zm0-2.83l3.631-6.468-6.398 3.702 2.767 2.766zm1.415 1.415l4.316 2.5a1.2 1.2 0 0 0 0-2.083l-4.316-2.5 1.01 2.083z"/>
+                                        </svg>
+                                        <span>Google Play Store</span>
+                                    </a>
+
+                                    <button
+                                        onClick={() => setIsIosModalOpen(true)}
+                                        className="px-5 py-3.5 rounded-xl glass-card hover:bg-slate-800 text-white font-semibold text-sm flex items-center gap-2 border border-white/10"
+                                    >
+                                        <i data-lucide="apple" className="w-4 h-4"></i>
+                                        <span>iOS Waitlist</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Direct Play Store QR Code */}
+                            <div className="flex flex-col items-center bg-slate-950 p-6 rounded-2xl border border-white/10 shadow-lg">
+                                <div className="w-36 h-36 bg-white p-2.5 rounded-xl flex items-center justify-center mb-3">
+                                    <img 
+                                        src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://play.google.com/store/apps/details?id=in.edu.pec.connect&color=030712" 
+                                        alt="Scan for Play Store" 
+                                        className="w-full h-full object-contain"
+                                    />
+                                </div>
+                                <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
+                                    <i data-lucide="scan" className="w-3.5 h-3.5 text-cyan-400"></i>
+                                    Scan to open on Play Store
+                                </span>
+                            </div>
+
+                        </div>
+                    </section>
+
+                    {/* FAQ */}
+                    <section id="faq" className="py-16 px-6 max-w-3xl mx-auto w-full">
+                        <div className="text-center mb-10">
+                            <h2 className="text-2xl sm:text-3xl font-display font-extrabold text-white mb-2">
+                                Frequently Asked Questions
+                            </h2>
+                        </div>
+
+                        <div className="space-y-3">
+                            {FAQS.map((faq, index) => {
+                                const isOpen = openFaqIndex === index;
+                                return (
+                                    <div key={index} className="glass-card rounded-xl border border-white/10 overflow-hidden">
+                                        <button
+                                            onClick={() => setOpenFaqIndex(isOpen ? -1 : index)}
+                                            className="w-full px-5 py-4 flex items-center justify-between text-left font-bold text-sm text-white hover:text-cyan-300 transition-colors"
+                                        >
+                                            <span>{faq.q}</span>
+                                            <i data-lucide={isOpen ? 'chevron-up' : 'chevron-down'} className="w-4 h-4 text-slate-400"></i>
+                                        </button>
+                                        {isOpen && (
+                                            <div className="px-5 pb-4 pt-1 text-xs sm:text-sm text-slate-300 leading-relaxed border-t border-white/5">
+                                                {faq.a}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </section>
+
+                    {/* Footer */}
+                    <footer className="mt-auto border-t border-white/10 py-10 px-6 bg-slate-950/90">
+                        <div className="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-6">
+                            <div className="flex items-center gap-3">
+                                <img src="./assets/logo.png" alt="PECverse" className="w-7 h-7 rounded-lg object-cover" />
+                                <span className="font-display font-bold text-base text-white">PEC<span className="text-cyan-400">verse</span></span>
+                                <span className="text-xs text-slate-500">• Built for Punjab Engineering College</span>
+                            </div>
+
+                            <div className="flex flex-wrap gap-5 text-xs text-slate-400">
+                                <a href="./child-safety-standards.html" className="hover:text-cyan-400 transition-colors">Child Safety</a>
+                                <a href="./privacy-policy.html" className="hover:text-cyan-400 transition-colors">Privacy Policy</a>
+                                <a href="./terms.html" className="hover:text-cyan-400 transition-colors">Terms of Service</a>
+                            </div>
+                        </div>
+                    </footer>
+
+                    {/* iOS Waitlist Modal */}
+                    {isIosModalOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+                            <div className="glass-card bg-slate-950 border border-white/20 rounded-2xl p-7 max-w-md w-full shadow-2xl relative">
+                                
+                                <button 
+                                    onClick={() => { setIsIosModalOpen(false); setIosSubmitted(false); }}
+                                    className="absolute top-4 right-4 p-1.5 rounded-full bg-slate-800 text-slate-400 hover:text-white"
+                                >
+                                    <i data-lucide="x" className="w-4 h-4"></i>
+                                </button>
+
+                                <div className="text-center mb-5">
+                                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center mx-auto mb-3">
+                                        <i data-lucide="apple" className="w-6 h-6"></i>
+                                    </div>
+                                    <h3 className="text-xl font-display font-extrabold text-white">iOS App Release</h3>
+                                    <p className="text-xs text-slate-400 mt-1">App Store & TestFlight Review in Progress</p>
+                                </div>
+
+                                {iosSubmitted ? (
+                                    <div className="p-4 rounded-xl bg-emerald-950/50 border border-emerald-500/40 text-center">
+                                        <i data-lucide="check" className="w-6 h-6 text-emerald-400 mx-auto mb-1"></i>
+                                        <div className="text-sm font-bold text-white">You're on the list!</div>
+                                        <p className="text-xs text-slate-300 mt-1">We'll email you the TestFlight / App Store link as soon as review completes.</p>
+                                    </div>
+                                ) : (
+                                    <div>
+                                        <p className="text-xs text-slate-300 text-center mb-4">
+                                            Enter your email to receive an early access invite for iPhone:
+                                        </p>
+                                        <form onSubmit={(e) => { e.preventDefault(); if (iosEmail) setIosSubmitted(true); }} className="space-y-3">
+                                            <input 
+                                                type="email"
+                                                required
+                                                placeholder="your.email@pec.edu.in"
+                                                value={iosEmail}
+                                                onChange={(e) => setIosEmail(e.target.value)}
+                                                className="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-white/15 text-white placeholder-slate-500 text-xs focus:outline-none focus:border-cyan-400"
+                                            />
+                                            <button 
+                                                type="submit"
+                                                className="w-full py-2.5 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-bold text-xs transition-all"
+                                            >
+                                                Notify Me
+                                            </button>
+                                        </form>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                </div>
+            );
+        }
+
+        // Particle Canvas Background Script
+        function initParticles() {
+            const canvas = document.getElementById('particle-canvas');
+            if (!canvas) return;
+            const ctx = canvas.getContext('2d');
+            let w = canvas.width = window.innerWidth;
+            let h = canvas.height = window.innerHeight;
+
+            const particles = [];
+            const count = Math.min(45, Math.floor(w / 35));
+
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: Math.random() * w,
+                    y: Math.random() * h,
+                    vx: (Math.random() - 0.5) * 0.4,
+                    vy: (Math.random() - 0.5) * 0.4,
+                    radius: Math.random() * 1.6 + 0.6,
+                    color: i % 3 === 0 ? 'rgba(0, 240, 255, ' : 'rgba(99, 102, 241, ',
+                    alpha: Math.random() * 0.5 + 0.2
+                });
+            }
+
+            function animate() {
+                ctx.clearRect(0, 0, w, h);
+                particles.forEach(p => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+
+                    if (p.x < 0) p.x = w;
+                    if (p.x > w) p.x = 0;
+                    if (p.y < 0) p.y = h;
+                    if (p.y > h) p.y = 0;
+
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color + p.alpha + ')';
+                    ctx.fill();
+                });
+                requestAnimationFrame(animate);
+            }
+            animate();
+
+            window.addEventListener('resize', () => {
+                w = canvas.width = window.innerWidth;
+                h = canvas.height = window.innerHeight;
+            });
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+        window.addEventListener('load', initParticles);
+    </script>
 </body>
 </html>

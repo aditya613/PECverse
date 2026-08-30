@@ -4,145 +4,82 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Privacy Policy | PECverse</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #050505;
-            --text-primary: #FFFFFF;
-            --text-secondary: #94A3B8;
-            --accent: #60A5FA;
-            --border: rgba(255,255,255,0.1);
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-secondary);
-            line-height: 1.7;
-            padding: 40px 24px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .header {
-            margin-bottom: 40px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 24px;
-        }
-        h1 {
-            color: var(--text-primary);
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
-        }
-        h2 {
-            color: var(--text-primary);
-            font-size: 22px;
-            font-weight: 600;
-            margin-top: 48px;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        h3 {
-            color: var(--text-primary);
-            font-size: 18px;
-            margin-top: 32px;
-            margin-bottom: 12px;
-        }
-        p { margin-bottom: 16px; }
-        ul { margin-bottom: 24px; padding-left: 24px; }
-        li { margin-bottom: 8px; }
-        a { color: var(--accent); text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 32px;
-            text-decoration: none;
-            transition: opacity 0.2s;
-        }
-        .back-btn:hover { opacity: 0.8; text-decoration: none; }
-        .footer {
-            margin-top: 60px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border);
-            font-size: 14px;
-            text-align: center;
-        }
-    </style>
+    <link rel="icon" type="image/png" href="./assets/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-300 font-sans antialiased min-h-screen selection:bg-cyan-500 selection:text-black">
 
-    <a href="./index.html" class="back-btn">← Back to Home</a>
+    <!-- Top Navigation -->
+    <nav class="border-b border-white/10 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="./index.html" class="flex items-center gap-3">
+                <img src="./assets/logo.png" alt="PECverse Logo" class="w-8 h-8 rounded-xl object-cover" />
+                <span class="font-bold text-lg text-white font-['Outfit']">PEC<span class="text-cyan-400">verse</span></span>
+            </a>
+            <a href="./index.html" class="text-sm font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 transition-colors">
+                ← Back to Home
+            </a>
+        </div>
+    </nav>
 
-    <div class="header">
-        <h1>Comprehensive Privacy Policy</h1>
-        <p style="color: var(--text-primary); font-weight: 500;">Last updated: August 15, 2026</p>
-    </div>
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-6 py-16">
+        
+        <div class="mb-12 border-b border-white/10 pb-8">
+            <div class="inline-block px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-semibold uppercase tracking-wider mb-4">
+                DPDP & Play Store Compliant
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tight font-['Outfit'] mb-3">
+                Privacy Policy
+            </h1>
+            <p class="text-sm text-slate-400">Last updated: August 29, 2026</p>
+        </div>
 
-    <p>This privacy policy applies to the <strong>PECverse</strong> app for mobile devices, together with any related services operated by Aditya Gupta (collectively, the "Application"). Aditya Gupta is hereby referred to as the "Service Provider".</p>
+        <div class="space-y-10 text-base leading-relaxed text-slate-300">
+            <p>
+                This privacy policy applies to the <strong class="text-white">PECverse</strong> mobile application and website operated for students of Punjab Engineering College. We take privacy seriously and adhere strictly to India's Digital Personal Data Protection (DPDP) Act, 2023 and Google Play Store Developer Privacy Guidelines.
+            </p>
 
-    <h2>1. Information Collection and Use</h2>
-    <p>The Application collects information when you download and use it to provide a seamless, pseudo-anonymous orientation experience for Punjab Engineering College students. This information may include:</p>
-    <ul>
-        <li><strong>Device Identifiers:</strong> A unique, randomly generated Device ID (UUID) used to authenticate your session locally without requiring passwords or emails.</li>
-        <li><strong>Profile Data:</strong> Your display name and academic branch, provided voluntarily during registration.</li>
-        <li><strong>User-Generated Content (UGC):</strong> Posts, comments, likes, and reports submitted to the "Lounge" social feed.</li>
-        <li><strong>Usage Data:</strong> Your device's Internet Protocol (IP) address, mobile operating system, pages visited, time and date of visits, and time spent on the Application.</li>
-    </ul>
+            <section class="bg-slate-900/50 p-6 sm:p-8 rounded-2xl border border-white/10 space-y-4">
+                <h2 class="text-2xl font-bold text-white font-['Outfit']">1. Information We Collect</h2>
+                <ul class="list-disc pl-6 space-y-2 text-slate-300">
+                    <li><strong class="text-white">Academic Details:</strong> Academic branch, group/section, and year to automatically fetch relevant timetables.</li>
+                    <li><strong class="text-white">Attendance Tracking:</strong> Personal attendance logs and targets are stored securely and never made public.</li>
+                    <li><strong class="text-white">Push Tokens:</strong> Device push notification tokens used strictly to deliver class alerts, timetable shift notices, and mess updates.</li>
+                    <li><strong class="text-white">Campus Lounge UGC:</strong> Optional posts and comments. Users can post under Ghost Mode (zero personal identity attached).</li>
+                </ul>
+            </section>
 
-    <h2>2. Cookies and Tracking Technologies</h2>
-    <p>The Application or its third-party SDKs may use cookies, SDKs, pixels, and similar technologies to support functionality, analytics, or service delivery. Where required by applicable law, the Service Provider will obtain consent before using non-essential tracking technologies.</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-bold text-white font-['Outfit']">2. Zero Sale of Personal Data</h2>
+                <p>
+                    We do <strong>not</strong> sell, rent, monetize, or trade any student data with third-party advertisers, data brokers, or commercial entities. All data is used solely to provide academic schedule services, attendance tracking, and campus communication.
+                </p>
+            </section>
 
-    <h2>3. User-Generated Content and Moderation</h2>
-    <p>The Application allows users to post content anonymously or publicly. To ensure compliance with Google Play Store Developer Policies, the Service Provider collects data regarding reported posts and blocked users (mapping the blocker's Device ID to the blocked user's Device ID) to enforce community safety guidelines.</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-bold text-white font-['Outfit']">3. Analytics & Telemetry (PostHog)</h2>
+                <p>
+                    To ensure 99.9% app stability and fix crashes, we utilize a privacy-first telemetry pipeline via PostHog. All user input fields and passwords are automatically masked, and tracking respects user opt-out preferences.
+                </p>
+            </section>
 
-    <h2>4. Third Party Access</h2>
-    <p>Only aggregated, anonymized data is periodically transmitted to external services to aid the Service Provider in improving the Application and their service. The Service Provider may share your information with third parties in the ways that are described in this privacy statement.</p>
-    <p>Please note that the Application utilizes third-party services that have their own Privacy Policy about handling data:</p>
-    <ul>
-        <li><a href="https://firebase.google.com/support/privacy" target="_blank">Google Analytics for Firebase</a></li>
-        <li><a href="https://expo.io/privacy" target="_blank">Expo</a></li>
-    </ul>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-bold text-white font-['Outfit']">4. User Rights & Data Deletion</h2>
+                <p>
+                    Students have the right to delete their account, posts, and associated data at any time directly through the in-app profile settings or by contacting the developer at <a href="mailto:adityagupta@theaspirants.co.in" class="text-cyan-400 underline">adityagupta@theaspirants.co.in</a>.
+                </p>
+            </section>
+        </div>
 
-    <h2>5. Legal Disclosures</h2>
-    <p>The Service Provider may disclose User Provided and Automatically Collected Information:</p>
-    <ul>
-        <li>As required by law, such as to comply with a subpoena, or similar legal process;</li>
-        <li>When they believe in good faith that disclosure is necessary to protect their rights, protect your safety or the safety of others, investigate fraud, or respond to a government request;</li>
-        <li>With their trusted services providers who work on their behalf and have agreed to adhere to the rules set forth in this privacy statement.</li>
-    </ul>
+    </main>
 
-    <h2>6. Your Rights (Including CCPA/CPRA)</h2>
-    <p>You may request access to, correction of, or deletion of your personal data held by the Service Provider. If you are a California resident, you have the right to know what personal information is collected, the right to delete personal information, the right to opt out of the sale or sharing of personal information, and the right to non-discrimination.</p>
-    <p>To exercise these rights, or to withdraw consent, contact the Service Provider at: <strong>adgupta006@gmail.com</strong>.</p>
-
-    <h2>7. Data Retention Policy</h2>
-    <p>The Service Provider retains personal data based on its necessity for the stated purposes:</p>
-    <ul>
-        <li><strong>User Provided Data:</strong> Retained for the duration of your use of the Application plus 12 months thereafter, unless longer retention is required by law.</li>
-        <li><strong>Automatically Collected Data:</strong> Retained for up to 24 months from collection.</li>
-        <li><strong>Aggregated and Anonymized Data:</strong> Retained indefinitely as it no longer identifies you.</li>
-    </ul>
-    <p>Because accounts are tied to a local Device ID, uninstalling the Application severs access to the account. To request manual server-side deletion of your User Provided Data (including posts and comments), please contact the Service Provider.</p>
-
-    <h2>8. Children's Privacy</h2>
-    <p>The Application is designed for college students and is not intended for children under 16 years of age. The Service Provider does not knowingly collect personally identifiable information from children under 16. If the Service Provider discovers that a child under 16 has provided personal information, it will be immediately deleted from the servers.</p>
-
-    <h2>9. Security</h2>
-    <p>The Service Provider provides physical, electronic, and procedural safeguards to protect information processed and maintained. All API communications between the Application and the backend servers are encrypted via standard SSL/TLS protocols.</p>
-
-    <h2>10. Changes to This Privacy Policy</h2>
-    <p>The Service Provider may update this Privacy Policy from time to time. You are advised to review this Privacy Policy periodically for any changes. Changes are effective when they are posted on this page.</p>
-
-    <h2>11. Contact Us</h2>
-    <p>If you have any questions regarding privacy while using the Application, or have questions about the practices, please contact the Service Provider via email at <strong>adgupta006@gmail.com</strong>.</p>
-
-    <div class="footer">
-        <p>&copy; 2026 PECverse. All rights reserved.</p>
-    </div>
+    <footer class="border-t border-white/10 py-10 px-6 text-center text-xs text-slate-500 bg-slate-950">
+        &copy; 2026 PECverse. All rights reserved. Punjab Engineering College.
+    </footer>
 
 </body>
 </html>

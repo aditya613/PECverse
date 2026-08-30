@@ -4,133 +4,79 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Terms of Service | PECverse</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg: #050505;
-            --text-primary: #FFFFFF;
-            --text-secondary: #94A3B8;
-            --accent: #60A5FA;
-            --border: rgba(255,255,255,0.1);
-            --danger: #EF4444;
-            --danger-bg: rgba(239, 68, 68, 0.1);
-        }
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg);
-            color: var(--text-secondary);
-            line-height: 1.7;
-            padding: 40px 24px;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .header {
-            margin-bottom: 40px;
-            border-bottom: 1px solid var(--border);
-            padding-bottom: 24px;
-        }
-        h1 {
-            color: var(--text-primary);
-            font-size: 36px;
-            font-weight: 800;
-            margin-bottom: 8px;
-            letter-spacing: -1px;
-        }
-        h2 {
-            color: var(--text-primary);
-            font-size: 22px;
-            font-weight: 600;
-            margin-top: 48px;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-        }
-        p { margin-bottom: 16px; }
-        ul { margin-bottom: 24px; padding-left: 24px; }
-        li { margin-bottom: 8px; }
-        a { color: var(--accent); text-decoration: none; }
-        a:hover { text-decoration: underline; }
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            color: var(--accent);
-            font-weight: 600;
-            margin-bottom: 32px;
-            text-decoration: none;
-            transition: opacity 0.2s;
-        }
-        .back-btn:hover { opacity: 0.8; text-decoration: none; }
-        .alert-box {
-            background-color: var(--danger-bg);
-            border-left: 4px solid var(--danger);
-            padding: 24px;
-            margin: 32px 0;
-            border-radius: 0 12px 12px 0;
-        }
-        .alert-box strong {
-            color: var(--danger);
-            display: block;
-            font-size: 18px;
-            margin-bottom: 8px;
-        }
-        .alert-box p { margin-bottom: 0; color: #FCA5A5; }
-        .footer {
-            margin-top: 60px;
-            padding-top: 24px;
-            border-top: 1px solid var(--border);
-            font-size: 14px;
-            text-align: center;
-        }
-    </style>
+    <link rel="icon" type="image/png" href="./assets/logo.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&family=Outfit:wght@600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
+<body class="bg-slate-950 text-slate-300 font-sans antialiased min-h-screen selection:bg-cyan-500 selection:text-black">
 
-    <a href="./index.html" class="back-btn">← Back to Home</a>
+    <!-- Top Navigation -->
+    <nav class="border-b border-white/10 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-6 py-4 flex items-center justify-between">
+            <a href="./index.html" class="flex items-center gap-3">
+                <img src="./assets/logo.png" alt="PECverse Logo" class="w-8 h-8 rounded-xl object-cover" />
+                <span class="font-bold text-lg text-white font-['Outfit']">PEC<span class="text-cyan-400">verse</span></span>
+            </a>
+            <a href="./index.html" class="text-sm font-semibold text-cyan-400 hover:text-cyan-300 flex items-center gap-1.5 transition-colors">
+                ← Back to Home
+            </a>
+        </div>
+    </nav>
 
-    <div class="header">
-        <h1>Terms of Service (End User License Agreement)</h1>
-        <p style="color: var(--text-primary); font-weight: 500;">Last updated: August 15, 2026</p>
-    </div>
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-6 py-16">
+        
+        <div class="mb-12 border-b border-white/10 pb-8">
+            <div class="inline-block px-3 py-1 rounded-full bg-cyan-950/60 border border-cyan-500/30 text-cyan-300 text-xs font-semibold uppercase tracking-wider mb-4">
+                End User License Agreement (EULA)
+            </div>
+            <h1 class="text-4xl sm:text-5xl font-black text-white tracking-tight font-['Outfit'] mb-3">
+                Terms of Service
+            </h1>
+            <p class="text-sm text-slate-400">Last updated: August 29, 2026</p>
+        </div>
 
-    <p>By downloading, accessing, or using the <strong>PECverse</strong> application ("Application"), you agree to be bound by these Terms of Service. If you do not agree to all the terms and conditions, you may not use the Application. The Application is operated by Aditya Gupta ("Service Provider").</p>
+        <div class="space-y-10 text-base leading-relaxed text-slate-300">
+            <p>
+                By downloading, accessing, or using the <strong class="text-white">PECverse</strong> application ("Application"), you agree to be bound by these Terms of Service. If you do not agree to all terms, please refrain from using the Application.
+            </p>
 
-    <h2>1. User-Generated Content (UGC) Policy</h2>
-    <p>PECverse includes a social networking component known as the "Lounge," which allows users to publish text, comments, and engage with other students pseudo-anonymously. The Service Provider enforces stringent community guidelines to comply with App Store and Google Play Developer Policies.</p>
+            <section class="bg-rose-950/30 border border-rose-500/30 p-6 sm:p-8 rounded-2xl space-y-3">
+                <h2 class="text-xl font-bold text-rose-300 font-['Outfit']">Zero-Tolerance Policy on Objectionable Content</h2>
+                <p class="text-sm text-rose-200">
+                    PECverse explicitly prohibits harassment, bullying, hate speech, threats, and illegal content. Any account violating these standards will face immediate permanent suspension and device ban.
+                </p>
+            </section>
 
-    <div class="alert-box">
-        <strong>Zero Tolerance for Abusive Content</strong>
-        <p>There is strictly no tolerance for objectionable content or abusive users. You are expressly prohibited from posting, transmitting, or sharing content that is unlawful, harmful, threatening, abusive, harassing, defamatory, vulgar, obscene, sexually explicit, hateful, or racially/ethnically objectionable. Violation of this rule will result in immediate, permanent termination of your access to the Application without prior notice.</p>
-    </div>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-bold text-white font-['Outfit']">1. Permitted Campus Usage</h2>
+                <p>
+                    PECverse is provided for academic schedule management, 75% attendance calculations, mess menu visibility, and student resource sharing at Punjab Engineering College.
+                </p>
+            </section>
 
-    <h2>2. Trust & Safety Moderation Features</h2>
-    <p>To ensure a safe environment for all users, the Application provides native moderation tools:</p>
-    <ul>
-        <li><strong>Content Reporting:</strong> Users can flag objectionable posts and comments by tapping the "More Options" (ellipsis) icon on any post and selecting "Report." Reports are actively monitored and acted upon by the Service Provider within 24 hours.</li>
-        <li><strong>User Blocking:</strong> Users have the ability to immediately block abusive users. By tapping "Block User," all past and future content from the offending user will be instantly hidden from the blocker's feed.</li>
-        <li><strong>Administrative Moderation:</strong> The Service Provider reserves the right to review, edit, or permanently delete any User-Generated Content at any time, for any reason, without notice.</li>
-    </ul>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-bold text-white font-['Outfit']">2. Moderation & In-App Blocking</h2>
+                <p>
+                    Users have built-in capabilities to report any post or comment and block abusive users with instant local hiding. Reported content is reviewed promptly by the moderation team.
+                </p>
+            </section>
 
-    <h2>3. User Account and Device ID</h2>
-    <p>Instead of traditional accounts, PECverse identifies users via a locally generated UUID ("Device ID"). You are responsible for all activities that occur under your Device ID. If you uninstall the application or clear its data, access to your pseudo-anonymous persona may be permanently lost.</p>
+            <section class="space-y-4">
+                <h2 class="text-2xl font-bold text-white font-['Outfit']">3. Limitation of Liability</h2>
+                <p>
+                    Timetable entries, attendance records, and mess schedules are provided in good faith based on college notices. Official college administration circulars remain the primary authority.
+                </p>
+            </section>
+        </div>
 
-    <h2>4. Intellectual Property Rights</h2>
-    <p>The Service Provider owns all intellectual property rights in the Application, including but not limited to its source code, design, logos, and UI elements. You are granted a limited, non-exclusive, non-transferable license to use the Application for personal, non-commercial purposes.</p>
+    </main>
 
-    <h2>5. Limitation of Liability</h2>
-    <p>To the maximum extent permitted by applicable law, the Service Provider shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses, resulting from (a) your access to or use of or inability to access or use the Application; (b) any conduct or content of any third party on the Application, including without limitation, any defamatory, offensive, or illegal conduct of other users.</p>
-
-    <h2>6. Governing Law</h2>
-    <p>These Terms shall be governed and construed in accordance with the laws of India, without regard to its conflict of law provisions.</p>
-
-    <h2>7. Changes to Terms</h2>
-    <p>The Service Provider reserves the right, at their sole discretion, to modify or replace these Terms at any time. By continuing to access or use the Application after those revisions become effective, you agree to be bound by the revised terms.</p>
-
-    <h2>8. Contact Information</h2>
-    <p>If you have any questions about these Terms, please contact us at: <strong>adgupta006@gmail.com</strong>.</p>
-
-    <div class="footer">
-        <p>&copy; 2026 PECverse. All rights reserved.</p>
-    </div>
+    <footer class="border-t border-white/10 py-10 px-6 text-center text-xs text-slate-500 bg-slate-950">
+        &copy; 2026 PECverse. All rights reserved. Punjab Engineering College.
+    </footer>
 
 </body>
 </html>
