@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TextInput, Pressable, Image, ScrollView, Platform, ActivityIndicator, KeyboardAvoidingView } from 'react-native';
+import { View, Text, StyleSheet, TextInput, Pressable, Image, ScrollView, Platform, ActivityIndicator, KeyboardAvoidingView, Alert, ActionSheetIOS } from 'react-native';
 import { Stack, useRouter } from 'expo-router';
 import { useTheme } from '@/theme/colors';
 import { Ionicons } from '@expo/vector-icons';
@@ -25,18 +25,18 @@ export default function PostLostFoundScreen() {
     mutationFn: async () => {
       const formData = new FormData();
       formData.append('type', type);
-      formData.append('title', title);
-      formData.append('description', description);
-      if (location) formData.append('location', location);
+      formData.append('title', title.trim());
+      formData.append('description', description.trim());
+      if (location.trim()) formData.append('location', location.trim());
       formData.append('date_lost_or_found', date.toISOString().split('T')[0]);
 
       if (imageUri) {
-        const filename = imageUri.split('/').pop() || 'image.jpg';
+        const filename = imageUri.split('/').pop() || 'item.jpg';
         const match = /\.(\w+)$/.exec(filename);
-        const typeMatch = match ? `image/${match[1]}` : `image`;
+        const typeMatch = match ? `image/${match[1]}` : `image/jpeg`;
         
         formData.append('image', {
-          uri: Platform.OS === 'ios' ? imageUri.replace('file://', '') : imageUri,
+          uri: imageUri,
           name: filename,
           type: typeMatch,
         } as any);
@@ -48,24 +48,90 @@ export default function PostLostFoundScreen() {
       queryClient.invalidateQueries({ queryKey: ['lostAndFound'] });
       router.back();
     },
+    onError: (err: any) => {
+      alert(err.response?.data?.message || 'Failed to post item. Please check your connection.');
+    }
   });
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [4, 3],
-      quality: 0.8,
-    });
+  const takePhoto = async () => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Camera Permission', 'Camera access was not granted. You can still post without a photo!');
+        return;
+      }
+      const result = await ImagePicker.launchCameraAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets && result.assets[0]) {
+        setImageUri(result.assets[0].uri);
+      }
+    } catch (e: any) {
+      console.log('Camera error:', e);
+      Alert.alert('Camera', 'Unable to open camera. You can choose from gallery or continue without a photo.');
+    }
+  };
 
-    if (!result.canceled) {
-      setImageUri(result.assets[0].uri);
+  const pickFromGallery = async () => {
+    try {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Photo Access', 'Photo library access was not granted. You can still post without a photo!');
+        return;
+      }
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ['images'],
+        allowsEditing: true,
+        aspect: [4, 3],
+        quality: 0.8,
+      });
+      if (!result.canceled && result.assets && result.assets[0]) {
+        setImageUri(result.assets[0].uri);
+      }
+    } catch (e: any) {
+      console.log('Gallery error:', e);
+      Alert.alert('Photo Library', 'Unable to open photos. You can still post your item without a photo.');
+    }
+  };
+
+  const handleImageOptions = () => {
+    if (Platform.OS === 'ios') {
+      const options = ['Cancel', '📷 Take Photo', '🖼️ Choose from Library'];
+      if (imageUri) options.push('🗑️ Remove Photo');
+
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          options,
+          cancelButtonIndex: 0,
+          destructiveButtonIndex: imageUri ? 3 : undefined,
+          tintColor: colors.accent,
+        },
+        (buttonIndex) => {
+          if (buttonIndex === 1) takePhoto();
+          if (buttonIndex === 2) pickFromGallery();
+          if (buttonIndex === 3 && imageUri) setImageUri(null);
+        }
+      );
+    } else {
+      const buttons: any[] = [
+        { text: '📷 Take Photo', onPress: takePhoto },
+        { text: '🖼️ Choose from Gallery', onPress: pickFromGallery },
+      ];
+      if (imageUri) {
+        buttons.push({ text: '🗑️ Remove Photo', onPress: () => setImageUri(null), style: 'destructive' });
+      }
+      buttons.push({ text: 'Cancel', style: 'cancel' });
+
+      Alert.alert('Attach Photo (Optional)', 'Select photo source:', buttons);
     }
   };
 
   const handlePost = () => {
     if (!title.trim() || !description.trim()) {
-      alert('Please fill all required fields');
+      Alert.alert('Required Fields', 'Please enter a title and description.');
       return;
     }
     mutation.mutate();
@@ -118,7 +184,7 @@ export default function PostLostFoundScreen() {
 
           <Pressable 
             style={[styles.imagePicker, { backgroundColor: colors.secondarySystemBackground, borderColor: colors.cardBorder }]} 
-            onPress={pickImage}
+            onPress={handleImageOptions}
           >
             {imageUri ? (
               <Image source={{ uri: imageUri }} style={styles.previewImage} />
@@ -173,15 +239,28 @@ export default function PostLostFoundScreen() {
           </View>
 
           {showDatePicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                setShowDatePicker(Platform.OS === 'ios');
-                if (selectedDate) setDate(selectedDate);
-              }}
-            />
+            <View style={Platform.OS === 'ios' ? { backgroundColor: colors.cardBackground, borderRadius: 12, padding: 8, marginTop: 8 } : undefined}>
+              <DateTimePicker
+                value={date}
+                mode="date"
+                display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+                maximumDate={new Date()}
+                onChange={(event, selectedDate) => {
+                  if (Platform.OS === 'android') {
+                    setShowDatePicker(false);
+                  }
+                  if (selectedDate) setDate(selectedDate);
+                }}
+              />
+              {Platform.OS === 'ios' && (
+                <Pressable 
+                  style={{ alignSelf: 'flex-end', padding: 8 }}
+                  onPress={() => setShowDatePicker(false)}
+                >
+                  <Text style={{ color: colors.accent, fontWeight: '700' }}>Done</Text>
+                </Pressable>
+              )}
+            </View>
           )}
         </ScrollView>
       </KeyboardAvoidingView>

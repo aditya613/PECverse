@@ -195,7 +195,7 @@ export function useTimetable(targetDate: string) {
       let foundActive = false;
       for (let i = 0; i < merged.length; i++) {
         const cls = merged[i];
-        if (!cls.start_time || !cls.end_time) continue;
+        if (cls.status === 'cancelled' || !cls.start_time || !cls.end_time) continue;
         
         const [startH, startM] = (cls.start_time || '0:0').split(':').map(Number);
         const [endH, endM] = (cls.end_time || '0:0').split(':').map(Number);

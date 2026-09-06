@@ -50,30 +50,38 @@ export default function LoginScreen() {
     setIsLoggingIn(true);
     try {
       await GoogleSignin.hasPlayServices();
-      await GoogleSignin.signIn();
+      const signInResult = await GoogleSignin.signIn();
+      const tokens = await GoogleSignin.getTokens().catch(() => ({}));
 
-      // Socialite in Laravel needs the Access Token, NOT the ID Token
-      const tokens = await GoogleSignin.getTokens();
+      const idToken = tokens?.idToken || signInResult?.data?.idToken || (signInResult as any)?.idToken;
+      const accessToken = tokens?.accessToken || (signInResult as any)?.accessToken;
+      const authToken = idToken || accessToken;
 
-      if (tokens.accessToken) {
-        await handleBackendAuth(tokens.accessToken);
+      if (authToken) {
+        await handleBackendAuth(authToken, idToken, accessToken);
+      } else {
+        throw new Error('No authentication token received from Google.');
       }
     } catch (error: any) {
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         console.log('User cancelled login');
       } else {
         console.error('Google Sign-in Error:', error);
-        alert('Google Sign-in failed. Please check logs.');
+        alert(error?.message || 'Google Sign-in failed. Please try again.');
       }
     } finally {
       setIsLoggingIn(false);
     }
   };
 
-  const handleBackendAuth = async (googleAccessToken: string) => {
+  const handleBackendAuth = async (authToken: string, idToken?: string, accessToken?: string) => {
     try {
-      // Send the Google token to our Laravel Backend
-      const res = await api.post('/auth/google', { token: googleAccessToken });
+      // Send the Google tokens to our Laravel Backend
+      const res = await api.post('/auth/google', { 
+        token: authToken,
+        id_token: idToken,
+        access_token: accessToken,
+      });
 
       const { token, user } = res.data;
 

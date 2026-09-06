@@ -30,16 +30,16 @@ export default function LostAndFoundFeed() {
           <View style={styles.authorInfo}>
             <View style={[styles.avatar, { backgroundColor: colors.accent + '20' }]}>
               <Text style={[styles.avatarText, { color: colors.accent }]}>
-                {item.user.name.charAt(0).toUpperCase()}
+                {item.user?.name ? item.user.name.charAt(0).toUpperCase() : '?'}
               </Text>
             </View>
             <View>
-              <Text style={[styles.authorName, { color: colors.label }]}>{item.user.name}</Text>
-              <Text style={[styles.authorBranch, { color: colors.secondaryLabel }]}>{item.user.branch}</Text>
+              <Text style={[styles.authorName, { color: colors.label }]}>{item.user?.name || 'Student'}</Text>
+              <Text style={[styles.authorBranch, { color: colors.secondaryLabel }]}>{item.user?.branch || 'PEC'}</Text>
             </View>
           </View>
           <Text style={[styles.dateText, { color: colors.tertiaryLabel }]}>
-            {new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
+            {item.created_at ? new Date(item.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric' }) : ''}
           </Text>
         </View>
 

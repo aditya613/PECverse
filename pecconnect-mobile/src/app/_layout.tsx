@@ -207,6 +207,41 @@ function RootLayoutNav() {
           }} 
         />
         <Stack.Screen 
+          name="lost-found/index" 
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right'
+          }} 
+        />
+        <Stack.Screen 
+          name="lost-found/[id]" 
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right'
+          }} 
+        />
+        <Stack.Screen 
+          name="post-lost-found" 
+          options={{
+            presentation: 'modal',
+            animation: 'slide_from_bottom'
+          }} 
+        />
+        <Stack.Screen 
+          name="attendance" 
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right'
+          }} 
+        />
+        <Stack.Screen 
+          name="mess" 
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right'
+          }} 
+        />
+        <Stack.Screen 
           name="force-update" 
           options={{
             presentation: 'fullScreenModal',

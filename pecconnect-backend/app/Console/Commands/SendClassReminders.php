@@ -30,7 +30,8 @@ class SendClassReminders extends Command
      */
     public function handle()
     {
-        $now = Carbon::now();
+        $timezone = config('app.timezone', 'Asia/Kolkata');
+        $now = Carbon::now($timezone);
         $targetTime = $now->copy()->addMinutes(15);
         
         // Match exact HH:MM in DB (whether stored as HH:mm:00 or HH:mm)
@@ -43,7 +44,7 @@ class SendClassReminders extends Command
         // Carbon dayOfWeekIso returns exactly 1 (Monday) to 7 (Sunday).
         $dayOfWeek = $now->dayOfWeekIso;
 
-        $this->info("[$now] Checking reminders for classes starting around {$targetTimeShort} (Day: {$dayOfWeek}, Date: {$todayStr})");
+        $this->info("[$now ($timezone)] Checking reminders for classes starting around {$targetTimeShort} (Day: {$dayOfWeek}, Date: {$todayStr})");
 
         // 1. Find all candidate classes starting in 15 minutes today:
         // A class is due if:
@@ -74,20 +75,49 @@ class SendClassReminders extends Command
         $processedClassesCount = 0;
 
         foreach ($candidateClasses as $class) {
-            // If the row itself is marked cancelled, ignore it
+            // (a) If the row itself is marked cancelled, ignore it
             if ($class->type === 'cancelled') {
                 continue;
             }
 
-            // 2. EXCEPTION CHECK: For weekly classes, check if an admin/CR cancelled it for today
+            // (b) HOLIDAY CHECK: If today is declared a full-day holiday for this class, skip it
+            $isHolidayToday = \App\Models\Holiday::where('class_id', $class->class_id)
+                ->where('date', $todayStr)
+                ->exists();
+
+            if ($isHolidayToday) {
+                $this->info("Skipping class ID {$class->id} ({$class->subject}) as today is a declared holiday for class {$class->class_id}.");
+                continue;
+            }
+
+            // (c) EXCEPTION CHECK: For weekly classes, check if an admin/CR cancelled or rescheduled it for today
             if ($class->type === 'weekly') {
-                $isCancelledToday = Timetable::where('original_timetable_id', $class->id)
+                $override = Timetable::where('original_timetable_id', $class->id)
+                    ->where('date', $todayStr)
+                    ->whereIn('type', ['cancelled', 'rescheduled'])
+                    ->first();
+
+                if ($override) {
+                    if ($override->type === 'cancelled') {
+                        $this->info("Skipping weekly class ID {$class->id} ({$class->subject}) as it is cancelled for today ({$todayStr}).");
+                        continue;
+                    }
+                    if ($override->type === 'rescheduled') {
+                        $this->info("Skipping original weekly class ID {$class->id} ({$class->subject}) as it was rescheduled to another time slot ({$override->start_time}).");
+                        continue;
+                    }
+                }
+            }
+
+            // (d) For single/extra classes, check if it was cancelled via an override record
+            if ($class->type === 'single') {
+                $isSingleCancelled = Timetable::where('original_timetable_id', $class->id)
                     ->where('date', $todayStr)
                     ->where('type', 'cancelled')
                     ->exists();
 
-                if ($isCancelledToday) {
-                    $this->info("Skipping weekly class ID {$class->id} ({$class->subject}) as it is cancelled for today.");
+                if ($isSingleCancelled) {
+                    $this->info("Skipping single class ID {$class->id} ({$class->subject}) as it is cancelled.");
                     continue;
                 }
             }

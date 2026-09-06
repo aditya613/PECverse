@@ -1,5 +1,5 @@
 import { Tabs, useRouter } from 'expo-router';
-import { StyleSheet, View, Platform, Pressable } from 'react-native';
+import { StyleSheet, View, Platform, Pressable, ActionSheetIOS, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/theme/colors';
 import { BlurView } from 'expo-blur';
@@ -16,6 +16,62 @@ export default function TabLayout() {
   const isAuthorized = user?.role === 'cr' || user?.role === 'superadmin';
   const bottomInset = Math.max(insets.bottom, Platform.OS === 'android' ? 10 : 12);
   const tabHeight = 58 + bottomInset;
+
+  const handlePlusPress = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+
+    if (Platform.OS === 'ios') {
+      if (isAuthorized) {
+        ActionSheetIOS.showActionSheetWithOptions(
+          {
+            options: ['Cancel', '📢 Post Class Announcement', '🔍 Report Lost & Found Item', '🌴 Declare Holiday / Timetable'],
+            cancelButtonIndex: 0,
+            tintColor: colors.accent,
+          },
+          (buttonIndex) => {
+            if (buttonIndex === 1) router.push('/post-announcement' as any);
+            if (buttonIndex === 2) router.push('/post-lost-found' as any);
+            if (buttonIndex === 3) router.push('/manage-timetable' as any);
+          }
+        );
+      } else {
+        ActionSheetIOS.showActionSheetWithOptions(
+          {
+            options: ['Cancel', '🔍 Report Lost & Found Item', '📝 Send App Feedback & Suggestions'],
+            cancelButtonIndex: 0,
+            tintColor: colors.accent,
+          },
+          (buttonIndex) => {
+            if (buttonIndex === 1) router.push('/post-lost-found' as any);
+            if (buttonIndex === 2) router.push('/feedback' as any);
+          }
+        );
+      }
+    } else {
+      if (isAuthorized) {
+        Alert.alert(
+          'Quick Action',
+          'Choose an action to perform:',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: '📢 Post Class Announcement', onPress: () => router.push('/post-announcement' as any) },
+            { text: '🔍 Report Lost & Found Item', onPress: () => router.push('/post-lost-found' as any) },
+            { text: '🌴 Declare Holiday / Timetable', onPress: () => router.push('/manage-timetable' as any) },
+          ]
+        );
+      } else {
+        Alert.alert(
+          'Quick Action',
+          'Choose an action to perform:',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: '🔍 Report Lost & Found Item', onPress: () => router.push('/post-lost-found' as any) },
+            { text: '📝 Send App Feedback', onPress: () => router.push('/feedback' as any) },
+          ]
+        );
+      }
+    }
+  };
 
   return (
     <Tabs
@@ -92,23 +148,16 @@ export default function TabLayout() {
         name="post"
         options={{
           title: '',
-          ...(isAuthorized ? {
-            tabBarButton: () => (
-              <Pressable
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                  router.push('/post-announcement');
-                }}
-                style={styles.customTabButton}
-              >
-                <View style={[styles.customTabIconContainer, { backgroundColor: colors.accent, borderColor: colors.systemBackground }]}>
-                  <Ionicons name="add" size={28} color="#FFFFFF" />
-                </View>
-              </Pressable>
-            )
-          } : {
-            href: null
-          }),
+          tabBarButton: () => (
+            <Pressable
+              onPress={handlePlusPress}
+              style={styles.customTabButton}
+            >
+              <View style={[styles.customTabIconContainer, { backgroundColor: colors.accent, borderColor: colors.systemBackground }]}>
+                <Ionicons name="add" size={28} color="#FFFFFF" />
+              </View>
+            </Pressable>
+          ),
         }}
       />
 

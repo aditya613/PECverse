@@ -193,7 +193,7 @@ export default function DashboardScreen() {
           ) : (
             <View style={styles.timelineList}>
               {(() => {
-                const activeOrNext = (todayClasses || []).filter(c => c.isActive || c.isNext);
+                const activeOrNext = (todayClasses || []).filter(c => (c.isActive || c.isNext) && c.status !== 'cancelled');
                 if (activeOrNext.length === 0) {
                   return (
                     <View style={styles.emptyBox}>

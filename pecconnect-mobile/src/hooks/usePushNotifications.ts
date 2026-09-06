@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Platform, AppState, AppStateStatus } from 'react-native';
+import { Platform, AppState, AppStateStatus, Linking } from 'react-native';
 import * as Device from 'expo-device';
 import Constants from 'expo-constants';
+import { router } from 'expo-router';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { api } from '@/utils/api';
 import { useNotificationModalStore } from '@/stores/useNotificationModalStore';
@@ -152,11 +153,47 @@ export async function checkAndPromptPushPermissions(forceShow = false): Promise<
   return false;
 }
 
+/**
+ * Safe global handler to open notification URLs (external links or in-app routes)
+ */
+export async function handleNotificationUrl(rawUrl: any) {
+  if (!rawUrl) return;
+  const targetUrl = String(rawUrl).trim();
+  if (!targetUrl) return;
+
+  console.log('[Notification Click] Handling URL:', targetUrl);
+
+  // External URLs (WhatsApp, HTTPS, Market, Mail, Phone)
+  if (
+    targetUrl.startsWith('http://') ||
+    targetUrl.startsWith('https://') ||
+    targetUrl.startsWith('whatsapp://') ||
+    targetUrl.startsWith('market://') ||
+    targetUrl.startsWith('itms-apps://') ||
+    targetUrl.startsWith('tel:') ||
+    targetUrl.startsWith('mailto:')
+  ) {
+    try {
+      await Linking.openURL(targetUrl);
+    } catch (err) {
+      console.log('Failed to open external link:', err);
+    }
+  } else {
+    // In-app internal routes (e.g. '/(tabs)/profile', '/mess', '/lost-found')
+    try {
+      router.push(targetUrl as any);
+    } catch (err) {
+      console.log('Failed to navigate to in-app route:', err);
+    }
+  }
+}
+
 export function usePushNotifications() {
   const [expoPushToken, setExpoPushToken] = useState<string | null>(null);
   const [notification, setNotification] = useState<any | null>(null);
   const notificationListener = useRef<any | null>(null);
   const responseListener = useRef<any | null>(null);
+  const hasHandledInitialResponse = useRef(false);
   
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
 
@@ -179,14 +216,38 @@ export function usePushNotifications() {
     checkAndSync();
 
     try {
+      // 1. Cold Start: Check if app was opened by tapping a notification while closed
+      if (!hasHandledInitialResponse.current) {
+        hasHandledInitialResponse.current = true;
+        Notifications.getLastNotificationResponseAsync()
+          .then((response: any) => {
+            if (response) {
+              const data = response?.notification?.request?.content?.data;
+              const url = data?.url || data?.link || data?.path;
+              if (url) {
+                // Wait for navigation stack & protected routes to settle
+                setTimeout(() => {
+                  handleNotificationUrl(url);
+                }, 1000);
+              }
+            }
+          })
+          .catch((err: any) => {
+            console.log('Error checking last notification response:', err);
+          });
+      }
+
+      // 2. Foreground notification listener
       notificationListener.current = Notifications.addNotificationReceivedListener((notif: any) => {
         setNotification(notif);
       });
 
+      // 3. Runtime notification click listener (background / active)
       responseListener.current = Notifications.addNotificationResponseReceivedListener((response: any) => {
-        const data = response.notification.request.content.data;
-        if (data?.url) {
-          // Deep linking logic
+        const data = response?.notification?.request?.content?.data;
+        const url = data?.url || data?.link || data?.path;
+        if (url) {
+          handleNotificationUrl(url);
         }
       });
     } catch (e) {

@@ -23,6 +23,7 @@ class DatabaseSeeder extends Seeder
             PecAero3rdSemSeeder::class,
             MessSeeder::class,
             AravaliMessSeeder::class,
+            VindhyaMessSeeder::class,
             PecClubsSeeder::class,
             PecSeniorAdviceSeeder::class,
         ]);

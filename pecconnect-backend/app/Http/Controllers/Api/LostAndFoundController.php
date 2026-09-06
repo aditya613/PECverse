@@ -23,7 +23,7 @@ class LostAndFoundController extends Controller
         
         $query = LostAndFoundItem::with(['user:id,name,branch,profile_photo'])
             ->withCount('comments', 'reports')
-            ->having('reports_count', '<', 3) // Hide automatically if reported >= 3 times
+            ->has('reports', '<', 3) // Hide automatically if reported >= 3 times
             ->where('status', $status);
 
         if ($type) {
@@ -76,6 +76,18 @@ class LostAndFoundController extends Controller
             'message' => ucfirst($request->type) . ' item reported successfully',
             'item' => $item->load('user:id,name,branch,profile_photo')
         ], 201);
+    }
+
+    /**
+     * Get a specific lost and found item
+     */
+    public function show(Request $request, $id): JsonResponse
+    {
+        $item = LostAndFoundItem::with(['user:id,name,branch,profile_photo'])
+            ->withCount('comments', 'reports')
+            ->findOrFail($id);
+
+        return response()->json(['item' => $item], 200);
     }
 
     /**

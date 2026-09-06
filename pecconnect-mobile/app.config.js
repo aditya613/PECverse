@@ -2,7 +2,7 @@ export default {
   "expo": {
     "name": "PECverse",
     "slug": "pecverse-mobile",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "orientation": "default",
     "icon": "./assets/images/icon.png",
     "scheme": "pecconnectmobile",
@@ -10,7 +10,10 @@ export default {
     "ios": {
       "bundleIdentifier": "in.edu.pec.connect",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSPhotoLibraryUsageDescription": "PECverse needs access to your photo library to attach photos of lost or found items on campus.",
+        "NSCameraUsageDescription": "PECverse needs access to your camera to take photos of lost or found items on campus.",
+        "NSPhotoLibraryAddUsageDescription": "PECverse needs permission to save images to your photo library."
       }
     },
     "android": {
@@ -51,6 +54,13 @@ export default {
       ],
       "expo-sharing",
       [
+        "expo-image-picker",
+        {
+          "photosPermission": "PECverse needs access to your photo library to attach photos of lost or found items.",
+          "cameraPermission": "PECverse needs access to your camera to take photos of lost or found items."
+        }
+      ],
+      [
         "expo-notifications",
         {
           "icon": "./assets/images/icon.png",
@@ -76,7 +86,7 @@ export default {
         "projectId": "999365ed-edd9-4525-9357-1edf51149ed7"
       }
     },
-    "runtimeVersion": "1.0.1",
+    "runtimeVersion": "1.0.2",
     "updates": {
       "url": "https://u.expo.dev/999365ed-edd9-4525-9357-1edf51149ed7"
     }

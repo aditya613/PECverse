@@ -16,9 +16,12 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'fresher.auth' => \App\Http\Middleware\FresherAuthMiddleware::class,
         ]);
+
+        // Pure mobile API backend: Prevent redirecting guests to missing 'login' web route
+        $middleware->redirectGuestsTo(fn () => null);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(
-            fn (Request $request) => $request->is('api/*'),
+            fn (Request $request) => true,
         );
     })->create();

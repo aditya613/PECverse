@@ -128,15 +128,15 @@ export default function LostAndFoundDetailScreen() {
           <View style={styles.authorRow}>
             <View style={[styles.avatar, { backgroundColor: colors.accent + '20' }]}>
               <Text style={[styles.avatarText, { color: colors.accent }]}>
-                {item.user.name.charAt(0).toUpperCase()}
+                {item.user?.name ? item.user.name.charAt(0).toUpperCase() : '?'}
               </Text>
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.authorName, { color: colors.label }]}>{item.user.name}</Text>
-              <Text style={[styles.authorBranch, { color: colors.secondaryLabel }]}>{item.user.branch}</Text>
+              <Text style={[styles.authorName, { color: colors.label }]}>{item.user?.name || 'Student'}</Text>
+              <Text style={[styles.authorBranch, { color: colors.secondaryLabel }]}>{item.user?.branch || 'PEC'}</Text>
             </View>
             <View style={[styles.typeBadge, { backgroundColor: item.type === 'lost' ? '#EF4444' : '#10B981' }]}>
-              <Text style={styles.typeBadgeText}>{item.type.toUpperCase()}</Text>
+              <Text style={styles.typeBadgeText}>{(item.type || 'LOST').toUpperCase()}</Text>
             </View>
           </View>
 
@@ -153,7 +153,7 @@ export default function LostAndFoundDetailScreen() {
           <View style={styles.detailRow}>
             <Ionicons name="calendar" size={16} color={colors.secondaryLabel} />
             <Text style={[styles.detailText, { color: colors.secondaryLabel }]}>
-              {new Date(item.date_lost_or_found).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' })}
+              {item.date_lost_or_found ? new Date(item.date_lost_or_found).toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' }) : ''}
             </Text>
           </View>
 
@@ -172,16 +172,16 @@ export default function LostAndFoundDetailScreen() {
               <View key={comment.id} style={styles.commentItem}>
                 <View style={[styles.commentAvatar, { backgroundColor: colors.secondarySystemBackground }]}>
                   <Text style={[styles.commentAvatarText, { color: colors.secondaryLabel }]}>
-                    {comment.user.name.charAt(0).toUpperCase()}
+                    {comment.user?.name ? comment.user.name.charAt(0).toUpperCase() : '?'}
                   </Text>
                 </View>
                 <View style={[styles.commentBubble, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
                   <View style={styles.commentHeader}>
                     <Text style={[styles.commentName, { color: colors.label }]}>
-                      {comment.user.name} {comment.user.id === item.user_id && <Text style={{ color: colors.accent }}>(Author)</Text>}
+                      {comment.user?.name || 'Student'} {comment.user?.id === item.user_id && <Text style={{ color: colors.accent }}>(Author)</Text>}
                     </Text>
                     <Text style={[styles.commentTime, { color: colors.tertiaryLabel }]}>
-                      {new Date(comment.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                      {comment.created_at ? new Date(comment.created_at).toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' }) : ''}
                     </Text>
                   </View>
                   <Text style={[styles.commentContent, { color: colors.label }]}>{comment.content}</Text>

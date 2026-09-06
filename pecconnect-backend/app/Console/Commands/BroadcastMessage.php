@@ -44,6 +44,8 @@ class BroadcastMessage extends Command
                     'body' => $body,
                     'data' => [
                         'url' => $url,
+                        'link' => $url,
+                        'path' => $url,
                     ],
                 ];
             }

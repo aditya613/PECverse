@@ -108,6 +108,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Lost and Found Routes
     Route::get('/lost-and-found', [LostAndFoundController::class, 'index']);
     Route::post('/lost-and-found', [LostAndFoundController::class, 'store']);
+    Route::get('/lost-and-found/{id}', [LostAndFoundController::class, 'show']);
     Route::put('/lost-and-found/{id}/resolve', [LostAndFoundController::class, 'resolve']);
     Route::delete('/lost-and-found/{id}', [LostAndFoundController::class, 'destroy']);
     Route::get('/lost-and-found/{id}/comments', [LostAndFoundController::class, 'getComments']);
