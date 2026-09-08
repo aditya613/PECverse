@@ -71,6 +71,19 @@ export default function ProfileScreen() {
     });
   };
 
+  const handleOpenGithub = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    const githubUrl = 'https://github.com/aditya613/PECverse';
+    try {
+      const WebBrowser = await import('expo-web-browser');
+      await WebBrowser.openBrowserAsync(githubUrl);
+    } catch (e) {
+      Linking.openURL(githubUrl).catch(() => {
+        Alert.alert('Error', 'Unable to open GitHub repository.');
+      });
+    }
+  };
+
   const handleLogout = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy);
     try {
@@ -210,6 +223,41 @@ export default function ProfileScreen() {
             </Pressable>
           </Animated.View>
         )}
+
+        {/* Open Source Contribution Spotlight */}
+        <View style={[styles.cardSection, { 
+          backgroundColor: isDark ? 'rgba(99, 102, 241, 0.12)' : 'rgba(99, 102, 241, 0.08)', 
+          borderColor: 'rgba(99, 102, 241, 0.35)',
+          borderWidth: 1.5,
+        }]}>
+          <Pressable 
+            style={styles.actionRow}
+            onPress={handleOpenGithub}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: '#6366F1' }]}>
+              <Ionicons name="logo-github" size={22} color="#FFFFFF" />
+            </View>
+            <View style={styles.actionContent}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={[styles.actionTitle, { color: colors.label, fontWeight: '700' }]}>
+                  Contribute to PECverse
+                </Text>
+                <View style={{
+                  backgroundColor: '#6366F1',
+                  paddingHorizontal: 6,
+                  paddingVertical: 2,
+                  borderRadius: 6,
+                }}>
+                  <Text style={{ color: '#FFFFFF', fontSize: 9, fontWeight: '800', letterSpacing: 0.5 }}>OPEN SOURCE</Text>
+                </View>
+              </View>
+              <Text style={[styles.actionSub, { color: colors.secondaryLabel, marginTop: 2 }]}>
+                Star our repo, build new features, or report bugs
+              </Text>
+            </View>
+            <Ionicons name="open-outline" size={18} color="#6366F1" />
+          </Pressable>
+        </View>
 
         {/* Resources & Preferences */}
         <View style={[styles.cardSection, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>

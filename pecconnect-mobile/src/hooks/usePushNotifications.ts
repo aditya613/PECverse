@@ -173,6 +173,16 @@ export async function handleNotificationUrl(rawUrl: any) {
     targetUrl.startsWith('tel:') ||
     targetUrl.startsWith('mailto:')
   ) {
+    if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+      try {
+        const WebBrowser = await import('expo-web-browser');
+        await WebBrowser.openBrowserAsync(targetUrl);
+        return;
+      } catch (e) {
+        console.log('WebBrowser open failed, falling back to Linking:', e);
+      }
+    }
+
     try {
       await Linking.openURL(targetUrl);
     } catch (err) {
@@ -196,6 +206,19 @@ export function usePushNotifications() {
   const hasHandledInitialResponse = useRef(false);
   
   const isAuthenticated = useAuthStore(state => state.isAuthenticated);
+
+  // Hook into Expo's native notification response emitter
+  const lastResponse = !isExpoGo && Notifications?.useLastNotificationResponse ? Notifications.useLastNotificationResponse() : null;
+
+  useEffect(() => {
+    if (lastResponse) {
+      const data = lastResponse?.notification?.request?.content?.data;
+      const url = data?.url || data?.link || data?.path;
+      if (url) {
+        handleNotificationUrl(url);
+      }
+    }
+  }, [lastResponse]);
 
   const checkAndSync = useCallback(async () => {
     if (isExpoGo || !Notifications || !isAuthenticated || !Device.isDevice) return;
