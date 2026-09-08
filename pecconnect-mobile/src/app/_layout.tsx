@@ -96,7 +96,7 @@ function RootLayoutNav() {
     checkVersion();
   }, []);
   
-  // Call the robust navigation guard
+  // Auth and onboarding navigation guard
   useProtectedRoute();
   
   // Push Notifications Setup (checks internally if authenticated or fresher)

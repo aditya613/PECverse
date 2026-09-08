@@ -32,6 +32,18 @@ vendor/
 # Ignore log files
 *.log
 
-# AI & Agent Configs
+# Windows shortcuts
+*.lnk
+
+# AI & Agent Framework Configs
 .agents/
 skills-lock.json
+.claude/
+CLAUDE.md
+AGENTS.md
+
+# Scratch & Implementation Plans
+*.plan.md
+*implementation plan.md
+implementation_plan.md
+pecverse_master_document.md

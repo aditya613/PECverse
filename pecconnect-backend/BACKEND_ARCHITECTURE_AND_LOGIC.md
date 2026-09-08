@@ -1,7 +1,7 @@
 # 🏛️ PECverse / PEC Connect — Complete Backend Architecture, Data Models & Logic Specification
 
-> **Target Audience:** AI Agents, LLMs, and Software Engineers.  
-> **Purpose:** Authoritative reference for system architecture, data models, business logic engines, API contracts, security models, and operational gotchas.
+> **Target Audience:** Engineering Team & Core Contributors.  
+> **Purpose:** Authoritative reference for system architecture, data models, business logic engines, API contracts, security models, and operational invariants.
 
 ---
 
@@ -227,7 +227,7 @@ php artisan migrate:fresh --seed
 
 ---
 
-## 7. Critical Rules for Future AI Agents & LLMs
+## 7. Core Architectural Guidelines & Invariants
 
 1. **Date Parameter Invariant:**
    * Always format timetable and holiday dates as **`YYYY-MM-DD`** using local date components (`getFullYear()`, `getMonth() + 1`, `getDate()`). **Never** use `toISOString().split('T')[0]` on client devices to prevent UTC timezone date shifting.

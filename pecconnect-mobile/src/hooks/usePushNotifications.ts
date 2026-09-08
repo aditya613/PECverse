@@ -31,7 +31,7 @@ if (!isExpoGo) {
 }
 
 /**
- * Robust function to fetch Expo Push Token
+ * Fetch Expo Push Token for the current device
  */
 export async function fetchExpoPushToken(): Promise<string | null> {
   if (isExpoGo || !Notifications) return null;

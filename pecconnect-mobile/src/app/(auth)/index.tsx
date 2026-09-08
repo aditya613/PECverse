@@ -21,8 +21,12 @@ if (!isExpoGo) {
     GoogleSignin = gSignin.GoogleSignin;
     statusCodes = gSignin.statusCodes;
     GoogleSignin.configure({
-      webClientId: '543780041775-6oh63o3lgn674sklfap5ltpaorosa7bg.apps.googleusercontent.com',
-      iosClientId: '543780041775-5ofelpimp1c25edcer4et4g23ndsou84.apps.googleusercontent.com',
+      webClientId:
+        process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ||
+        '543780041775-6oh63o3lgn674sklfap5ltpaorosa7bg.apps.googleusercontent.com',
+      iosClientId:
+        process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ||
+        '543780041775-5ofelpimp1c25edcer4et4g23ndsou84.apps.googleusercontent.com',
     });
   } catch (e) {
     console.log('Google Sign-in native module not available:', e);
@@ -97,7 +101,7 @@ export default function LoginScreen() {
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       alert(error.response?.data?.message || 'Login failed. Please use your @pec.edu.in email.');
 
-      // CRITICAL FIX: Sign out of Google SDK so the user isn't stuck in a silent login loop with the wrong email
+      // Sign out of Google SDK so the user can select another account if needed
       try {
         await GoogleSignin.signOut();
       } catch (e) {

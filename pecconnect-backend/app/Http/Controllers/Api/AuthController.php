@@ -255,11 +255,11 @@ class AuthController extends Controller
 
         $user = $request->user();
         
-        // CRITICAL ROBUSTNESS: If a CR changes class, demote them to standard student to prevent abuse
+        // Demote CR to regular student if they change their assigned class
         if ($user->role === 'cr' && $user->class_id !== $request->class_id) {
             $user->role = 'student';
             
-            // Nullify their CR status in ALL classes where they might be assigned as CR to be 100% secure
+            // Clear existing CR assignment across classes
             \App\Models\CourseClass::where('cr_user_id', $user->id)->update(['cr_user_id' => null]);
         }
         

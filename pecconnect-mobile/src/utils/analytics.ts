@@ -3,24 +3,24 @@ import Constants from 'expo-constants';
 import PostHog from 'posthog-react-native';
 import { api } from './api';
 
-export const POSTHOG_API_KEY =
-  process.env.EXPO_PUBLIC_POSTHOG_API_KEY ||
-  'phc_mJBiZczLyUxUj5HdCN7adPx2CYJA9dPxkNxCEdm5QbuR';
+export const POSTHOG_API_KEY = process.env.EXPO_PUBLIC_POSTHOG_API_KEY || '';
 export const POSTHOG_HOST =
   process.env.EXPO_PUBLIC_POSTHOG_HOST || 'https://us.i.posthog.com';
 
-// Safely initialize PostHog singleton
+// Initialize PostHog singleton if API key is configured
 let posthogClient: PostHog | null = null;
-try {
-  posthogClient = new PostHog(POSTHOG_API_KEY, {
-    host: POSTHOG_HOST,
-    enableSessionReplay: false, // Session replay requires native binaries; kept false for 100% OTA stability
-    flushAt: 5,
-    flushInterval: 10000,
-    captureAppLifecycleEvents: false,
-  });
-} catch (err) {
-  console.log('PostHog init fallback:', err);
+if (POSTHOG_API_KEY) {
+  try {
+    posthogClient = new PostHog(POSTHOG_API_KEY, {
+      host: POSTHOG_HOST,
+      enableSessionReplay: false,
+      flushAt: 5,
+      flushInterval: 10000,
+      captureAppLifecycleEvents: false,
+    });
+  } catch (err) {
+    console.warn('PostHog initialization failed:', err);
+  }
 }
 
 export const posthog = posthogClient;
