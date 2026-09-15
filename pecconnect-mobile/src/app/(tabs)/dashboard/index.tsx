@@ -169,6 +169,41 @@ export default function DashboardScreen() {
           ))}
         </View>
 
+        {/* Vacant Classrooms Spotlight Banner */}
+        <Animated.View entering={FadeInDown.delay(100).springify()}>
+          <Pressable
+            style={[
+              styles.vacantBanner,
+              {
+                backgroundColor: isDark ? 'rgba(6, 182, 212, 0.12)' : 'rgba(6, 182, 212, 0.08)',
+                borderColor: 'rgba(6, 182, 212, 0.35)',
+              },
+            ]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/vacant-classes' as any);
+            }}
+          >
+            <View style={styles.vacantIconBox}>
+              <Ionicons name="business" size={20} color="#FFFFFF" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={[styles.vacantTitle, { color: colors.label }]}>
+                  Find Empty Classrooms
+                </Text>
+                <View style={styles.vacantPill}>
+                  <Text style={styles.vacantPillText}>NEW</Text>
+                </View>
+              </View>
+              <Text style={[styles.vacantSub, { color: colors.secondaryLabel }]}>
+                Live vacancy & room finder for students & CRs
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#06B6D4" />
+          </Pressable>
+        </Animated.View>
+
         {/* Today's Schedule Card */}
         <View style={[styles.scheduleCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
           <View style={styles.scheduleHeader}>
@@ -426,6 +461,44 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     gap: 14,
     marginBottom: 8,
+  },
+  vacantBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1,
+    gap: 12,
+    marginVertical: 4,
+  },
+  vacantIconBox: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    backgroundColor: '#06B6D4',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  vacantTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+  },
+  vacantPill: {
+    backgroundColor: '#06B6D4',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 5,
+  },
+  vacantPillText: {
+    color: '#FFFFFF',
+    fontSize: 9,
+    fontWeight: '900',
+    letterSpacing: 0.5,
+  },
+  vacantSub: {
+    fontSize: 11,
+    fontWeight: '500',
+    marginTop: 2,
   },
   scheduleHeader: {
     flexDirection: 'row',

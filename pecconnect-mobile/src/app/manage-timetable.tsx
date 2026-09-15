@@ -6,6 +6,7 @@ import { api } from '@/utils/api';
 import { colors } from '@/theme/colors';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
+import { Ionicons } from '@expo/vector-icons';
 import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
 
 type ClassType = 'weekly' | 'single' | 'holiday';
@@ -362,12 +363,24 @@ export default function ManageTimetableModal() {
           {classType !== 'holiday' && (
             <>
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Room (Optional)</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Text style={styles.label}>Room (Optional)</Text>
+                  <Pressable 
+                    onPress={() => {
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      router.push('/vacant-classes' as any);
+                    }}
+                    style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
+                  >
+                    <Ionicons name="search" size={12} color={colors.accent as string} />
+                    <Text style={{ color: colors.accent as string, fontSize: 12, fontWeight: '700' }}>Find Free Rooms</Text>
+                  </Pressable>
+                </View>
                 <TextInput 
                   style={styles.input} 
                   value={room} 
                   onChangeText={setRoom} 
-                  placeholder="e.g. L1" 
+                  placeholder="e.g. L21, 305, CL14" 
                   placeholderTextColor={colors.secondaryLabel as string} 
                 />
               </View>

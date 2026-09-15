@@ -59,6 +59,10 @@ Route::get('/senior-advice', [\App\Http\Controllers\Api\SeniorAdviceController::
 Route::post('/senior-advice/{id}/like', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'like'])->middleware('throttle:10,1');
 Route::get('/senior-advice/questions', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'getQuestions']);
 
+// Venue Occupancy & Vacant Classrooms
+Route::get('/venues/occupancy', [\App\Http\Controllers\Api\VenueOccupancyController::class, 'index']);
+Route::get('/venues/matrix', [\App\Http\Controllers\Api\VenueOccupancyController::class, 'matrix']);
+
 Route::middleware('auth:sanctum')->group(function () {
     // Senior Advice (Answering questions)
     Route::get('/senior-advice/questions/pending', [\App\Http\Controllers\Api\SeniorAdviceController::class, 'getPendingQuestions']);

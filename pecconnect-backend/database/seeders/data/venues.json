@@ -1,0 +1,114 @@
+[
+  {
+    "code": "L21",
+    "name": "Lecture Hall 21",
+    "type": "lecture_hall",
+    "floor": "Ground Floor",
+    "capacity": 120
+  },
+  {
+    "code": "L22",
+    "name": "Lecture Hall 22",
+    "type": "lecture_hall",
+    "floor": "Ground Floor",
+    "capacity": 120
+  },
+  {
+    "code": "L19",
+    "name": "Lecture Hall 19",
+    "type": "lecture_hall",
+    "floor": "Ground Floor",
+    "capacity": 120
+  },
+  {
+    "code": "405",
+    "name": "Classroom 405",
+    "type": "classroom",
+    "floor": "4th Floor",
+    "capacity": 60
+  },
+  {
+    "code": "406",
+    "name": "Classroom 406",
+    "type": "classroom",
+    "floor": "4th Floor",
+    "capacity": 60
+  },
+  {
+    "code": "407",
+    "name": "Classroom 407",
+    "type": "classroom",
+    "floor": "4th Floor",
+    "capacity": 60
+  },
+  {
+    "code": "301",
+    "name": "Classroom 301",
+    "type": "classroom",
+    "floor": "3rd Floor",
+    "capacity": 60
+  },
+  {
+    "code": "303",
+    "name": "Classroom 303",
+    "type": "classroom",
+    "floor": "3rd Floor",
+    "capacity": 60
+  },
+  {
+    "code": "304",
+    "name": "Classroom 304",
+    "type": "classroom",
+    "floor": "3rd Floor",
+    "capacity": 60
+  },
+  {
+    "code": "305",
+    "name": "Classroom 305",
+    "type": "classroom",
+    "floor": "3rd Floor",
+    "capacity": 60
+  },
+  {
+    "code": "306",
+    "name": "Classroom 306",
+    "type": "classroom",
+    "floor": "3rd Floor",
+    "capacity": 60
+  },
+  {
+    "code": "402",
+    "name": "Classroom 402",
+    "type": "classroom",
+    "floor": "4th Floor",
+    "capacity": 60
+  },
+  {
+    "code": "CL5",
+    "name": "Computer Lab 5",
+    "type": "lab",
+    "floor": "Computer Centre",
+    "capacity": 40
+  },
+  {
+    "code": "CL13",
+    "name": "Computer Lab 13",
+    "type": "lab",
+    "floor": "Computer Centre",
+    "capacity": 40
+  },
+  {
+    "code": "CL14",
+    "name": "Computer Lab 14",
+    "type": "lab",
+    "floor": "Computer Centre",
+    "capacity": 40
+  },
+  {
+    "code": "DS Lab",
+    "name": "Data Science Lab",
+    "type": "lab",
+    "floor": "CSE Dept",
+    "capacity": 40
+  }
+]
