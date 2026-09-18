@@ -86,7 +86,7 @@ export default {
         "projectId": "999365ed-edd9-4525-9357-1edf51149ed7"
       }
     },
-    "runtimeVersion": "1.0.1",
+    "runtimeVersion": "1.0.2",
     "updates": {
       "url": "https://u.expo.dev/999365ed-edd9-4525-9357-1edf51149ed7"
     }
