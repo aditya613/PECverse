@@ -104,7 +104,10 @@ class MarketplaceController extends Controller
             $file = $request->file('image');
             $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
             $path = $file->storeAs('marketplace', $filename, 'public');
-            $imageUrl = Storage::disk('public')->url($path);
+            $url = Storage::disk('public')->url($path);
+            $imageUrl = (str_starts_with($url, 'http://') || str_starts_with($url, 'https://'))
+                ? $url
+                : url($url);
         }
 
         $item = MarketplaceItem::create([

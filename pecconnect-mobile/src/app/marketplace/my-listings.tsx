@@ -21,6 +21,7 @@ import {
   updateMarketplaceItemStatus,
   deleteMarketplaceItem,
   MarketplaceItem,
+  getFullImageUrl,
 } from '@/utils/marketplaceApi';
 
 export default function MyMarketplaceListingsScreen() {
@@ -88,7 +89,11 @@ export default function MyMarketplaceListingsScreen() {
           {/* Thumbnail */}
           <View style={[styles.thumbnailContainer, { backgroundColor: isDark ? '#1F1F23' : '#F1F5F9' }]}>
             {item.image_url ? (
-              <Image source={{ uri: item.image_url }} style={styles.thumbnail} resizeMode="cover" />
+              <Image
+                source={{ uri: getFullImageUrl(item.image_url) || '' }}
+                style={styles.thumbnail}
+                resizeMode="cover"
+              />
             ) : (
               <Ionicons name="cart-outline" size={24} color={colors.tertiaryLabel} />
             )}

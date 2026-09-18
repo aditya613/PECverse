@@ -37,6 +37,13 @@ export interface MarketplaceItem {
   };
 }
 
+export const getFullImageUrl = (url: string | null | undefined): string | null => {
+  if (!url) return null;
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
+  const baseUrl = process.env.EXPO_PUBLIC_API_URL?.replace(/\/api\/?$/, '') || 'https://pecapp.theaspirants.co.in';
+  return `${baseUrl}${url.startsWith('/') ? '' : '/'}${url}`;
+};
+
 export interface MarketplaceFeedResponse {
   data: MarketplaceItem[];
   current_page: number;

@@ -21,6 +21,7 @@ import {
   updateMarketplaceItemStatus,
   deleteMarketplaceItem,
   reportMarketplaceItem,
+  getFullImageUrl,
 } from '@/utils/marketplaceApi';
 
 export default function MarketplaceItemDetails() {
@@ -77,7 +78,7 @@ export default function MarketplaceItemDetails() {
     );
   };
 
-  const handleWhatsApp = () => {
+  const handleWhatsApp = async () => {
     if (!item) return;
     const phone = item.contact_whatsapp || item.contact_phone;
     if (!phone) {
@@ -95,29 +96,33 @@ export default function MarketplaceItemDetails() {
     const message = encodeURIComponent(
       `Hi ${sellerName}! I saw your listing for "${item.title}" on PECverse Marketplace. Is it still available?`
     );
-    const url = `https://wa.me/${cleanPhone}?text=${message}`;
+    const webUrl = `https://wa.me/${cleanPhone}?text=${message}`;
+    const appUrl = `whatsapp://send?phone=${cleanPhone}&text=${message}`;
 
-    Linking.canOpenURL(url)
-      .then((supported) => {
-        if (supported) {
-          Linking.openURL(url);
-        } else {
-          Alert.alert('Error', 'Unable to open WhatsApp on this device.');
-        }
-      })
-      .catch(() => {
-        Alert.alert('Error', 'Could not open WhatsApp.');
-      });
+    try {
+      await Linking.openURL(webUrl);
+    } catch (err) {
+      try {
+        await Linking.openURL(appUrl);
+      } catch (err2) {
+        Alert.alert('WhatsApp Error', 'Could not open WhatsApp. You can call the seller directly.');
+      }
+    }
   };
 
-  const handleCall = () => {
+  const handleCall = async () => {
     if (!item) return;
     const phone = item.contact_phone || item.contact_whatsapp;
     if (!phone) {
       Alert.alert('No Phone Number', 'The seller did not provide a direct phone number.');
       return;
     }
-    Linking.openURL(`tel:${phone}`);
+    const cleanPhone = phone.replace(/\D/g, '');
+    try {
+      await Linking.openURL(`tel:${cleanPhone}`);
+    } catch (e) {
+      Alert.alert('Call Error', 'Unable to initiate phone call on this device.');
+    }
   };
 
   const handleShare = async () => {
@@ -259,7 +264,11 @@ export default function MarketplaceItemDetails() {
         {/* Hero Image */}
         <View style={[styles.heroImageContainer, { backgroundColor: isDark ? '#18181B' : '#F1F5F9' }]}>
           {item.image_url ? (
-            <Image source={{ uri: item.image_url }} style={styles.heroImage} resizeMode="cover" />
+            <Image
+              source={{ uri: getFullImageUrl(item.image_url) || '' }}
+              style={styles.heroImage}
+              resizeMode="cover"
+            />
           ) : (
             <View style={styles.heroPlaceholder}>
               <Ionicons name="cart-outline" size={64} color={colors.tertiaryLabel} />
@@ -361,7 +370,7 @@ export default function MarketplaceItemDetails() {
             <View style={styles.sellerRow}>
               <View style={[styles.sellerAvatar, { backgroundColor: colors.accent + '25' }]}>
                 {item.user?.profile_photo ? (
-                  <Image source={{ uri: item.user.profile_photo }} style={styles.avatarImg} />
+                  <Image source={{ uri: getFullImageUrl(item.user.profile_photo) || '' }} style={styles.avatarImg} />
                 ) : (
                   <Text style={[styles.avatarInitial, { color: colors.accent }]}>
                     {item.user?.name ? item.user.name.charAt(0).toUpperCase() : 'S'}

@@ -22,6 +22,7 @@ import {
   fetchMarketplaceItems,
   MarketplaceItem,
   MarketplaceCategory,
+  getFullImageUrl,
 } from '@/utils/marketplaceApi';
 
 const { width } = Dimensions.get('window');
@@ -102,7 +103,11 @@ export default function MarketplaceFeed() {
           {/* Image Container */}
           <View style={[styles.imageContainer, { backgroundColor: isDark ? '#1F1F23' : '#F1F5F9' }]}>
             {item.image_url ? (
-              <Image source={{ uri: item.image_url }} style={styles.image} resizeMode="cover" />
+              <Image
+                source={{ uri: getFullImageUrl(item.image_url) || '' }}
+                style={styles.image}
+                resizeMode="cover"
+              />
             ) : (
               <View style={styles.placeholderImage}>
                 <Ionicons name="cart-outline" size={36} color={colors.tertiaryLabel} />
