@@ -193,7 +193,7 @@ export default function DashboardScreen() {
                   Find Empty Classrooms
                 </Text>
                 <View style={styles.vacantPill}>
-                  <Text style={styles.vacantPillText}>NEW</Text>
+                  <Text style={styles.vacantPillText}>ROOMS</Text>
                 </View>
               </View>
               <Text style={[styles.vacantSub, { color: colors.secondaryLabel }]}>
@@ -201,6 +201,41 @@ export default function DashboardScreen() {
               </Text>
             </View>
             <Ionicons name="chevron-forward" size={18} color="#06B6D4" />
+          </Pressable>
+        </Animated.View>
+
+        {/* Campus Marketplace Spotlight Banner */}
+        <Animated.View entering={FadeInDown.delay(120).springify()}>
+          <Pressable
+            style={[
+              styles.vacantBanner,
+              {
+                backgroundColor: isDark ? 'rgba(236, 72, 153, 0.12)' : 'rgba(236, 72, 153, 0.08)',
+                borderColor: 'rgba(236, 72, 153, 0.35)',
+              },
+            ]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/marketplace' as any);
+            }}
+          >
+            <View style={[styles.vacantIconBox, { backgroundColor: '#EC4899' }]}>
+              <Ionicons name="cart" size={20} color="#FFFFFF" />
+            </View>
+            <View style={{ flex: 1 }}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={[styles.vacantTitle, { color: colors.label }]}>
+                  Campus Marketplace
+                </Text>
+                <View style={[styles.vacantPill, { backgroundColor: '#EC4899' }]}>
+                  <Text style={styles.vacantPillText}>BUY & SELL</Text>
+                </View>
+              </View>
+              <Text style={[styles.vacantSub, { color: colors.secondaryLabel }]}>
+                Cycles, drafters, coolers, books & hostel essentials
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color="#EC4899" />
           </Pressable>
         </Animated.View>
 

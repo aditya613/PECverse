@@ -120,6 +120,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::delete('/lost-and-found/comments/{id}', [LostAndFoundController::class, 'destroyComment']);
     Route::post('/lost-and-found/{id}/report', [LostAndFoundController::class, 'reportItem']);
 
+    // Campus Marketplace (Buy & Sell)
+    Route::get('/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'index']);
+    Route::post('/marketplace', [\App\Http\Controllers\Api\MarketplaceController::class, 'store']);
+    Route::get('/marketplace/my-listings', [\App\Http\Controllers\Api\MarketplaceController::class, 'myListings']);
+    Route::get('/marketplace/{id}', [\App\Http\Controllers\Api\MarketplaceController::class, 'show']);
+    Route::patch('/marketplace/{id}/status', [\App\Http\Controllers\Api\MarketplaceController::class, 'updateStatus']);
+    Route::delete('/marketplace/{id}', [\App\Http\Controllers\Api\MarketplaceController::class, 'destroy']);
+    Route::post('/marketplace/{id}/report', [\App\Http\Controllers\Api\MarketplaceController::class, 'reportItem']);
+
     // Feedback
     Route::post('/feedback', [\App\Http\Controllers\FeedbackController::class, 'store']);
 });
