@@ -199,16 +199,24 @@ export default function MarketplaceItemDetails() {
     return (
       <View style={[styles.loadingCenter, { backgroundColor: colors.systemBackground }]}>
         <Ionicons name="alert-circle-outline" size={48} color={colors.destructive} />
-        <Text style={[styles.errorTitle, { color: colors.label }]}>Listing Not Found</Text>
+        <Text style={[styles.errorTitle, { color: colors.label }]}>Listing Unavailable</Text>
         <Text style={[styles.errorSubtitle, { color: colors.secondaryLabel }]}>
-          This item may have been deleted or removed by the seller.
+          This item could not be loaded or may have been removed by the seller.
         </Text>
-        <Pressable
-          style={[styles.backBtn, { backgroundColor: colors.accent }]}
-          onPress={() => router.back()}
-        >
-          <Text style={styles.backBtnText}>Back to Marketplace</Text>
-        </Pressable>
+        <View style={{ flexDirection: 'row', gap: 12, marginTop: 16 }}>
+          <Pressable
+            style={[styles.backBtn, { backgroundColor: colors.secondarySystemBackground, minWidth: 100 }]}
+            onPress={() => refetch()}
+          >
+            <Text style={[styles.backBtnText, { color: colors.label }]}>Retry</Text>
+          </Pressable>
+          <Pressable
+            style={[styles.backBtn, { backgroundColor: colors.accent, minWidth: 140 }]}
+            onPress={() => router.back()}
+          >
+            <Text style={styles.backBtnText}>Back to Feed</Text>
+          </Pressable>
+        </View>
       </View>
     );
   }

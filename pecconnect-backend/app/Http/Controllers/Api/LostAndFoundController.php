@@ -21,7 +21,10 @@ class LostAndFoundController extends Controller
         $type = $request->query('type'); // 'lost' or 'found'
         $status = $request->query('status', 'active');
         
-        $query = LostAndFoundItem::with(['user:id,name,branch,profile_photo'])
+        $query = LostAndFoundItem::with([
+            'user:id,name,class_id,profile_photo',
+            'user.courseClass.branch:id,name,code',
+        ])
             ->withCount('comments', 'reports')
             ->has('reports', '<', 3) // Hide automatically if reported >= 3 times
             ->where('status', $status);
@@ -74,7 +77,7 @@ class LostAndFoundController extends Controller
 
         return response()->json([
             'message' => ucfirst($request->type) . ' item reported successfully',
-            'item' => $item->load('user:id,name,branch,profile_photo')
+            'item' => $item->load(['user:id,name,class_id,profile_photo', 'user.courseClass.branch:id,name,code'])
         ], 201);
     }
 
@@ -83,7 +86,10 @@ class LostAndFoundController extends Controller
      */
     public function show(Request $request, $id): JsonResponse
     {
-        $item = LostAndFoundItem::with(['user:id,name,branch,profile_photo'])
+        $item = LostAndFoundItem::with([
+            'user:id,name,class_id,profile_photo',
+            'user.courseClass.branch:id,name,code',
+        ])
             ->withCount('comments', 'reports')
             ->findOrFail($id);
 
@@ -137,7 +143,10 @@ class LostAndFoundController extends Controller
     {
         $item = LostAndFoundItem::findOrFail($id);
         
-        $comments = LostAndFoundComment::with(['user:id,name,branch,profile_photo'])
+        $comments = LostAndFoundComment::with([
+            'user:id,name,class_id,profile_photo',
+            'user.courseClass.branch:id,name,code',
+        ])
             ->where('item_id', $id)
             ->orderBy('created_at', 'asc')
             ->get();
@@ -165,7 +174,7 @@ class LostAndFoundController extends Controller
 
         return response()->json([
             'message' => 'Comment added',
-            'comment' => $comment->load('user:id,name,branch,profile_photo')
+            'comment' => $comment->load(['user:id,name,class_id,profile_photo', 'user.courseClass.branch:id,name,code'])
         ], 201);
     }
 

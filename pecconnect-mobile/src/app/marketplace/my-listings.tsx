@@ -32,7 +32,7 @@ export default function MyMarketplaceListingsScreen() {
 
   const [activeTab, setActiveTab] = useState<'available' | 'sold'>('available');
 
-  const { data, isLoading, refetch, isRefetching } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['myMarketplaceListings'],
     queryFn: fetchMyMarketplaceListings,
   });
@@ -208,6 +208,20 @@ export default function MyMarketplaceListingsScreen() {
         <View style={styles.loadingCenter}>
           <ActivityIndicator size="large" color={colors.accent} />
           <Text style={[styles.loadingText, { color: colors.secondaryLabel }]}>Loading your items...</Text>
+        </View>
+      ) : isError ? (
+        <View style={styles.emptyContainer}>
+          <Ionicons name="cloud-offline-outline" size={48} color={colors.destructive} />
+          <Text style={[styles.emptyTitle, { color: colors.label }]}>Unable to Load Listings</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.secondaryLabel }]}>
+            Could not fetch your listings. Please try again.
+          </Text>
+          <Pressable
+            style={[styles.postBtn, { backgroundColor: colors.accent, marginTop: 14 }]}
+            onPress={() => refetch()}
+          >
+            <Text style={styles.postBtnText}>Tap to Retry</Text>
+          </Pressable>
         </View>
       ) : (
         <FlatList

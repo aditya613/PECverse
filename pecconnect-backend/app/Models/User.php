@@ -43,6 +43,15 @@ class User extends Authenticatable
     ];
 
     /**
+     * The accessors to append to the model's array form.
+     *
+     * @var array<int, string>
+     */
+    protected $appends = [
+        'branch',
+    ];
+
+    /**
      * Get the attributes that should be cast.
      *
      * @return array<string, string>
@@ -63,5 +72,17 @@ class User extends Authenticatable
     public function classRepFor(): HasMany
     {
         return $this->hasMany(CourseClass::class, 'cr_user_id');
+    }
+
+    /**
+     * Get branch name dynamically from courseClass.
+     */
+    public function getBranchAttribute(): ?string
+    {
+        try {
+            return $this->courseClass?->branch?->name ?? null;
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 }

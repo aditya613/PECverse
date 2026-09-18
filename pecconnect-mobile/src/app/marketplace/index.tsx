@@ -48,7 +48,7 @@ export default function MarketplaceFeed() {
   const [sortOption, setSortOption] = useState<'latest' | 'price_asc' | 'price_desc'>('latest');
   const [onlyFree, setOnlyFree] = useState(false);
 
-  const { data, isLoading, refetch, isRefetching } = useQuery({
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ['marketplaceItems', selectedCategory, sortOption, onlyFree],
     queryFn: () =>
       fetchMarketplaceItems({
@@ -299,6 +299,23 @@ export default function MarketplaceFeed() {
           <Text style={[styles.loadingText, { color: colors.secondaryLabel }]}>
             Loading campus listings...
           </Text>
+        </View>
+      ) : isError ? (
+        <View style={styles.emptyContainer}>
+          <View style={[styles.emptyIconCircle, { backgroundColor: '#EF4444' + '15' }]}>
+            <Ionicons name="cloud-offline-outline" size={42} color="#EF4444" />
+          </View>
+          <Text style={[styles.emptyTitle, { color: colors.label }]}>Unable to Load Listings</Text>
+          <Text style={[styles.emptySubtitle, { color: colors.secondaryLabel }]}>
+            Could not connect to the campus marketplace. Please check your connection and try again.
+          </Text>
+          <Pressable
+            style={[styles.emptySellBtn, { backgroundColor: colors.accent, marginTop: 14 }]}
+            onPress={() => refetch()}
+          >
+            <Ionicons name="refresh" size={18} color="#FFFFFF" />
+            <Text style={styles.emptySellBtnText}>Tap to Retry</Text>
+          </Pressable>
         </View>
       ) : (
         <FlatList
