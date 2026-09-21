@@ -345,6 +345,27 @@ export default function ProfileScreen() {
             </View>
             <Ionicons name="chevron-forward" size={18} color={colors.tertiaryLabel} />
           </Pressable>
+
+          <View style={[styles.rowDivider, { backgroundColor: colors.separator }]} />
+
+          <Pressable 
+            style={styles.actionRow}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/class-roster' as any);
+            }}
+          >
+            <View style={[styles.actionIconBox, { backgroundColor: 'rgba(16, 185, 129, 0.15)' }]}>
+              <Ionicons name="people-outline" size={20} color="#10B981" />
+            </View>
+            <View style={styles.actionContent}>
+              <Text style={[styles.actionTitle, { color: colors.label }]}>My Classmates & Roster</Text>
+              <Text style={[styles.actionSub, { color: colors.secondaryLabel }]}>
+                {user.role === 'cr' ? 'View class list & copy roll numbers' : 'See enrolled students in your section'}
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={18} color={colors.tertiaryLabel} />
+          </Pressable>
         </View>
 
         {/* Logout Button */}

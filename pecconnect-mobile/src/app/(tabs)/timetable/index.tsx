@@ -127,8 +127,23 @@ export default function TimetableScreen() {
       {/* Header Bar */}
       <SafeAreaView style={[styles.header, { backgroundColor: colors.cardBackground, borderBottomColor: colors.cardBorder }]} edges={['top']}>
         <View style={styles.headerRow}>
-          <Text style={[styles.headerTitle, { color: colors.label }]}>Schedule</Text>
-          <Text style={[styles.headerSubtitle, { color: colors.secondaryLabel }]}>{formattedHeaderDate}</Text>
+          <View>
+            <Text style={[styles.headerTitle, { color: colors.label }]}>Schedule</Text>
+            <Text style={[styles.headerSubtitle, { color: colors.secondaryLabel }]}>{formattedHeaderDate}</Text>
+          </View>
+          <AnimatedPressable
+            style={[
+              styles.rosterPill,
+              { backgroundColor: colors.secondarySystemBackground, borderColor: colors.cardBorder }
+            ]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/class-roster' as any);
+            }}
+          >
+            <Ionicons name="people" size={14} color={colors.accent} />
+            <Text style={[styles.rosterPillText, { color: colors.label }]}>Classmates</Text>
+          </AnimatedPressable>
         </View>
 
         {/* Date-Wise Selection Ribbon (21-Day Calendar) */}
@@ -277,7 +292,7 @@ const styles = StyleSheet.create({
   },
   headerRow: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     justifyContent: 'space-between',
     paddingHorizontal: 16,
     marginBottom: 4,
@@ -290,6 +305,19 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 13,
     fontWeight: '600',
+  },
+  rosterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  rosterPillText: {
+    fontSize: 12,
+    fontWeight: '700',
   },
   scrollContent: {
     padding: 16,

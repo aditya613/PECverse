@@ -256,6 +256,13 @@ function RootLayoutNav() {
           }} 
         />
         <Stack.Screen 
+          name="class-roster" 
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right'
+          }} 
+        />
+        <Stack.Screen 
           name="attendance" 
           options={{
             headerShown: false,

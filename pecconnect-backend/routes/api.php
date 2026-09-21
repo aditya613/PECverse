@@ -75,9 +75,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/user/class', [AuthController::class, 'updateClass']);
     Route::post('/user/push-token', [AuthController::class, 'updatePushToken']);
     
-    // Master Data
+    // Master Data & Class Roster
     Route::get('/branches', [DataController::class, 'getBranches']);
     Route::get('/classes', [DataController::class, 'getClasses']);
+    Route::get('/class/members', [\App\Http\Controllers\Api\ClassMemberController::class, 'index']);
 
     // Timetables
     Route::get('/timetables', [TimetableController::class, 'index']);
