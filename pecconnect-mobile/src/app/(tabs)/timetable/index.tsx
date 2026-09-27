@@ -5,11 +5,12 @@ import { useTheme } from '@/theme/colors';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { DateRibbon } from '@/components/timetable/DateRibbon';
 import { MergedClass } from '@/components/timetable/ClassCard';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import { api } from '@/utils/api';
 import { useTimetable } from '@/hooks/useTimetable';
+import { fetchDatesheet } from '@/utils/datesheetApi';
 import { Ionicons } from '@expo/vector-icons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import { AnimatedPressable } from '@/components/ui/AnimatedPressable';
@@ -56,6 +57,18 @@ export default function TimetableScreen() {
 
   const { classes = [], activeHoliday, isLoading, isRefetching, refetch } = useTimetable(selectedDate);
   const isCrOrAdmin = user?.role === 'cr' || user?.role === 'superadmin';
+
+  // Check if student has a Mid Term Exam today
+  const { data: datesheetData } = useQuery({
+    queryKey: ['datesheet-mid-term-2026', user?.class_id],
+    queryFn: () => fetchDatesheet(user?.class_id),
+  });
+
+  const examToday = React.useMemo(() => {
+    if (!datesheetData) return null;
+    const exams = datesheetData.user_mapping?.my_exams || [];
+    return exams.find((e) => e.exam_date === selectedDate) || null;
+  }, [datesheetData, selectedDate]);
 
   const deleteHolidayMutation = useMutation({
     mutationFn: async (holidayId: number) => {
@@ -131,19 +144,35 @@ export default function TimetableScreen() {
             <Text style={[styles.headerTitle, { color: colors.label }]}>Schedule</Text>
             <Text style={[styles.headerSubtitle, { color: colors.secondaryLabel }]}>{formattedHeaderDate}</Text>
           </View>
-          <AnimatedPressable
-            style={[
-              styles.rosterPill,
-              { backgroundColor: colors.secondarySystemBackground, borderColor: colors.cardBorder }
-            ]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push('/class-roster' as any);
-            }}
-          >
-            <Ionicons name="people" size={14} color={colors.accent} />
-            <Text style={[styles.rosterPillText, { color: colors.label }]}>Classmates</Text>
-          </AnimatedPressable>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <AnimatedPressable
+              style={[
+                styles.datesheetPill,
+                { backgroundColor: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.35)' }
+              ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/datesheet' as any);
+              }}
+            >
+              <Ionicons name="document-text" size={13} color="#F59E0B" />
+              <Text style={styles.datesheetPillText}>Mid-Terms</Text>
+            </AnimatedPressable>
+
+            <AnimatedPressable
+              style={[
+                styles.rosterPill,
+                { backgroundColor: colors.secondarySystemBackground, borderColor: colors.cardBorder }
+              ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/class-roster' as any);
+              }}
+            >
+              <Ionicons name="people" size={13} color={colors.accent} />
+              <Text style={[styles.rosterPillText, { color: colors.label }]}>Classmates</Text>
+            </AnimatedPressable>
+          </View>
         </View>
 
         {/* Date-Wise Selection Ribbon (21-Day Calendar) */}
@@ -165,6 +194,61 @@ export default function TimetableScreen() {
           <RefreshControl refreshing={isRefetching} onRefresh={refetch} tintColor={colors.accent} />
         }
       >
+        {/* Mid Term Exam Highlight Card if student has an exam today */}
+        {examToday && (
+          <Animated.View entering={FadeInDown.springify()} style={{ marginBottom: 12 }}>
+            <AnimatedPressable
+              style={[
+                styles.examTodayCard,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.cardBorder,
+                  borderLeftColor: colors.accent,
+                  borderLeftWidth: 3.5,
+                },
+              ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/datesheet' as any);
+              }}
+            >
+              <View style={styles.examTodayTop}>
+                <View style={[styles.examTodayTagBadge, { backgroundColor: colors.accent + '15' }]}>
+                  <Ionicons name="school" size={12} color={colors.accent} />
+                  <Text style={[styles.examTodayTagText, { color: colors.accent }]}>EXAM TODAY</Text>
+                </View>
+                <View style={[styles.examTodayTimeBadge, { backgroundColor: isDark ? '#27272A' : '#F1F5F9' }]}>
+                  <Ionicons name="time-outline" size={11} color={colors.secondaryLabel} />
+                  <Text style={[styles.examTodayTimeText, { color: colors.secondaryLabel }]}>{examToday.time_slot}</Text>
+                </View>
+              </View>
+
+              <Text style={[styles.examTodayTitle, { color: colors.label }]}>
+                {examToday.subject_code} • {examToday.subject_name}
+              </Text>
+
+              {examToday.matched_regular_subject && (
+                <View style={styles.examTodayMatchRow}>
+                  <Ionicons name="link" size={11} color={colors.accent} />
+                  <Text style={[styles.examTodayMatchText, { color: colors.accent }]} numberOfLines={1}>
+                    Matches {examToday.matched_regular_subject}
+                  </Text>
+                </View>
+              )}
+
+              <View style={[styles.examTodayFooter, { borderTopColor: colors.separator }]}>
+                <Text style={[styles.examTodayRoomText, { color: colors.secondaryLabel }]} numberOfLines={1}>
+                  📍 {examToday.seating_rooms || 'Dept Examination Halls'}
+                </Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                  <Text style={[styles.examTodayViewText, { color: colors.accent }]}>Datesheet</Text>
+                  <Ionicons name="arrow-forward" size={12} color={colors.accent} />
+                </View>
+              </View>
+            </AnimatedPressable>
+          </Animated.View>
+        )}
+
         {activeHoliday ? (
           <View style={[styles.holidayContainer, { backgroundColor: colors.accent + '10', borderColor: colors.accent + '30' }]}>
             <Text style={styles.holidayEmoji}>🌴</Text>
@@ -183,11 +267,19 @@ export default function TimetableScreen() {
             )}
           </View>
         ) : (classes || []).length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Ionicons name="calendar-outline" size={48} color={colors.tertiaryLabel} />
-            <Text style={[styles.emptyTitle, { color: colors.label }]}>No Classes Scheduled</Text>
-            <Text style={[styles.emptyText, { color: colors.secondaryLabel }]}>No classes scheduled for {formattedHeaderDate}.</Text>
-          </View>
+          !examToday ? (
+            <View style={styles.emptyContainer}>
+              <Ionicons name="calendar-outline" size={48} color={colors.tertiaryLabel} />
+              <Text style={[styles.emptyTitle, { color: colors.label }]}>No Classes Scheduled</Text>
+              <Text style={[styles.emptyText, { color: colors.secondaryLabel }]}>No classes scheduled for {formattedHeaderDate}.</Text>
+            </View>
+          ) : (
+            <View style={styles.examDayNotice}>
+              <Text style={[styles.examDayNoticeText, { color: colors.secondaryLabel }]}>
+                Regular lectures are suspended during Mid-Term Examination sessions.
+              </Text>
+            </View>
+          )
         ) : (
           <View style={styles.timelineWrapper}>
             {(classes || []).map((cls: MergedClass, index: number) => {
@@ -305,6 +397,20 @@ const styles = StyleSheet.create({
   headerSubtitle: {
     fontSize: 13,
     fontWeight: '600',
+  },
+  datesheetPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    paddingHorizontal: 11,
+    paddingVertical: 7,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
+  datesheetPillText: {
+    color: '#F59E0B',
+    fontSize: 12,
+    fontWeight: '800',
   },
   rosterPill: {
     flexDirection: 'row',
@@ -479,5 +585,93 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 13,
     textAlign: 'center',
+  },
+  examTodayCard: {
+    borderRadius: 16,
+    borderWidth: 1.5,
+    padding: 14,
+    marginBottom: 6,
+  },
+  examTodayTop: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  examTodayTagBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(245, 158, 11, 0.15)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  examTodayTagText: {
+    color: '#F59E0B',
+    fontSize: 10,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  examTodayTimeBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: 'rgba(56, 189, 248, 0.12)',
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+  },
+  examTodayTimeText: {
+    color: '#38BDF8',
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  examTodayTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    marginBottom: 6,
+    lineHeight: 22,
+  },
+  examTodayMatchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    marginBottom: 8,
+  },
+  examTodayMatchText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#3B82F6',
+  },
+  examTodayFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(245, 158, 11, 0.2)',
+  },
+  examTodayRoomText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#10B981',
+    flex: 1,
+    marginRight: 8,
+  },
+  examTodayViewText: {
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#F59E0B',
+  },
+  examDayNotice: {
+    padding: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  examDayNoticeText: {
+    fontSize: 12,
+    textAlign: 'center',
+    fontStyle: 'italic',
   },
 });

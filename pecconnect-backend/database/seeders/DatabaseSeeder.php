@@ -28,6 +28,7 @@ class DatabaseSeeder extends Seeder
             PecClubsSeeder::class,
             PecSeniorAdviceSeeder::class,
             VenueOccupancySeeder::class,
+            DatesheetSeeder::class,
         ]);
 
         // 1. Create or Find Branches

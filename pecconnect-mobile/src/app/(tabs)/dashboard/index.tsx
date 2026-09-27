@@ -9,6 +9,7 @@ import { useTimetable } from '@/hooks/useTimetable';
 import { DashboardMessWidget } from '@/components/dashboard/DashboardMessWidget';
 import { AttendanceWidget } from '@/components/dashboard/AttendanceWidget';
 import { SkeletonCard } from '@/components/ui/SkeletonCard';
+import { fetchDatesheet } from '@/utils/datesheetApi';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
@@ -29,9 +30,10 @@ interface Announcement {
 }
 
 const QUICK_ACCESS = [
+  { id: 'datesheet', title: 'Mid-Terms', icon: 'document-text', color: '#F59E0B', route: '/datesheet' },
   { id: 'timetable', title: 'Schedule', icon: 'calendar', color: '#3B82F6', route: '/(tabs)/timetable' },
   { id: 'attendance', title: 'Attendance', icon: 'checkbox', color: '#10B981', route: '/attendance' },
-  { id: 'mess', title: 'Mess Menu', icon: 'restaurant', color: '#F59E0B', route: '/mess' },
+  { id: 'mess', title: 'Mess Menu', icon: 'restaurant', color: '#F97316', route: '/mess' },
   { id: 'notes', title: 'Resources', icon: 'folder-open', color: '#8B5CF6', route: '/(tabs)/notes' },
   { id: 'lost-found', title: 'Lost & Found', icon: 'search', color: '#EF4444', route: '/lost-found' },
 ];
@@ -76,10 +78,23 @@ export default function DashboardScreen() {
 
   const { classes: todayClasses = [], activeHoliday, isLoading: isTimetableLoading, refetch: refetchTimetable } = useTimetable(todayStr);
 
+  // Fetch datesheet to display student's specific next exam in spotlight
+  const { data: datesheetData, refetch: refetchDatesheet } = useQuery({
+    queryKey: ['datesheet-mid-term-2026', user?.class_id],
+    queryFn: () => fetchDatesheet(user?.class_id),
+  });
+
+  const nextExam = React.useMemo(() => {
+    if (!datesheetData) return null;
+    const exams = datesheetData.user_mapping?.my_exams || [];
+    return exams[0] || null;
+  }, [datesheetData]);
+
   const handleRefresh = () => {
     trackEvent('dashboard_refresh');
     refetch();
     refetchTimetable();
+    refetchDatesheet();
   };
 
   const handleQuickAccess = (item: typeof QUICK_ACCESS[0]) => {
@@ -147,6 +162,52 @@ export default function DashboardScreen() {
             {getGreeting()} {user?.name ? user.name.split(' ')[0] : 'Student'}
           </Text>
         </View>
+
+        {/* Mid-Term Exam Datesheet Spotlight Card */}
+        <Animated.View entering={FadeInDown.delay(30).springify()}>
+          <Pressable
+            style={[
+              styles.datesheetSpotlightCard,
+              {
+                backgroundColor: colors.cardBackground,
+                borderColor: colors.cardBorder,
+                borderLeftColor: colors.accent,
+                borderLeftWidth: 3.5,
+              },
+            ]}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push('/datesheet' as any);
+            }}
+          >
+            <View style={styles.spotlightLeft}>
+              <View style={[styles.spotlightIconBox, { backgroundColor: colors.accent + '15' }]}>
+                <Ionicons name="school" size={20} color={colors.accent} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={[styles.spotlightTag, { color: colors.accent }]}>
+                    {nextExam ? 'YOUR NEXT EXAM' : 'MID-TERM EXAMS'}
+                  </Text>
+                  <Text style={[styles.spotlightDate, { color: colors.secondaryLabel }]}>
+                    {nextExam ? `${nextExam.day_name.slice(0, 3)}, ${nextExam.exam_date.slice(5)}` : '1st – 8th Oct'}
+                  </Text>
+                </View>
+                <Text style={[styles.spotlightTitle, { color: colors.label }]} numberOfLines={1}>
+                  {nextExam
+                    ? `${nextExam.subject_code} • ${nextExam.subject_name}`
+                    : 'CSE Department Datesheet Released'}
+                </Text>
+                <Text style={[styles.spotlightSub, { color: colors.secondaryLabel }]} numberOfLines={1}>
+                  {nextExam
+                    ? `⏰ ${nextExam.time_slot} • 📍 ${nextExam.seating_rooms || 'Dept Halls'}`
+                    : 'Tap to view your personalized exam schedule'}
+                </Text>
+              </View>
+            </View>
+            <Ionicons name="chevron-forward" size={16} color={colors.accent} />
+          </Pressable>
+        </Animated.View>
 
 
 
@@ -622,5 +683,47 @@ const styles = StyleSheet.create({
   },
   emptyText: {
     fontSize: 13,
+  },
+  datesheetSpotlightCard: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    padding: 14,
+    borderRadius: 16,
+    borderWidth: 1.5,
+    marginBottom: 16,
+  },
+  spotlightLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    flex: 1,
+  },
+  spotlightIconBox: {
+    width: 42,
+    height: 42,
+    borderRadius: 12,
+    backgroundColor: 'rgba(245, 158, 11, 0.2)',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  spotlightTag: {
+    fontSize: 10,
+    fontWeight: '900',
+    color: '#F59E0B',
+    letterSpacing: 0.5,
+  },
+  spotlightDate: {
+    fontSize: 11,
+    fontWeight: '600',
+  },
+  spotlightTitle: {
+    fontSize: 14,
+    fontWeight: '800',
+    marginTop: 1,
+  },
+  spotlightSub: {
+    fontSize: 11,
+    marginTop: 2,
   },
 });

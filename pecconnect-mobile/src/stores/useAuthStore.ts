@@ -11,6 +11,8 @@ export interface User {
   profile_photo: string | null;
   expo_push_token?: string | null;
   courseClass?: {
+    id?: number;
+    year?: number;
     group_name: string;
     branch: {
       name: string;

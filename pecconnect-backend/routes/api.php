@@ -24,6 +24,9 @@ Route::get('/app-version', function () {
     ]);
 });
 
+// Examination Datesheet (Official CSE Mid Term Exam Schedule)
+Route::get('/datesheet', [\App\Http\Controllers\Api\DatesheetController::class, 'index']);
+
 // Analytics & Telemetry (Public batch ingestion with throttling)
 Route::post('/analytics/events', [\App\Http\Controllers\Api\AnalyticsController::class, 'storeBatch'])->middleware('throttle:120,1');
 Route::get('/analytics/summary', [\App\Http\Controllers\Api\AnalyticsController::class, 'summary']);
