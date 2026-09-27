@@ -665,8 +665,11 @@ class DatesheetController extends Controller
             }
         }
 
+        $isCoveredBranch = ($year === 1) || in_array($branchCode, ['CSE', 'DS', 'CSE-AI']);
+
         return [
             'has_mapping' => true,
+            'is_covered_branch' => $isCoveredBranch,
             'branch_key' => $branchKey,
             'class_info' => [
                 'class_id' => $courseClass->id,
@@ -678,6 +681,9 @@ class DatesheetController extends Controller
             'my_exams' => $myExams,
             'backlog_exams' => $backlogExams,
             'minor_exams' => $minorExams,
+            'notice_message' => $isCoveredBranch
+                ? null
+                : "Mid-Term datesheet for {$courseClass->branch?->name} has not been published yet. Currently viewing Computer Science & Engineering notice PEC/CSE/265.",
         ];
     }
 }
