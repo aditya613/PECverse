@@ -135,6 +135,12 @@ export default function TimetableScreen() {
   const parsedDate = new Date(selectedDate + 'T00:00:00');
   const formattedHeaderDate = parsedDate.toLocaleDateString(undefined, { weekday: 'long', month: 'short', day: 'numeric' });
 
+  const hasDatesheet = Boolean(
+    datesheetData?.user_mapping?.my_exams?.length ||
+    datesheetData?.user_mapping?.backlog_exams?.length ||
+    datesheetData?.user_mapping?.minor_exams?.length
+  );
+
   return (
     <View style={[styles.container, { backgroundColor: colors.systemBackground }]}>
       {/* Header Bar */}
@@ -145,19 +151,21 @@ export default function TimetableScreen() {
             <Text style={[styles.headerSubtitle, { color: colors.secondaryLabel }]}>{formattedHeaderDate}</Text>
           </View>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            <AnimatedPressable
-              style={[
-                styles.datesheetPill,
-                { backgroundColor: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.35)' }
-              ]}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push('/datesheet' as any);
-              }}
-            >
-              <Ionicons name="document-text" size={13} color="#F59E0B" />
-              <Text style={styles.datesheetPillText}>Mid-Terms</Text>
-            </AnimatedPressable>
+            {hasDatesheet && (
+              <AnimatedPressable
+                style={[
+                  styles.datesheetPill,
+                  { backgroundColor: 'rgba(245, 158, 11, 0.15)', borderColor: 'rgba(245, 158, 11, 0.35)' }
+                ]}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  router.push('/datesheet' as any);
+                }}
+              >
+                <Ionicons name="document-text" size={13} color="#F59E0B" />
+                <Text style={styles.datesheetPillText}>Mid-Terms</Text>
+              </AnimatedPressable>
+            )}
 
             <AnimatedPressable
               style={[

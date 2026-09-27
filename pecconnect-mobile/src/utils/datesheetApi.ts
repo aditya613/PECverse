@@ -50,6 +50,7 @@ export interface PersonalizedExam {
 
 export interface UserClassMapping {
   has_mapping: boolean;
+  is_covered_branch?: boolean;
   branch_key: string;
   class_info: {
     class_id: number;
@@ -61,6 +62,7 @@ export interface UserClassMapping {
   my_exams: PersonalizedExam[];
   backlog_exams: PersonalizedExam[];
   minor_exams: PersonalizedExam[];
+  notice_message?: string | null;
 }
 
 export interface DatesheetData {

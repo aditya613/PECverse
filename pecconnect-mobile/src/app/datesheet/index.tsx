@@ -477,11 +477,40 @@ export default function DatesheetScreen() {
                 </View>
               ) : activePersonalExams.length === 0 ? (
                 <View style={[styles.emptyCard, { backgroundColor: colors.cardBackground, borderColor: colors.cardBorder }]}>
-                  <Ionicons name="checkmark-circle-outline" size={32} color={colors.success} />
-                  <Text style={[styles.emptyTitle, { color: colors.label }]}>No Exams In This Category</Text>
-                  <Text style={[styles.emptySub, { color: colors.secondaryLabel }]}>
-                    You have no {selectedCategory} examinations scheduled.
-                  </Text>
+                  {datesheet?.user_mapping?.is_covered_branch === false ? (
+                    <View style={{ alignItems: 'center' }}>
+                      <Ionicons name="document-text-outline" size={32} color={colors.accent} />
+                      <Text style={[styles.emptyTitle, { color: colors.label }]}>Datesheet Not Released Yet</Text>
+                      <Text style={[styles.emptySub, { color: colors.secondaryLabel, textAlign: 'center', marginBottom: 12 }]}>
+                        {datesheet?.user_mapping?.notice_message ||
+                          `The mid-term datesheet for ${classInfo.branch_name} has not been published yet by your department.`}
+                      </Text>
+                      <Pressable
+                        style={{
+                          backgroundColor: colors.accent,
+                          paddingHorizontal: 16,
+                          paddingVertical: 8,
+                          borderRadius: 20,
+                        }}
+                        onPress={() => {
+                          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                          setViewMode('all_branches');
+                        }}
+                      >
+                        <Text style={{ color: '#FFFFFF', fontSize: 12, fontWeight: '700' }}>
+                          Browse Published Master Schedule
+                        </Text>
+                      </Pressable>
+                    </View>
+                  ) : (
+                    <View style={{ alignItems: 'center' }}>
+                      <Ionicons name="checkmark-circle-outline" size={32} color={colors.success} />
+                      <Text style={[styles.emptyTitle, { color: colors.label }]}>No Exams In This Category</Text>
+                      <Text style={[styles.emptySub, { color: colors.secondaryLabel }]}>
+                        You have no {selectedCategory} examinations scheduled.
+                      </Text>
+                    </View>
+                  )}
                 </View>
               ) : (
                 activePersonalExams.map((exam, idx) => (

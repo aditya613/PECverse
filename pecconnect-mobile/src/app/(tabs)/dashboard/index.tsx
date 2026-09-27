@@ -163,51 +163,47 @@ export default function DashboardScreen() {
           </Text>
         </View>
 
-        {/* Mid-Term Exam Datesheet Spotlight Card */}
-        <Animated.View entering={FadeInDown.delay(30).springify()}>
-          <Pressable
-            style={[
-              styles.datesheetSpotlightCard,
-              {
-                backgroundColor: colors.cardBackground,
-                borderColor: colors.cardBorder,
-                borderLeftColor: colors.accent,
-                borderLeftWidth: 3.5,
-              },
-            ]}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push('/datesheet' as any);
-            }}
-          >
-            <View style={styles.spotlightLeft}>
-              <View style={[styles.spotlightIconBox, { backgroundColor: colors.accent + '15' }]}>
-                <Ionicons name="school" size={20} color={colors.accent} />
-              </View>
-              <View style={{ flex: 1 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                  <Text style={[styles.spotlightTag, { color: colors.accent }]}>
-                    {nextExam ? 'YOUR NEXT EXAM' : 'MID-TERM EXAMS'}
+        {/* Mid-Term Exam Datesheet Spotlight Card (Only shown if student has exams in released datesheet) */}
+        {nextExam && (
+          <Animated.View entering={FadeInDown.delay(30).springify()}>
+            <Pressable
+              style={[
+                styles.datesheetSpotlightCard,
+                {
+                  backgroundColor: colors.cardBackground,
+                  borderColor: colors.cardBorder,
+                  borderLeftColor: colors.accent,
+                  borderLeftWidth: 3.5,
+                },
+              ]}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push('/datesheet' as any);
+              }}
+            >
+              <View style={styles.spotlightLeft}>
+                <View style={[styles.spotlightIconBox, { backgroundColor: colors.accent + '15' }]}>
+                  <Ionicons name="school" size={20} color={colors.accent} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                    <Text style={[styles.spotlightTag, { color: colors.accent }]}>YOUR NEXT EXAM</Text>
+                    <Text style={[styles.spotlightDate, { color: colors.secondaryLabel }]}>
+                      {`${nextExam.day_name.slice(0, 3)}, ${nextExam.exam_date.slice(5)}`}
+                    </Text>
+                  </View>
+                  <Text style={[styles.spotlightTitle, { color: colors.label }]} numberOfLines={1}>
+                    {`${nextExam.subject_code} • ${nextExam.subject_name}`}
                   </Text>
-                  <Text style={[styles.spotlightDate, { color: colors.secondaryLabel }]}>
-                    {nextExam ? `${nextExam.day_name.slice(0, 3)}, ${nextExam.exam_date.slice(5)}` : '1st – 8th Oct'}
+                  <Text style={[styles.spotlightSub, { color: colors.secondaryLabel }]} numberOfLines={1}>
+                    {`⏰ ${nextExam.time_slot} • 📍 ${nextExam.seating_rooms || 'Dept Halls'}`}
                   </Text>
                 </View>
-                <Text style={[styles.spotlightTitle, { color: colors.label }]} numberOfLines={1}>
-                  {nextExam
-                    ? `${nextExam.subject_code} • ${nextExam.subject_name}`
-                    : 'CSE Department Datesheet Released'}
-                </Text>
-                <Text style={[styles.spotlightSub, { color: colors.secondaryLabel }]} numberOfLines={1}>
-                  {nextExam
-                    ? `⏰ ${nextExam.time_slot} • 📍 ${nextExam.seating_rooms || 'Dept Halls'}`
-                    : 'Tap to view your personalized exam schedule'}
-                </Text>
               </View>
-            </View>
-            <Ionicons name="chevron-forward" size={16} color={colors.accent} />
-          </Pressable>
-        </Animated.View>
+              <Ionicons name="chevron-forward" size={16} color={colors.accent} />
+            </Pressable>
+          </Animated.View>
+        )}
 
 
 
