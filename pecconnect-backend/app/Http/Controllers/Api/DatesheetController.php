@@ -549,6 +549,15 @@ class DatesheetController extends Controller
 
         $timetableSubjects = $weeklyTimetables->pluck('subject')->filter()->unique()->values()->all();
 
+        // Extract normalized course codes from student's timetable (e.g., ES2301, MA2301, PY2301, CSN3004)
+        $studentCourseCodes = [];
+        foreach ($timetableSubjects as $sub) {
+            if (preg_match('/([A-Za-z]{2,4}\s*[\d]{3,4})/', $sub, $m)) {
+                $studentCourseCodes[] = strtoupper(str_replace(' ', '', $m[1]));
+            }
+        }
+        $studentCourseCodes = array_unique($studentCourseCodes);
+
         // Query exams for this student
         $allExams = ExamDatesheet::orderBy('exam_date')->orderBy('start_time')->get();
 
@@ -558,6 +567,8 @@ class DatesheetController extends Controller
 
         foreach ($allExams as $exam) {
             $matchedWeekly = null;
+            $cleanExamCode = strtoupper(str_replace(' ', '', $exam->subject_code));
+
             foreach ($timetableSubjects as $sub) {
                 $subUpper = strtoupper($sub);
                 $codeUpper = strtoupper($exam->subject_code);
@@ -620,22 +631,36 @@ class DatesheetController extends Controller
                 }
             } else {
                 // Regular Exam
-                if ($exam->branch_key === $branchKey) {
-                    $myExams[] = $examItem;
-                } elseif ($isFirstYear && $exam->branch_key === '1st_sem') {
-                    $isPoolB = in_array($branchCode, ['ECE', 'M&C', 'VLSI', 'AERO', 'ME', 'METTA']);
-                    $code = strtoupper($exam->subject_code);
-                    $name = strtoupper($exam->subject_name);
-
-                    if ($isPoolB) {
-                        if (str_contains($code, 'POOL B') || (str_contains($name, $branchCode) && !str_contains($code, 'POOL A'))) {
-                            $myExams[] = $examItem;
-                        }
-                    } else {
-                        if (str_contains($code, 'POOL A') || (!str_contains($code, 'POOL B') && !str_contains($name, 'POOL B'))) {
-                            $myExams[] = $examItem;
+                if ($isFirstYear && $exam->branch_key === '1st_sem') {
+                    // Check if exam code matches any course code in the student's timetable
+                    $isCourseMatch = false;
+                    foreach ($studentCourseCodes as $code) {
+                        if (str_contains($cleanExamCode, $code) || str_contains($code, substr($cleanExamCode, 0, 6))) {
+                            $isCourseMatch = true;
+                            break;
                         }
                     }
+
+                    if ($isCourseMatch) {
+                        $myExams[] = $examItem;
+                    } elseif (empty($studentCourseCodes)) {
+                        // Fallback: Check branch acronyms printed in the datesheet notice
+                        $isPoolB = in_array($branchCode, ['ECE', 'M&C', 'VLSI', 'AERO', 'ME', 'METTA']);
+                        $codeUpper = strtoupper($exam->subject_code);
+                        $nameUpper = strtoupper($exam->subject_name);
+
+                        if ($isPoolB) {
+                            if (str_contains($codeUpper, 'POOL B') || (str_contains($nameUpper, $branchCode) && !str_contains($codeUpper, 'POOL A'))) {
+                                $myExams[] = $examItem;
+                            }
+                        } else {
+                            if (str_contains($codeUpper, 'POOL A') || (!str_contains($codeUpper, 'POOL B') && !str_contains($nameUpper, 'POOL B'))) {
+                                $myExams[] = $examItem;
+                            }
+                        }
+                    }
+                } elseif (!$isFirstYear && $exam->branch_key === $branchKey) {
+                    $myExams[] = $examItem;
                 }
             }
         }
