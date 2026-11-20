@@ -23,8 +23,6 @@ Route::get('/app-version', function () {
         'min_android' => env('MIN_APP_VERSION_ANDROID', '1.0.0')
     ]);
 });
-
-// Examination Datesheet (Official CSE Mid Term Exam Schedule)
 Route::get('/datesheet', [\App\Http\Controllers\Api\DatesheetController::class, 'index']);
 
 // Analytics & Telemetry (Public batch ingestion with throttling)

@@ -44,13 +44,13 @@ export default function DatesheetScreen() {
 
   // Fetch Datesheet with user class_id
   const { data: datesheet, isLoading } = useQuery<DatesheetData>({
-    queryKey: ['datesheet-mid-term-2026', user?.class_id],
+    queryKey: ['datesheet-end-term-2026', user?.class_id],
     queryFn: () => fetchDatesheet(user?.class_id),
   });
 
   // Countdown calculation
   const countdownText = useMemo(() => {
-    const examStart = new Date('2026-10-01T09:30:00+05:30').getTime();
+    const examStart = new Date('2026-11-26T09:30:00+05:30').getTime();
     const diff = examStart - Date.now();
     if (diff <= 0) return 'In Progress';
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
@@ -225,12 +225,12 @@ export default function DatesheetScreen() {
     Haptics.selectionAsync();
 
     if (viewMode === 'my_exams') {
-      let text = `📋 PEC Mid-Term Exam Schedule\n`;
+      let text = `📋 PEC End Term Exam Schedule (Revision II)\n`;
       text += `Class: ${classInfo.group_name} (${classInfo.branch_code})\n\n`;
       activePersonalExams.forEach((e) => {
         text += `• ${e.subject_code} - ${e.subject_name}\n  📅 ${e.day_name}, ${e.exam_date} • ⏰ ${e.time_slot}\n  📍 ${e.seating_rooms || 'Dept Halls'}\n\n`;
       });
-      text += `Notice: ${datesheet?.notice_no || 'PEC/CSE/265'} • PECverse`;
+      text += `Notice: ${datesheet?.notice_no || 'PEC/CSE/326'} • PECverse`;
       try {
         await Share.share({ message: text });
       } catch (e) {}
@@ -286,7 +286,7 @@ export default function DatesheetScreen() {
           <View style={styles.headerCenter}>
             <Text style={[styles.headerTitle, { color: colors.label }]}>Datesheet</Text>
             <Text style={[styles.headerSubtitle, { color: colors.secondaryLabel }]}>
-              Mid-Term • 1–8 Oct 2026
+              End Term • 26 Nov – 5 Dec 2026
             </Text>
           </View>
 
@@ -483,7 +483,7 @@ export default function DatesheetScreen() {
                       <Text style={[styles.emptyTitle, { color: colors.label }]}>Datesheet Not Released Yet</Text>
                       <Text style={[styles.emptySub, { color: colors.secondaryLabel, textAlign: 'center', marginBottom: 12 }]}>
                         {datesheet?.user_mapping?.notice_message ||
-                          `The mid-term datesheet for ${classInfo.branch_name} has not been published yet by your department.`}
+                          `The end-term datesheet for ${classInfo.branch_name} has not been published yet by your department.`}
                       </Text>
                       <Pressable
                         style={{

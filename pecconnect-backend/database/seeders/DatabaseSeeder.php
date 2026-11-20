@@ -22,6 +22,11 @@ class DatabaseSeeder extends Seeder
             PecVlsi3rdSemSeeder::class,
             PecAero3rdSemSeeder::class,
             PecCse5thSemSeeder::class,
+            PecCseAi5thSemSeeder::class,
+            PecDs5thSemSeeder::class,
+            PecCse7thSemSeeder::class,
+            PecCseAi7thSemSeeder::class,
+            PecDs7thSemSeeder::class,
             MessSeeder::class,
             AravaliMessSeeder::class,
             VindhyaMessSeeder::class,
@@ -31,22 +36,5 @@ class DatabaseSeeder extends Seeder
             DatesheetSeeder::class,
         ]);
 
-        // 1. Create or Find Branches
-        $cse = Branch::firstOrCreate(['code' => 'CSE'], ['name' => 'Computer Science and Engineering']);
-        $ee = Branch::firstOrCreate(['code' => 'EE'], ['name' => 'Electrical Engineering']);
-        $ece = Branch::firstOrCreate(['code' => 'ECE'], ['name' => 'Electronics and Communication Engineering']);
-
-        // 2. Create Classes for CSE
-        CourseClass::firstOrCreate(['branch_id' => $cse->id, 'year' => 1, 'group_name' => 'CSE-A']);
-        CourseClass::firstOrCreate(['branch_id' => $cse->id, 'year' => 1, 'group_name' => 'CSE-B']);
-        CourseClass::firstOrCreate(['branch_id' => $cse->id, 'year' => 2, 'group_name' => 'CSE-A']);
-        CourseClass::firstOrCreate(['branch_id' => $cse->id, 'year' => 2, 'group_name' => 'CSE-B']);
-
-        // 3. Create Classes for EE
-        CourseClass::firstOrCreate(['branch_id' => $ee->id, 'year' => 1, 'group_name' => 'EE-A']);
-        CourseClass::firstOrCreate(['branch_id' => $ee->id, 'year' => 2, 'group_name' => 'EE-A']);
-        
-        // 4. Create Classes for ECE
-        CourseClass::firstOrCreate(['branch_id' => $ece->id, 'year' => 1, 'group_name' => 'ECE-A']);
-    }
+          }
 }

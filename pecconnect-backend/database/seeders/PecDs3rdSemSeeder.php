@@ -10,11 +10,7 @@ use Illuminate\Database\Seeder;
 class PecDs3rdSemSeeder extends Seeder
 {
     /**
-     * Seed the B.Tech CSE (Data Science) 3rd Semester timetable.
-     * Groups division based on SIDs:
-     * DS1 -> 1-22
-     * DS2 -> 23-42
-     * DS3 -> 43-64
+     * Run database seeds for B.Tech CSE (Data Science) 3rd Semester Timetable (Session 26271, w.e.f. 9/10/2026).
      */
     public function run(): void
     {
@@ -24,7 +20,7 @@ class PecDs3rdSemSeeder extends Seeder
             ['name' => 'Computer Science and Engineering (Data Science)']
         );
 
-        // 2. Create DS Class (Single Group for the batch: Roll 1-64)
+        // 2. Create DS Class (Single Group for the batch: Roll 1-64, DS1: 1-22, DS2: 23-42, DS3: 43-64)
         $dsGroup = CourseClass::updateOrCreate(
             ['branch_id' => $ds->id, 'year' => 2, 'group_name' => 'DS - G1 (Roll 1-64)'],
             ['cr_user_id' => null]
@@ -34,178 +30,279 @@ class PecDs3rdSemSeeder extends Seeder
         Timetable::where('class_id', $dsGroup->id)->delete();
 
         // ==========================================
-        // 3. SEED DATA SCIENCE TIMETABLE
+        // 3. SEED TIMETABLE (w.e.f. 09/10/2026)
         // ==========================================
-        $dsSchedule = [
-            // ==================== MONDAY ====================
+        $schedule = [
+            // ==========================================
+            // MONDAY (Day 1)
+            // ==========================================
             [
-                'day' => 1, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3003 OS Lab (DS3: Roll 43-64)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'Lab 306'
+                'day' => 1,
+                'period' => 2,
+                'start' => '09:00:00',
+                'end' => '11:00:00',
+                'subject' => 'DSN3003 OS Lab (DS3) 306 / DSN3002 PDS Lab (DS1) CL13',
+                'teacher' => 'Ramteke Mamta / Kanu Goel',
+                'room' => '306 / CL13',
             ],
             [
-                'day' => 1, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3002 PDS Lab (DS1: Roll 1-22)',
-                'teacher' => 'Kanu Goel', 'room' => 'CL13'
+                'day' => 1,
+                'period' => 4,
+                'start' => '11:00:00',
+                'end' => '12:00:00',
+                'subject' => 'HSM-II G1–G4',
+                'teacher' => 'Humanities Dept',
+                'room' => 'L405, L406, L407',
             ],
             [
-                'day' => 1, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'HSM-II G1-G4 (Lecture)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407'
+                'day' => 1,
+                'period' => 5,
+                'start' => '12:00:00',
+                'end' => '13:00:00',
+                'subject' => 'DSN3001 DS',
+                'teacher' => 'Sudesh Rani',
+                'room' => 'L405',
             ],
             [
-                'day' => 1, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'DSN3001 DS (Lecture)',
-                'teacher' => 'Sudesh Rani', 'room' => 'L405'
+                'day' => 1,
+                'period' => 7,
+                'start' => '14:00:00',
+                'end' => '15:00:00',
+                'subject' => 'DSN3003 OS',
+                'teacher' => 'Ramteke Mamta',
+                'room' => 'L407',
             ],
             [
-                'day' => 1, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00',
-                'subject' => 'DSN3003 OS (Lecture)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'L407'
+                'day' => 1,
+                'period' => 8,
+                'start' => '15:00:00',
+                'end' => '16:00:00',
+                'subject' => 'DSN3002 PDS',
+                'teacher' => 'Kanu Goel',
+                'room' => 'L405',
             ],
             [
-                'day' => 1, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00',
-                'subject' => 'DSN3002 PDS (Lecture)',
-                'teacher' => 'Kanu Goel', 'room' => 'L405'
-            ],
-            [
-                'day' => 1, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00',
-                'subject' => 'Minor Specialization Course',
-                'teacher' => 'MSC Dept', 'room' => 'DS MSC L405'
-            ],
-
-            // ==================== TUESDAY ====================
-            [
-                'day' => 2, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'DSN3001 DS (Lecture)',
-                'teacher' => 'Sudesh Rani', 'room' => 'L405'
-            ],
-            [
-                'day' => 2, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'DSN3004 CN (Lecture)',
-                'teacher' => 'Trilok Chand', 'room' => 'L405'
-            ],
-            [
-                'day' => 2, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00',
-                'subject' => 'DSN3002 PDS (Lecture)',
-                'teacher' => 'Kanu Goel', 'room' => 'L21'
-            ],
-            [
-                'day' => 2, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00',
-                'subject' => 'HSM-II G1-G4 (Lecture)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405'
-            ],
-            [
-                'day' => 2, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00',
-                'subject' => 'Minor Specialization Course',
-                'teacher' => 'MSC Dept', 'room' => 'DS MSC L405'
-            ],
-            [
-                'day' => 2, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00',
-                'subject' => 'DSN3001 DS Lab (DS3: Roll 43-64)',
-                'teacher' => 'Sudesh Rani', 'room' => 'Lab 306'
+                'day' => 1,
+                'period' => 9,
+                'start' => '16:00:00',
+                'end' => '17:00:00',
+                'subject' => 'Minor Specialization course',
+                'teacher' => 'MSC Dept',
+                'room' => 'DS MSC L405',
             ],
 
-            // ==================== WEDNESDAY ====================
+            // ==========================================
+            // TUESDAY (Day 2)
+            // ==========================================
             [
-                'day' => 3, 'period' => 1, 'start' => '08:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3002 PDS Lab (DS3: Roll 43-64)',
-                'teacher' => 'Kanu Goel', 'room' => 'Lab 304'
+                'day' => 2,
+                'period' => 2,
+                'start' => '09:00:00',
+                'end' => '11:00:00',
+                'subject' => 'DSN3001 DS Lab (DS3)',
+                'teacher' => 'Sudesh Rani',
+                'room' => '306',
             ],
             [
-                'day' => 3, 'period' => 1, 'start' => '08:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3001 DS Lab (DS1, DS2: Roll 1-42)',
-                'teacher' => 'Sudesh Rani', 'room' => 'Labs 301, 303'
+                'day' => 2,
+                'period' => 4,
+                'start' => '11:00:00',
+                'end' => '12:00:00',
+                'subject' => 'DSN3002 PDS',
+                'teacher' => 'Kanu Goel',
+                'room' => 'L405',
             ],
             [
-                'day' => 3, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'DSN3001 DS (Lecture)',
-                'teacher' => 'Sudesh Rani', 'room' => 'L405'
+                'day' => 2,
+                'period' => 5,
+                'start' => '12:00:00',
+                'end' => '13:00:00',
+                'subject' => 'DSN3004 CN',
+                'teacher' => 'Trilok Chand',
+                'room' => 'L405',
             ],
             [
-                'day' => 3, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'No venues available',
-                'teacher' => '-', 'room' => '-'
+                'day' => 2,
+                'period' => 7,
+                'start' => '14:00:00',
+                'end' => '15:00:00',
+                'subject' => 'DSN3001 DS',
+                'teacher' => 'Sudesh Rani',
+                'room' => 'L21',
             ],
             [
-                'day' => 3, 'period' => 7, 'start' => '14:00:00', 'end' => '16:00:00',
-                'subject' => 'DSN3004 CN Lab (DS1, DS2: Roll 1-42)',
-                'teacher' => 'Trilok Chand', 'room' => 'CL13, CL14'
+                'day' => 2,
+                'period' => 8,
+                'start' => '15:00:00',
+                'end' => '16:00:00',
+                'subject' => 'HSM-II G1–G4',
+                'teacher' => 'Humanities Dept',
+                'room' => 'L405',
             ],
             [
-                'day' => 3, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00',
-                'subject' => 'Minor Specialization Course',
-                'teacher' => 'MSC Dept', 'room' => 'DS MSC L405'
+                'day' => 2,
+                'period' => 9,
+                'start' => '16:00:00',
+                'end' => '17:00:00',
+                'subject' => 'Minor Specialization course',
+                'teacher' => 'MSC Dept',
+                'room' => 'DS MSC L405',
             ],
 
-            // ==================== THURSDAY ====================
+            // ==========================================
+            // WEDNESDAY (Day 3)
+            // ==========================================
             [
-                'day' => 4, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'DSN3004 CN (Lecture)',
-                'teacher' => 'Trilok Chand', 'room' => 'L405'
+                'day' => 3,
+                'period' => 2,
+                'start' => '09:00:00',
+                'end' => '11:00:00',
+                'subject' => 'DSN3002 PDS Lab (DS3) 304 / DSN3001 DS Lab (DS1, DS2) 301+305',
+                'teacher' => 'Kanu Goel / Sudesh Rani',
+                'room' => '304 / 301+305',
             ],
             [
-                'day' => 4, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'DSN3002 PDS (Lecture)',
-                'teacher' => 'Kanu Goel', 'room' => 'L22'
+                'day' => 3,
+                'period' => 4,
+                'start' => '11:00:00',
+                'end' => '12:00:00',
+                'subject' => 'DSN3001 DS',
+                'teacher' => 'Sudesh Rani',
+                'room' => 'L405',
             ],
             [
-                'day' => 4, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00',
-                'subject' => 'DSN3003 OS (Lecture)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'L405'
+                'day' => 3,
+                'period' => 5,
+                'start' => '12:00:00',
+                'end' => '13:00:00',
+                'subject' => 'DSN3003 OS',
+                'teacher' => 'Ramteke Mamta',
+                'room' => '405',
             ],
             [
-                'day' => 4, 'period' => 8, 'start' => '15:00:00', 'end' => '16:00:00',
+                'day' => 3,
+                'period' => 7,
+                'start' => '14:00:00',
+                'end' => '16:00:00',
+                'subject' => 'DSN3004 CN Lab (DS1, DS2)',
+                'teacher' => 'Trilok Chand',
+                'room' => 'CL13+CL14',
+            ],
+            [
+                'day' => 3,
+                'period' => 9,
+                'start' => '16:00:00',
+                'end' => '17:00:00',
+                'subject' => 'Minor Specialization course',
+                'teacher' => 'MSC Dept',
+                'room' => 'DS MSC L405',
+            ],
+
+            // ==========================================
+            // THURSDAY (Day 4)
+            // ==========================================
+            [
+                'day' => 4,
+                'period' => 2,
+                'start' => '09:00:00',
+                'end' => '11:00:00',
+                'subject' => 'DSN3003 OS Lab (DS1, DS2)',
+                'teacher' => 'Ramteke Mamta',
+                'room' => '305',
+            ],
+            [
+                'day' => 4,
+                'period' => 4,
+                'start' => '11:00:00',
+                'end' => '12:00:00',
+                'subject' => 'DSN3004 CN',
+                'teacher' => 'Trilok Chand',
+                'room' => 'L405',
+            ],
+            [
+                'day' => 4,
+                'period' => 5,
+                'start' => '12:00:00',
+                'end' => '13:00:00',
+                'subject' => 'DSN3002 PDS',
+                'teacher' => 'Kanu Goel',
+                'room' => 'L22',
+            ],
+            [
+                'day' => 4,
+                'period' => 7,
+                'start' => '14:00:00',
+                'end' => '15:00:00',
+                'subject' => 'DSN3003 OS',
+                'teacher' => 'Ramteke Mamta',
+                'room' => 'L405',
+            ],
+            [
+                'day' => 4,
+                'period' => 8,
+                'start' => '15:00:00',
+                'end' => '16:00:00',
                 'subject' => 'HSM-II (T)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405'
+                'teacher' => 'Humanities Dept',
+                'room' => 'L405',
             ],
             [
-                'day' => 4, 'period' => 9, 'start' => '16:00:00', 'end' => '17:00:00',
+                'day' => 4,
+                'period' => 9,
+                'start' => '16:00:00',
+                'end' => '17:00:00',
                 'subject' => 'HSM-II (T)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T-11, T-12'
-            ],
-            [
-                'day' => 4, 'period' => 10, 'start' => '17:00:00', 'end' => '19:00:00',
-                'subject' => 'DSN3003 OS Lab (DS1, DS2: Roll 1-42)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'Lab 306'
+                'teacher' => 'Humanities Dept',
+                'room' => 'L405, L406, L407, T-9, T-11, T-12',
             ],
 
-            // ==================== FRIDAY ====================
+            // ==========================================
+            // FRIDAY (Day 5)
+            // ==========================================
             [
-                'day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3002 PDS Lab (DS2: Roll 23-42)',
-                'teacher' => 'Kanu Goel', 'room' => 'Lab 306'
+                'day' => 5,
+                'period' => 2,
+                'start' => '09:00:00',
+                'end' => '11:00:00',
+                'subject' => 'DSN3002 PDS Lab (DS2) 306 / DSN3004 CN Lab (DS3) CL14',
+                'teacher' => 'Kanu Goel / Trilok Chand',
+                'room' => '306 / CL14',
             ],
             [
-                'day' => 5, 'period' => 2, 'start' => '09:00:00', 'end' => '11:00:00',
-                'subject' => 'DSN3004 CN Lab (DS3: Roll 43-64)',
-                'teacher' => 'Trilok Chand', 'room' => 'CL14'
+                'day' => 5,
+                'period' => 4,
+                'start' => '11:00:00',
+                'end' => '12:00:00',
+                'subject' => 'DSN3004 CN',
+                'teacher' => 'Trilok Chand',
+                'room' => 'L405',
             ],
             [
-                'day' => 5, 'period' => 4, 'start' => '11:00:00', 'end' => '12:00:00',
-                'subject' => 'DSN3004 CN (Lecture)',
-                'teacher' => 'Trilok Chand', 'room' => 'L405'
-            ],
-            [
-                'day' => 5, 'period' => 5, 'start' => '12:00:00', 'end' => '13:00:00',
-                'subject' => 'DSN3003 OS (Lecture)',
-                'teacher' => 'Ramteke Mamta', 'room' => 'L19'
-            ],
-            [
-                'day' => 5, 'period' => 7, 'start' => '14:00:00', 'end' => '15:00:00',
+                'day' => 5,
+                'period' => 7,
+                'start' => '14:00:00',
+                'end' => '15:00:00',
                 'subject' => 'HSM-II (T)',
-                'teacher' => 'Humanities Dept', 'room' => 'L405, L406, L407, T-9, T-11, T-12'
+                'teacher' => 'Humanities Dept',
+                'room' => 'L405, L406, L407, T-9, T-11, T-12',
             ],
             [
-                'day' => 5, 'period' => 8, 'start' => '15:00:00', 'end' => '17:00:00',
-                'subject' => 'Minor Spec. Course Tute/Practical',
-                'teacher' => 'MSC Dept', 'room' => 'DS MSC L405'
+                'day' => 5,
+                'period' => 8,
+                'start' => '15:00:00',
+                'end' => '17:00:00',
+                'subject' => 'Minor Spec. course Tute/Practical',
+                'teacher' => 'MSC Dept',
+                'room' => 'DS MSC L405',
             ],
         ];
 
-        foreach ($dsSchedule as $slot) {
+        // 4. Insert slots
+        foreach ($schedule as $slot) {
             $this->seedSlot($dsGroup->id, $slot);
         }
+
+        $this->command->info("Seeded B.Tech CSE (Data Science) 3rd Semester Timetable (" . count($schedule) . " slots).");
     }
 
     private function seedSlot(int $classId, array $slot): void
@@ -216,7 +313,7 @@ class PecDs3rdSemSeeder extends Seeder
                 'type'        => 'weekly',
                 'day_of_week' => $slot['day'],
                 'start_time'  => $slot['start'],
-                'subject'     => $slot['subject'], 
+                'subject'     => $slot['subject'],
             ],
             [
                 'period_no' => $slot['period'],

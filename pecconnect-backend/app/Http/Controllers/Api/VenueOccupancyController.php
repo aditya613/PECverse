@@ -90,9 +90,11 @@ class VenueOccupancyController extends Controller
         foreach ($venues as $venue) {
             $slotsData = [];
             $occupiedMap = [];
+            $occupiedByMap = [];
 
             foreach ($venue->occupancies as $occ) {
                 $occupiedMap[$occ->slot_index] = (bool) $occ->is_occupied;
+                $occupiedByMap[$occ->slot_index] = $occ->occupied_by;
             }
 
             $freeSlotsCount = 0;
@@ -116,6 +118,7 @@ class VenueOccupancyController extends Controller
                     'start_time' => $def['start_time'],
                     'end_time' => $def['end_time'],
                     'is_occupied' => $isOcc,
+                    'occupied_by' => $occupiedByMap[$sIdx] ?? null,
                 ];
             }
 
@@ -215,6 +218,7 @@ class VenueOccupancyController extends Controller
                         'slot_index' => $sIdx,
                         'time_label' => $def['time_label'],
                         'is_occupied' => $isOcc,
+                        'occupied_by' => $occ ? $occ->occupied_by : null,
                     ];
                 }
 

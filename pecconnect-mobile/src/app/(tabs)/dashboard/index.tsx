@@ -30,12 +30,12 @@ interface Announcement {
 }
 
 const QUICK_ACCESS = [
-  { id: 'datesheet', title: 'Mid-Terms', icon: 'document-text', color: '#F59E0B', route: '/datesheet' },
+  { id: 'datesheet', title: 'End-Terms', icon: 'document-text', color: '#F59E0B', route: '/datesheet' },
+  { id: 'vacant-classes', title: 'Empty Rooms', icon: 'business', color: '#06B6D4', route: '/vacant-classes' },
   { id: 'timetable', title: 'Schedule', icon: 'calendar', color: '#3B82F6', route: '/(tabs)/timetable' },
   { id: 'attendance', title: 'Attendance', icon: 'checkbox', color: '#10B981', route: '/attendance' },
   { id: 'mess', title: 'Mess Menu', icon: 'restaurant', color: '#F97316', route: '/mess' },
   { id: 'notes', title: 'Resources', icon: 'folder-open', color: '#8B5CF6', route: '/(tabs)/notes' },
-  { id: 'lost-found', title: 'Lost & Found', icon: 'search', color: '#EF4444', route: '/lost-found' },
 ];
 
 export default function DashboardScreen() {
@@ -80,14 +80,15 @@ export default function DashboardScreen() {
 
   // Fetch datesheet to display student's specific next exam in spotlight
   const { data: datesheetData, refetch: refetchDatesheet } = useQuery({
-    queryKey: ['datesheet-mid-term-2026', user?.class_id],
+    queryKey: ['datesheet-end-term-2026', user?.class_id],
     queryFn: () => fetchDatesheet(user?.class_id),
   });
 
   const nextExam = React.useMemo(() => {
     if (!datesheetData) return null;
     const exams = datesheetData.user_mapping?.my_exams || [];
-    return exams[0] || null;
+    const today = new Date().toISOString().split('T')[0];
+    return exams.find((e) => e.exam_date >= today) || exams[0] || null;
   }, [datesheetData]);
 
   const handleRefresh = () => {

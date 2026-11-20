@@ -249,13 +249,6 @@ function RootLayoutNav() {
           }} 
         />
         <Stack.Screen 
-          name="datesheet/index" 
-          options={{
-            headerShown: false,
-            animation: 'slide_from_right'
-          }} 
-        />
-        <Stack.Screen 
           name="marketplace/my-listings" 
           options={{
             headerShown: false,
@@ -278,6 +271,13 @@ function RootLayoutNav() {
         />
         <Stack.Screen 
           name="mess" 
+          options={{
+            headerShown: false,
+            animation: 'slide_from_right'
+          }} 
+        />
+        <Stack.Screen 
+          name="datesheet/index" 
           options={{
             headerShown: false,
             animation: 'slide_from_right'

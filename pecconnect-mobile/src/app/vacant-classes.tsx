@@ -53,6 +53,7 @@ interface VenueSlot {
   start_time: string;
   end_time: string;
   is_occupied: boolean;
+  occupied_by?: string | null;
 }
 
 interface VenueItem {
@@ -907,6 +908,14 @@ export default function VacantClassesScreen() {
                           <Text style={[styles.modalSlotPeriod, { color: colors.tertiaryLabel }]}>
                             Period {s.slot_index}
                           </Text>
+                          {s.occupied_by ? (
+                            <Text
+                              style={[styles.modalOccupiedBy, { color: colors.secondaryLabel }]}
+                              numberOfLines={1}
+                            >
+                              {s.occupied_by}
+                            </Text>
+                          ) : null}
                         </View>
 
                         <View
@@ -1415,6 +1424,12 @@ const styles = StyleSheet.create({
   },
   modalSlotPeriod: {
     fontSize: 11,
+  },
+  modalOccupiedBy: {
+    fontSize: 10,
+    fontWeight: '500',
+    marginTop: 2,
+    maxWidth: SCREEN_WIDTH * 0.45,
   },
   modalStatusPill: {
     flexDirection: 'row',

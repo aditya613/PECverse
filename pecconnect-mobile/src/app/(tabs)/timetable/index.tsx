@@ -58,9 +58,9 @@ export default function TimetableScreen() {
   const { classes = [], activeHoliday, isLoading, isRefetching, refetch } = useTimetable(selectedDate);
   const isCrOrAdmin = user?.role === 'cr' || user?.role === 'superadmin';
 
-  // Check if student has a Mid Term Exam today
+  // Check if student has an End Term Exam today
   const { data: datesheetData } = useQuery({
-    queryKey: ['datesheet-mid-term-2026', user?.class_id],
+    queryKey: ['datesheet-end-term-2026', user?.class_id],
     queryFn: () => fetchDatesheet(user?.class_id),
   });
 
@@ -163,7 +163,7 @@ export default function TimetableScreen() {
                 }}
               >
                 <Ionicons name="document-text" size={13} color="#F59E0B" />
-                <Text style={styles.datesheetPillText}>Mid-Terms</Text>
+                <Text style={styles.datesheetPillText}>End-Terms</Text>
               </AnimatedPressable>
             )}
 
@@ -284,7 +284,7 @@ export default function TimetableScreen() {
           ) : (
             <View style={styles.examDayNotice}>
               <Text style={[styles.examDayNoticeText, { color: colors.secondaryLabel }]}>
-                Regular lectures are suspended during Mid-Term Examination sessions.
+                Regular lectures are suspended during End-Term Examination sessions.
               </Text>
             </View>
           )

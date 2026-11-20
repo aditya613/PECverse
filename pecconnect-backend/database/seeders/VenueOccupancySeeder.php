@@ -56,7 +56,7 @@ class VenueOccupancySeeder extends Seeder
                 'start_time' => $item['start_time'],
                 'end_time' => $item['end_time'],
                 'is_occupied' => $item['is_occupied'] ? 1 : 0,
-                'occupied_by' => null,
+                'occupied_by' => $item['occupied_by'] ?? null,
                 'created_at' => $now,
                 'updated_at' => $now,
             ];
