@@ -7,7 +7,8 @@ import { colors } from '@/theme/colors';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import { Ionicons } from '@expo/vector-icons';
-import DateTimePicker, { DateTimePickerEvent } from '@react-native-community/datetimepicker';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 type ClassType = 'weekly' | 'single' | 'holiday';
 
@@ -23,6 +24,7 @@ const DAYS = [
 
 export default function ManageTimetableModal() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const [classType, setClassType] = useState<ClassType>('weekly');
 
@@ -132,9 +134,16 @@ export default function ManageTimetableModal() {
 
   const isPending = addMutation.isPending || holidayMutation.isPending;
 
-  return (
-    <BlurView intensity={100} tint="systemChromeMaterialDark" style={styles.container}>
-      <View style={styles.header}>
+  const renderContent = () => (
+    <>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: Platform.OS === 'ios' ? Math.max(insets.top + 8, 20) : 20,
+          },
+        ]}
+      >
         <Pressable onPress={() => router.back()} style={styles.closeButton}>
           <Text style={styles.closeText}>Cancel</Text>
         </Pressable>
@@ -243,7 +252,9 @@ export default function ManageTimetableModal() {
                       display="default"
                       onChange={(event, selectedDate) => {
                         setShowDatePicker(false);
-                        if (selectedDate) setTargetDate(selectedDate);
+                        if (event.type === 'set' && selectedDate) {
+                          setTargetDate(selectedDate);
+                        }
                       }}
                     />
                   )}
@@ -284,9 +295,12 @@ export default function ManageTimetableModal() {
                           value={startTime}
                           mode="time"
                           display="default"
+                          is24Hour={false}
                           onChange={(event, selectedDate) => {
                             setShowStartTimePicker(false);
-                            if (selectedDate) setStartTime(selectedDate);
+                            if (event.type === 'set' && selectedDate) {
+                              setStartTime(selectedDate);
+                            }
                           }}
                         />
                       )}
@@ -322,9 +336,12 @@ export default function ManageTimetableModal() {
                           value={endTime}
                           mode="time"
                           display="default"
+                          is24Hour={false}
                           onChange={(event, selectedDate) => {
                             setShowEndTimePicker(false);
-                            if (selectedDate) setEndTime(selectedDate);
+                            if (event.type === 'set' && selectedDate) {
+                              setEndTime(selectedDate);
+                            }
                           }}
                         />
                       )}
@@ -401,7 +418,21 @@ export default function ManageTimetableModal() {
           <View style={{ height: 100 }} />
         </ScrollView>
       </KeyboardAvoidingView>
-    </BlurView>
+    </>
+  );
+
+  if (Platform.OS === 'ios') {
+    return (
+      <BlurView intensity={100} tint="systemChromeMaterialDark" style={styles.container}>
+        {renderContent()}
+      </BlurView>
+    );
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: '#0c0822' }]}>
+      {renderContent()}
+    </View>
   );
 }
 
@@ -414,7 +445,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
-    paddingTop: 60,
     borderBottomWidth: 0.5,
     borderBottomColor: 'rgba(255,255,255,0.1)',
   },

@@ -105,7 +105,8 @@ export default function TimetableScreen() {
     if (!isCrOrAdmin) return;
     Haptics.selectionAsync();
 
-    const baseId = parseInt(cls.id.split('-')[1] || cls.id);
+    const rawId = cls.id.includes('-') ? cls.id.split('-')[1] : cls.id;
+    const baseId = parseInt(rawId, 10);
 
     router.push({
       pathname: '/manage-class-options' as any,

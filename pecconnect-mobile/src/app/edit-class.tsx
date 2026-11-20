@@ -7,7 +7,7 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeInUp } from 'react-native-reanimated';
 import { useRouter } from 'expo-router';
-import { SymbolView } from 'expo-symbols';
+import { Ionicons } from '@expo/vector-icons';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function EditClassScreen() {
@@ -89,7 +89,7 @@ export default function EditClassScreen() {
         <View style={styles.headerTopRow}>
           <Text style={styles.title}>Edit Academic Profile</Text>
           <Pressable onPress={() => router.back()} style={styles.closeBtn}>
-            <SymbolView name="xmark.circle.fill" tintColor={colors.secondaryLabel} size={28} />
+            <Ionicons name="close-circle" color={colors.secondaryLabel as string} size={28} />
           </Pressable>
         </View>
         <Text style={styles.subtitle}>Select your correct branch and class section below to update your timetable.</Text>

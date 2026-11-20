@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, Alert } from 'react-native';
+import { View, Text, StyleSheet, Pressable, Alert, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/utils/api';
@@ -8,12 +8,16 @@ import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import Animated, { FadeIn, FadeOut, SlideInDown, SlideOutDown } from 'react-native-reanimated';
 import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+
 export default function ManageClassOptionsModal() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const params = useLocalSearchParams();
   const queryClient = useQueryClient();
   
-  const baseId = parseInt(params.timetableId as string);
+  const rawId = (params.timetableId as string) || '';
+  const baseId = parseInt(rawId.includes('-') ? rawId.split('-')[1] : rawId, 10);
   const subject = params.subject as string;
   const selectedDate = params.date as string;
 
@@ -50,18 +54,37 @@ export default function ManageClassOptionsModal() {
   });
 
   const navigateToEdit = (mode: string) => {
-    router.replace({
-      pathname: '/edit-timetable-class' as any,
-      params: { 
-        mode, 
-        timetableId: baseId, 
-        date: selectedDate, 
-        subject: subject,
-        start_time: params.start_time, 
-        end_time: params.end_time, 
-        room: params.room || ''
-      }
-    });
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (Platform.OS === 'android') {
+      router.back();
+      setTimeout(() => {
+        router.push({
+          pathname: '/edit-timetable-class' as any,
+          params: { 
+            mode, 
+            timetableId: isNaN(baseId) ? rawId : baseId, 
+            date: selectedDate, 
+            subject: subject,
+            start_time: params.start_time, 
+            end_time: params.end_time, 
+            room: params.room || ''
+          }
+        });
+      }, 60);
+    } else {
+      router.replace({
+        pathname: '/edit-timetable-class' as any,
+        params: { 
+          mode, 
+          timetableId: isNaN(baseId) ? rawId : baseId, 
+          date: selectedDate, 
+          subject: subject,
+          start_time: params.start_time, 
+          end_time: params.end_time, 
+          room: params.room || ''
+        }
+      });
+    }
   };
 
   const renderMainOptions = () => (
@@ -200,12 +223,16 @@ export default function ManageClassOptionsModal() {
   return (
     <View style={styles.container}>
       <Pressable style={styles.backdrop} onPress={() => router.back()}>
-        <Animated.View entering={FadeIn.duration(200)} exiting={FadeOut.duration(200)} style={StyleSheet.absoluteFill}>
-          <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+        <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(150)} style={StyleSheet.absoluteFill}>
+          {Platform.OS === 'ios' ? (
+            <BlurView intensity={30} tint="dark" style={StyleSheet.absoluteFill} />
+          ) : (
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.7)' }]} />
+          )}
         </Animated.View>
       </Pressable>
       
-      <View style={styles.sheetWrapper}>
+      <View style={[styles.sheetWrapper, { paddingBottom: Math.max(insets.bottom + 20, 36) }]}>
         <View style={styles.grabber} />
         {view === 'main' && renderMainOptions()}
         {view === 'today' && renderTodayOptions()}

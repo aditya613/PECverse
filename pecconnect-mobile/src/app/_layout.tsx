@@ -189,7 +189,7 @@ function RootLayoutNav() {
           name="manage-class-options" 
           options={{
             presentation: 'transparentModal',
-            animation: 'fade'
+            animation: Platform.OS === 'ios' ? 'fade' : 'none',
           }} 
         />
         <Stack.Screen 

@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, TextInput, ScrollView, Pressable, ActivityIndicator, Alert, Platform, KeyboardAvoidingView } from 'react-native';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '@/utils/api';
@@ -7,10 +7,12 @@ import { colors } from '@/theme/colors';
 import { BlurView } from 'expo-blur';
 import * as Haptics from 'expo-haptics';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { SymbolView } from 'expo-symbols';
+import { Ionicons } from '@expo/vector-icons';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 export default function EditTimetableClassModal() {
   const router = useRouter();
+  const insets = useSafeAreaInsets();
   const queryClient = useQueryClient();
   const params = useLocalSearchParams();
   
@@ -103,9 +105,16 @@ export default function EditTimetableClassModal() {
     edit: 'Edit Routine',
   };
 
-  return (
-    <BlurView intensity={100} tint="systemChromeMaterialDark" style={styles.container}>
-      <View style={styles.header}>
+  const renderBody = () => (
+    <>
+      <View
+        style={[
+          styles.header,
+          {
+            paddingTop: Platform.OS === 'ios' ? Math.max(insets.top + 8, 20) : 20,
+          },
+        ]}
+      >
         <Pressable onPress={() => router.back()} style={styles.closeButton}>
           <Text style={styles.closeText}>Back</Text>
         </Pressable>
@@ -167,9 +176,12 @@ export default function EditTimetableClassModal() {
                           value={startTime}
                           mode="time"
                           display="default"
+                          is24Hour={false}
                           onChange={(event, selectedDate) => {
                             setShowStartTimePicker(false);
-                            if (selectedDate) setStartTime(selectedDate);
+                            if (event.type === 'set' && selectedDate) {
+                              setStartTime(selectedDate);
+                            }
                           }}
                         />
                       )}
@@ -205,9 +217,12 @@ export default function EditTimetableClassModal() {
                           value={endTime}
                           mode="time"
                           display="default"
+                          is24Hour={false}
                           onChange={(event, selectedDate) => {
                             setShowEndTimePicker(false);
-                            if (selectedDate) setEndTime(selectedDate);
+                            if (event.type === 'set' && selectedDate) {
+                              setEndTime(selectedDate);
+                            }
                           }}
                         />
                       )}
@@ -245,7 +260,7 @@ export default function EditTimetableClassModal() {
 
           {mode === 'cancel' && (
             <View style={styles.warningBox}>
-              <SymbolView name="exclamationmark.triangle.fill" tintColor={colors.destructive} size={24} />
+              <Ionicons name="warning" color={colors.destructive as string} size={24} />
               <Text style={styles.warningText}>
                 This will cancel the class for this specific date only. Students will be notified instantly.
               </Text>
@@ -254,7 +269,7 @@ export default function EditTimetableClassModal() {
           
           {mode === 'edit' && (
             <View style={[styles.warningBox, { backgroundColor: 'rgba(59, 130, 246, 0.1)' }]}>
-              <SymbolView name="info.circle.fill" tintColor={colors.accent} size={24} />
+              <Ionicons name="information-circle" color={colors.accent as string} size={24} />
               <Text style={[styles.warningText, { color: colors.accent as string }]}>
                 This will permanently update the weekly routine for this class.
               </Text>
@@ -264,7 +279,21 @@ export default function EditTimetableClassModal() {
           <View style={{ height: 100 }} />
         </ScrollView>
       </KeyboardAvoidingView>
-    </BlurView>
+    </>
+  );
+
+  if (Platform.OS === 'ios') {
+    return (
+      <BlurView intensity={100} tint="systemChromeMaterialDark" style={styles.container}>
+        {renderBody()}
+      </BlurView>
+    );
+  }
+
+  return (
+    <View style={[styles.container, { backgroundColor: '#0c0822' }]}>
+      {renderBody()}
+    </View>
   );
 }
 
@@ -275,7 +304,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     padding: 20,
-    paddingTop: 60,
     borderBottomWidth: 0.5,
     borderBottomColor: 'rgba(255,255,255,0.1)',
   },
